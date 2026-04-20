@@ -1,0 +1,56 @@
+export interface Category {
+  id: number;
+  name: string;
+  slug?: string;
+  parent_id: number | null;
+}
+
+export interface Tax {
+  id: number;
+  name: string;
+}
+
+export interface AttributeValue {
+  id: string;
+  attr_id: string;
+  value: string;
+}
+
+export interface Variant {
+  id?: string;
+  sku: string;
+  price: string;
+  bv_point: number;
+  stock: number;
+  image?: string | File | null;
+  attr_mappings: Array<{ attr_id: string; value_id: string }>;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  slug?: string;
+  description?: string;
+  base_price: string;
+  discounted_price?: string;
+  cat_id: string;
+  category?: Category;
+  category_name? :string;
+  subcategories?: string[];
+  attributes?: string[];
+  variants: Variant[];
+  variant_count:number;
+  f_image: string;
+  g_image: string[];
+  status: 'active' | 'inactive' | 'trash';
+  tax_id: string;
+  tax?: Tax;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T[];
+  message?: string;
+}
