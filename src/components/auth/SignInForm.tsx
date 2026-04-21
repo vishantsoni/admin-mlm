@@ -139,7 +139,7 @@ setError(res.message)
                     }}
                     placeholder="9999999999"
                     type="tel"
-                    max={"10"}
+                    maxLength={10}
                   />
                 </div>
                 <div>

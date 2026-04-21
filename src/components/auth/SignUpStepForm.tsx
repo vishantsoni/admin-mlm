@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Input from '@/components/form/input/InputField';
 import Label from '@/components/form/Label';
@@ -10,11 +10,13 @@ import { States } from '@/types/static-content';
 
 export default function SignUpStepForm() {
     const [step, setStep] = useState(1);
-    const [error, setError] = useState('');
+    // const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [isPending, startTransition] = useTransition();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [states, setStates] = useState<States[]>([]);
     const [cities, setCities] = useState<States[]>([]);
@@ -46,7 +48,7 @@ export default function SignUpStepForm() {
 
         // Step 3: Referral & Nominee 3, 26]
         referralCode: '', // 4]
-        referrer_id:'',
+        referrer_id: '',
         referrerName: '', // 4]
         referrerContact: '', // 5]
         nomineeName: '', // 7]
@@ -61,46 +63,56 @@ export default function SignUpStepForm() {
     });
 
 
-    // 1. Load data from localStorage on mount + auto-fill referral from ?ref=
+    // 1. Load data from localStorage ONLY on mount (fix re-render loop)
     useEffect(() => {
-        const urlStepStr = searchParams?.get('step');
         const refCode = searchParams?.get('ref');
         const savedData = localStorage.getItem('sakhi_registration_draft');
         const savedStepStr = localStorage.getItem('sakhi_registration_step');
 
-        const savedObj = savedData ? JSON.parse(savedData) : null;
-        setFormData(savedObj || formData);
+        const savedObj = savedData ? JSON.parse(savedData) : {};
+        let initialFormData = { ...formData, ...savedObj };
 
-        // Auto-fill referral code from URL param if empty (after loading saved)
-        if (refCode && !savedObj?.referralCode && !formData.referralCode) {
-            const updatedData = { ... (savedObj || formData), referralCode: refCode };
-            setFormData(updatedData);
-            localStorage.setItem('sakhi_registration_draft', JSON.stringify(updatedData));
+        // Auto-fill referral code from URL param if empty
+        if (refCode && !initialFormData.referralCode) {
+            initialFormData = { ...initialFormData, referralCode: refCode };
         }
+
+        setFormData(initialFormData);
+        localStorage.setItem('sakhi_registration_draft', JSON.stringify(initialFormData));
 
         let initialStep = 1;
-        if (urlStepStr && !isNaN(parseInt(urlStepStr as string))) {
-            initialStep = parseInt(urlStepStr as string, 10);
-        } else if (savedStepStr && !isNaN(parseInt(savedStepStr))) {
-            initialStep = parseInt(savedStepStr, 10);
+        if (savedStepStr && !isNaN(parseInt(savedStepStr))) {
+            initialStep = Math.max(1, Math.min(4, parseInt(savedStepStr, 10)));
         }
-        setStep(Math.max(1, Math.min(4, initialStep)));
-    }, [searchParams]);
+        setStep(initialStep);
+    }, []); // Empty deps - only on mount
 
-    // 2. Save data to localStorage whenever formData or step changes
+    // 2. Save to localStorage on formData/step changes (debounced effect)
     useEffect(() => {
-        localStorage.setItem('sakhi_registration_draft', JSON.stringify(formData));
-        localStorage.setItem('sakhi_registration_step', step.toString());
+        const timeoutId = setTimeout(() => {
+            localStorage.setItem('sakhi_registration_draft', JSON.stringify(formData));
+            localStorage.setItem('sakhi_registration_step', step.toString());
+        }, 500);
+        return () => clearTimeout(timeoutId);
     }, [formData, step]);
 
-    const fetchReferral = async () => {
+    const fetchReferral = useCallback(async (code: string) => {
 
-        const res = await serverCallFuction('GET', 'api/users/profile-by-referral?referral_code=' + formData.referralCode)
-        if (res.status) {
-            const data = res.user;
-            setFormData({ ...formData, referrer_id:data.id, referrerName: data.name })
+        if (!code?.trim()) return;
+
+        try {
+            const res = await serverCallFuction('GET', `api/users/profile-by-referral?referral_code=${code}`);
+            if (res.status) {
+                const data = res.user;
+                setFormData(prev => ({ ...prev, referrer_id: data.id, referrerName: data.name }));
+                setFieldErrors(prev => { const n = { ...prev }; delete n.referralCode; return n; });
+            } else {
+                setFieldErrors({ referralCode: 'Invalid referral code' });
+            }
+        } catch (error) {
+            console.error('Referral fetch error:', error);
         }
-    }
+    }, []);
 
     const fetchStates = async () => {
         try {
@@ -147,7 +159,7 @@ export default function SignUpStepForm() {
     }, [formData.state]);
 
     useEffect(() => {
-        fetchReferral()
+        fetchReferral(formData.referralCode)
     }, [formData.referralCode])
 
     // Function to check if user reached the bottom of terms 
@@ -162,37 +174,41 @@ export default function SignUpStepForm() {
 
 
     // Validation Logic: Check if all required fields in current step are filled
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
     const isStepValid = () => {
-        const aadhaarRegex = /^[2-9]{1}[0-9]{11}$/;
-        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-        const phoneRegex = /^[6-9]\d{9}$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+        const newErrors: Record<string, string> = {};
+        // const aadhaarRegex = /^[2-9]{1}[0-9]{11}$/;
 
         if (step === 1) {
-            return (
-                // formData.referralCode
-                formData.fullName.trim().length > 2 &&
-                // aadhaarRegex.test(formData.aadhaarNo) &&
-                panRegex.test(formData.panNo.toUpperCase()) &&
-                phoneRegex.test(formData.whatsappNo) &&
-                emailRegex.test(formData.email) &&
-                formData.dob &&
-                formData.city &&
-                formData.pin.length === 6
-            );
+            if (formData.referralCode.trim().length < 1) newErrors.referralCode = "Please enter Referral Code";
+            if (formData.referrerName.trim().length < 1) newErrors.referralCode = "Please enter valid Referral Code";
+            if (formData.fullName.trim().length <= 2) newErrors.fullName = "Name must be at least 3 characters";
+            if (!panRegex.test(formData.panNo.toUpperCase())) newErrors.panNo = "Invalid PAN format (e.g. ABCDE1234F)";
+            if (!phoneRegex.test(formData.phone)) newErrors.phone = "Enter valid 10-digit phone number";
+            if (!phoneRegex.test(formData.whatsappNo)) newErrors.whatsappNo = "Enter valid 10-digit WhatsApp number";
+            if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email address";
+            if (!formData.dob) newErrors.dob = "Date of Birth is required";
+            if (!formData.city) newErrors.city = "Please select your city";
+            if (formData.pin.length !== 6) newErrors.pin = "PIN code must be 6 digits";
         }
+
         if (step === 2) {
-            return (
-                formData.accountHolderName &&
-                formData.accountNo.length >= 9 &&
-                ifscRegex.test(formData.ifscCode.toUpperCase())
-            );
+            if (!formData.accountHolderName) newErrors.accountHolderName = "Name is required";
+            if (formData.accountNo.length < 9) newErrors.accountNo = "Account number is too short";
+            if (!ifscRegex.test(formData.ifscCode.toUpperCase())) newErrors.ifscCode = "Invalid IFSC code";
         }
-        if (step === 3) {
-            return formData.nomineeName && formData.nomineeRelationship;
-        }
-        return formData.agreedToTerms && hasScrolledToBottom;
+        // if (step === 3) {
+        //     if (!ifscRegex.test(formData.nomineeName.toUpperCase())) newErrors.nom = "Invalid IFSC code";
+        //     return formData.nomineeName && formData.nomineeRelationship;
+        // }
+        // return formData.agreedToTerms && hasScrolledToBottom;
+
+        // setFieldErrors(newErrors);
+        // return Object.keys(newErrors).length === 0;
+        return newErrors;
     };
 
     const handleNext = () => {
@@ -202,7 +218,8 @@ export default function SignUpStepForm() {
             localStorage.setItem('sakhi_registration_step', newStep.toString());
             router.push(`/signup?step=${newStep}`);
         } else {
-            setError('Please fill in all required fields marked with * to proceed Or Valiate the format Fields');
+            // setFieldErrors({ error: "Please fill in all required fields marked with * to proceed." })
+            // setError('Please fill in all required fields marked with * to proceed Or Valiate the format Fields');
             // alert("Please fill in all required fields marked with * to proceed.");
         }
     };
@@ -257,7 +274,40 @@ export default function SignUpStepForm() {
         }
     };
 
+    console.log("errors - ", fieldErrors);
 
+
+    const handleFieldChange = (field: string, value: any) => {
+        // 1. ALWAYS update the data first so the user can see what they are typing
+
+        setFormData((prev) => ({ ...prev, [field]: value }));
+
+        // 2. Logic for Phone validation
+        // if (field === "phone") {
+        //     const phoneRegexNew = /^[6-9]\d{9}$/;
+
+        //     // If the value is now valid, clear the error
+        //     if (phoneRegexNew.test(value)) {
+        //         setFieldErrors((prevErrors) => {
+        //             const newErrors = { ...prevErrors };
+        //             delete newErrors[field];
+        //             return newErrors;
+        //         });
+        //     }else{
+        //         setFieldErrors({
+        //             [field]:"invalid"
+        //         })
+        //     }
+        // }
+        // 3. Logic for all other fields
+        // else if (fieldErrors[field]) {
+        setFieldErrors((prevErrors) => {
+            const newErrors = { ...prevErrors };
+            delete newErrors[field];
+            return newErrors;
+        });
+        // }
+    };
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md">
             <h2 className="text-2xl font-bold mb-2 text-center text-gray-800 dark:text-white">SAKHI DISTRIBUTOR APPLICATION</h2>
@@ -283,9 +333,14 @@ export default function SignUpStepForm() {
                                     <Input
                                         placeholder="Referral Code / ID"
                                         defaultValue={formData.referralCode || ""}
-                                        onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, referralCode: e.target.value })
+                                        }
+                                        }
                                         className={searchParams?.get("ref") === formData.referralCode ? "ring-2 ring-brand-200 bg-brand-50" : ""}
                                         disabled={searchParams?.get("ref") === formData.referralCode}
+                                        error={!!fieldErrors.referralCode}
+                                        hint={fieldErrors.referralCode}
                                     />
                                     {searchParams?.get("ref") === formData.referralCode && (
                                         <p className="text-xs text-brand-600 mt-1 font-medium"> Referral code &#39;{formData.referralCode}&#39; loaded from share link!</p>
@@ -300,7 +355,11 @@ export default function SignUpStepForm() {
                             </div>
                             <div className="md:col-span-2">
                                 <Label>Full Name* </Label>
-                                <Input defaultValue={formData.fullName} placeholder="Legal Name" onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} />
+                                <Input defaultValue={formData.fullName} placeholder="Legal Name"
+                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                    error={!!fieldErrors.fullName}
+                                    hint={fieldErrors.fullName}
+                                />
                             </div>
                             <div>
                                 <Label>Aadhaar No* </Label>
@@ -308,11 +367,17 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>PAN No* </Label>
-                                <Input defaultValue={formData.panNo} placeholder="Permanent Account Number" onChange={(e) => setFormData({ ...formData, panNo: e.target.value })} />
+                                <Input defaultValue={formData.panNo} placeholder="Permanent Account Number" onChange={(e) => setFormData({ ...formData, panNo: e.target.value })}
+                                    error={!!fieldErrors.panNo}
+                                    hint={fieldErrors.panNo}
+                                />
                             </div>
                             <div>
                                 <Label>Date of Birth* </Label>
-                                <Input type="date" defaultValue={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })} />
+                                <Input type="date" defaultValue={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                                    error={!!fieldErrors.dob}
+                                    hint={fieldErrors.dob}
+                                />
                                 <p className="text-[10px] text-gray-400 mt-1">Minimum 21 years required </p>
                             </div>
                             <div>
@@ -330,7 +395,24 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Phone* </Label>
-                                <Input placeholder='Enter Phone no.' defaultValue={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                                <Input placeholder='Enter Phone no.'
+                                    defaultValue={formData.phone}
+
+                                    onChange={(e) => {
+                                        // Step 1: Remove all non-digits immediately
+                                        const val = e.target.value.replace(/\D/g, "");
+
+                                        // Step 2: Validate Indian starting digit (6-9)
+                                        if (val === "" || /^[6-9]/.test(val)) {
+                                            handleFieldChange('phone', val);
+                                        }
+                                    }}
+                                    // Step 3: Show number pad on mobile
+                                    inputMode="numeric"
+                                    maxLength={10}
+                                    error={!!fieldErrors.phone}
+                                    hint={fieldErrors.phone}
+                                />
                             </div>
                             <div>
                                 <Label>Password* </Label>
@@ -338,11 +420,33 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>WhatsApp No* </Label>
-                                <Input defaultValue={formData.whatsappNo} placeholder="For updates" onChange={(e) => setFormData({ ...formData, whatsappNo: e.target.value })} />
+                                <Input defaultValue={formData.whatsappNo} placeholder="For updates"
+                                    // onChange={(e) => setFormData({ ...formData, whatsappNo: e.target.value })}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, "");
+
+                                        // Step 2: Validate Indian starting digit (6-9)
+                                        if (val === "" || /^[6-9]/.test(val)) {
+                                            // handleFieldChange('phone', val);
+                                            handleFieldChange('whatsappNo', val)
+                                        }
+                                    }
+                                    }
+                                    error={!!fieldErrors.whatsappNo}
+                                    hint={fieldErrors.whatsappNo}
+                                    inputMode='numeric'
+                                />
                             </div>
                             <div>
                                 <Label>Email* </Label>
-                                <Input type="email" defaultValue={formData.email} placeholder="example@mail.com" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                                <Input type="email" defaultValue={formData.email}
+                                    placeholder="example@mail.com"
+                                    //   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    onChange={(e) => handleFieldChange('email', e.target.value)}
+                                    error={!!fieldErrors.email}
+                                    hint={fieldErrors.email}
+                                    inputMode='email'
+                                />
                             </div>
                             <div className="md:col-span-2">
                                 <Label>Full Address* </Label>
@@ -366,13 +470,17 @@ export default function SignUpStepForm() {
                                             </option>
                                         ))}
                                     </select>
+
+                                    {/* Display Error Hint */}
+
                                 </div>
                                 <div>
                                     <Label>City* </Label>
                                     <select
                                         className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
                                         value={formData.city}
-                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        // onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        onChange={(e) => handleFieldChange('city', e.target.value)}
                                         disabled={isLoadingCities || !formData.state}
                                     >
                                         <option value="">Select City</option>
@@ -384,11 +492,36 @@ export default function SignUpStepForm() {
                                             </option>
                                         ))}
                                     </select>
+
+                                    {/* Display Error Hint */}
+                                    {fieldErrors.city && (
+                                        <p className="mt-1.5 text-xs text-error-500 font-medium">
+                                            {fieldErrors.city}
+                                        </p>
+                                    )}
                                 </div>
-                                
+
                                 <div>
                                     <Label>PIN* </Label>
-                                    <Input placeholder='Enter PIN' defaultValue={formData.pin} onChange={(e) => setFormData({ ...formData, pin: e.target.value })} />
+                                    <Input
+                                        placeholder='Enter PIN'
+                                        defaultValue={formData.pin}
+                                        //  onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, "");
+
+                                            // Step 2: Validate Indian starting digit (6-9)
+                                            if (val === "" || /^[0-9]/.test(val)) {
+                                                // handleFieldChange('phone', val);
+                                                handleFieldChange('pin', e.target.value)
+                                            }
+                                        }
+                                        }
+                                        inputMode='numeric'
+                                        maxLength={6}
+                                        error={!!fieldErrors.pin}
+                                        hint={fieldErrors.pin}
+                                    />
                                 </div>
                             </div>
 
@@ -404,13 +537,39 @@ export default function SignUpStepForm() {
                         <p className="text-xs text-brand-600 mb-4 font-medium">Mandatory for Commission Payouts </p>
                         <Label>Account Holder Name* </Label>
                         <Input placeholder="Account Holder Name*" defaultValue={formData.accountHolderName}
-                            onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })} />
+                            // onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })}
+                            onChange={(e) => handleFieldChange('accountHolderName', e.target.value)}
+                            error={!!fieldErrors.accountHolderName}
+                            hint={fieldErrors.accountHolderName}
+                        />
                         <Label>Account Number* </Label>
-                        <Input placeholder='Enter Account Number' defaultValue={formData.accountNo} onChange={(e) => setFormData({ ...formData, accountNo: e.target.value })} />
+                        <Input
+                            placeholder='Enter Account Number'
+                            // 1. Switch to 'value' for strict numeric control
+                            defaultValue={formData.accountNo || ""}
+
+                            onChange={(e) => {
+                                // 2. Remove any non-numeric characters instantly
+                                const val = e.target.value.replace(/\D/g, "");
+
+                                // 3. Update state for ANY numeric string (including empty)
+                                handleFieldChange('accountNo', val);
+                            }}
+
+                            inputMode='numeric'
+                            error={!!fieldErrors.accountNo}
+                            hint={fieldErrors.accountNo}
+                        />
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <Label>IFSC Code* </Label>
-                                <Input placeholder='Enter IFSC code' defaultValue={formData.ifscCode} onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })} />
+                                <Input placeholder='Enter IFSC code'
+                                    defaultValue={formData.ifscCode}
+                                    // onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })} 
+                                    onChange={(e) => handleFieldChange('ifscCode', e.target.value)}
+                                    error={!!fieldErrors.ifscCode}
+                                    hint={fieldErrors.ifscCode}
+                                />
                             </div>
                             <div>
                                 <Label>Bank Name* </Label>
@@ -457,7 +616,23 @@ export default function SignUpStepForm() {
                                 </div>
                                 <div>
                                     <Label>Nominee Age*</Label>
-                                    <Input placeholder="Nominee Age" defaultValue={formData.nomineeAge} onChange={(e) => setFormData({ ...formData, nomineeAge: e.target.value })} />
+                                    <Input placeholder="Nominee Age"
+                                        defaultValue={formData.nomineeAge}
+                                        // onChange={(e) => {
+                                        //     setFormData({ ...formData, nomineeAge: e.target.value })
+                                        // }} 
+
+                                        onChange={(e) => {
+                                            // 2. Remove any non-numeric characters instantly
+                                            const val = e.target.value.replace(/\D/g, "");
+
+                                            // 3. Update state for ANY numeric string (including empty)
+                                            handleFieldChange('nomineeAge', val);
+                                        }}
+
+                                        inputMode='numeric'
+
+                                    />
                                 </div>
                                 <div>
                                     <Label>Nominee Aadhaar*</Label>
@@ -494,13 +669,6 @@ export default function SignUpStepForm() {
                         </div> */}
 
                         <Label className="mt-4 block">Terms and Conditions (Scroll to bottom to enable submit)*</Label>
-                        {/* <div 
-              ref={scrollRef}
-              onScroll={handleScroll}
-              className="mt-2 p-4 bg-gray-50 dark:bg-gray-800 rounded text-[12px] leading-relaxed border dark:border-gray-700 h-48 overflow-y-auto no-scrollbar border-gray-300"
-            >
-              
-            </div> */}
                         <div
                             ref={scrollRef}
                             onScroll={handleScroll}
@@ -603,9 +771,10 @@ export default function SignUpStepForm() {
                     </div>
                 )}
 
-                {error && (
+
+                {fieldErrors.error && (
                     <div className="p-3 mt-4 text-sm text-error-500 bg-error-50 border border-error-200 rounded-md dark:bg-error-900/20 dark:border-error-800">
-                        {error}
+                        {fieldErrors?.error}
                     </div>
                 )}
             </form>

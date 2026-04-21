@@ -10,6 +10,7 @@ interface InputProps {
   className?: string;
   min?: string;
   max?: string;
+  maxLength?:number;
   step?: string;
   disabled?: boolean;
   success?: boolean;
@@ -17,6 +18,7 @@ interface InputProps {
   hint?: string; // Optional hint text
   required?:boolean;
   accept?:string;
+  inputMode?:string;
 }
 
 const Input: FC<InputProps> = ({
@@ -29,12 +31,14 @@ const Input: FC<InputProps> = ({
   className = "",
   min,
   max,
+  maxLength,
   step,
   disabled = false,
   success = false,
   error = false,
   hint,
-  required = false
+  required = false,
+  inputMode  = "text"
 }) => {
   // Determine input styles based on state (disabled, success, error)
   let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${className}`;
@@ -57,14 +61,16 @@ const Input: FC<InputProps> = ({
         id={id}
         name={name}
         placeholder={placeholder}
-        defaultValue={defaultValue}
+        value={defaultValue}
         onChange={onChange}
         min={min}
         max={max}
+        maxLength={maxLength}
         step={step}
         disabled={disabled}
         className={inputClasses}
         required={required}
+        inputMode={inputMode || 'text'}
       />
 
       {/* Optional Hint Text */}

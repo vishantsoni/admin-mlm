@@ -285,6 +285,7 @@ const CategoryPage = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                   required
+                  placeholder='Enter category name'
                 />
               </div>
               <div>
@@ -296,6 +297,7 @@ const CategoryPage = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50"
                   required
+                  placeholder='slug-auto generated'                  
                 />
               </div>
               <div>

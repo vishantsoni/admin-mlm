@@ -56,7 +56,7 @@ export function middleware(request: NextRequest) {
   // console.log("DEBUG permission extracted:", permission);
 
   if (!hasPermission(payload.role, permission)) {
-    console.log("DEBUG hasPermission false for role:", payload.role, "permission:", permission);
+    // console.log("DEBUG hasPermission false for role:", payload.role, "permission:", permission);
     return NextResponse.redirect(new URL('/not-found', request.url));
   }
 

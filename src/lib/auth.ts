@@ -123,6 +123,7 @@ export const rolePermissions: Record<string, string[]> = {
     'simulator', 
     'gst-tds', 
     'ranks', 
+    'kyc',
     'reports' // for "News & Alerts"
   ],
 };
@@ -141,7 +142,7 @@ export function hasPermission(userRole: string | null, permission: string): bool
   const roleKey = userRole.toLowerCase();
   const perms = rolePermissions[roleKey] || [];
 
-  console.log("DEBUG hasPermission - roleKey:", roleKey, "perms:", perms, "permission:", permission, "result:", perms.includes('*') || perms.includes(permission));
+  // console.log("DEBUG hasPermission - roleKey:", roleKey, "perms:", perms, "permission:", permission, "result:", perms.includes('*') || perms.includes(permission));
   
   // Check for the wildcard '*' or the specific permission string
   return perms.includes('*') || perms.includes(permission);

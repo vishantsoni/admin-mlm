@@ -1,15 +1,20 @@
-# Build Fix Progress Summary
+# Fix React Too Many Re-renders in SignUpStepForm
 
-**Fixed:**
-- TypeScript error in AuthContext (added `isLoading` to interface)
-- next.config.ts config errors (removed invalid eslint, duplicate turbopack)
-- Added `typescript.ignoreBuildErrors: true` for successful compilation
+## Approved Plan Steps:
 
-**Remaining Issues (warnings, non-blocking):**
-- Middleware.ts deprecated → Migrate to `proxy` config when stable
-- Turbopack root warning (monorepo) → Fixed with root: '.'
-- Prerender error in `/checkout` (useSearchParams needs Suspense) → Fixed by removing searchParams from static page or wrapping
+### 1. [ ] Create TODO.md (Current - Done)
+### 2. [✅] Update SignUpStepForm.tsx to fix re-render loop
+   - Move initial load to useEffect([])
+   - Fix useEffect deps and add useCallback for functions
+   - Make all Inputs controlled with value/onChange
+   - Use useTransition for router.push
+   - Debounce/condition API calls
 
-**Status:** `npm run build` now compiles successfully (skips TS validation). New prerender error on /checkout fixed in plan but requires approval.
+### 3. [ ] Test changes
+   - Restart dev server
+   - Test /signup navigation, ref param, localStorage persistence
 
-**Next:** Run `npm run build` to confirm. Production build works despite warnings.
+### 4. [ ] attempt_completion
+
+✅ Step 1 completed
+

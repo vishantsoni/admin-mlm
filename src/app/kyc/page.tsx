@@ -149,6 +149,8 @@ const KYCPage = () => {
     });
 
     xhr.open('POST', 'http://localhost:5000/api/users/kyc/upload');
+    // xhr.open('POST', 'https://backend-gamma-roan.vercel.app/api/users/kyc/upload');
+    
     xhr.send(formDataToSend);
   };
 
