@@ -189,7 +189,7 @@ const CategoryPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight dark:text-gray-300">Categories</h1>
-          <p className="text-muted-foreground dark:text-gray-500">Manage your product categories</p>
+          <p className="text-muted-foreground dark:text-gray-400">Manage your product categories</p>
         </div>
         <Button onClick={() => {
           resetForm();
@@ -206,15 +206,15 @@ const CategoryPage = () => {
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <div className="rounded-xl border bg-card">
+        <div className="rounded-xl border bg-white dark:bg-gray-900 overflow-hidden">
           <Table>
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Name</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Slug</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Status</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Created</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Name</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Slug</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Created</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Actions</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">

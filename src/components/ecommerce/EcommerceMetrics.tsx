@@ -7,7 +7,7 @@ export const EcommerceMetrics = () => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-6 md:gap-6">
       {/* <!-- Metric Item Start --> */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
           <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />
         </div>
@@ -30,7 +30,7 @@ export const EcommerceMetrics = () => {
       {/* <!-- Metric Item End --> */}
 
       {/* <!-- Metric Item Start --> */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
           <BoxIconLine className="text-gray-800 dark:text-white/90" />
         </div>
@@ -53,7 +53,7 @@ export const EcommerceMetrics = () => {
       {/* <!-- Metric Item End --> */}
 
       {/* Distributors */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
           <Contact className="text-gray-800 dark:text-white/90" />
         </div>
@@ -75,7 +75,7 @@ export const EcommerceMetrics = () => {
       </div>
 
 
-      <div className="rounded-2xl border border-warning-200 bg-white p-5 dark:border-warning-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-warning-200 bg-white p-5 dark:border-warning-800 dark:bg-gray-900 md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-warning-100 rounded-xl dark:bg-gray-800">
           <ClipboardClock  className="text-warning-800 dark:text-white/90" />
         </div>
@@ -97,7 +97,7 @@ export const EcommerceMetrics = () => {
       </div>
 
       {/* total sales */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
           <IndianRupee className="text-gray-800 dark:text-white/90" />
         </div>
@@ -119,7 +119,7 @@ export const EcommerceMetrics = () => {
       </div>
 
       {/* gst collected */}
-      <div className="rounded-2xl border border-error-200 bg-white p-5 dark:border-error-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-error-200 bg-white p-5 dark:border-error-800 dark:bg-gray-900 md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-error-100 rounded-xl dark:bg-gray-800">
           <IndianRupee  className="text-error-800 dark:text-white/90" />
         </div>

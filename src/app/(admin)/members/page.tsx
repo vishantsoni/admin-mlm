@@ -187,20 +187,20 @@ const MembersPage = () => {
       )}
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-gray-900">
         <div className="max-w-full overflow-x-auto">
           <div className="min-w-[1200px]">
             <Table>
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Member</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Email</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Phone</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Level</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Status</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Join Date</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Referrals</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Member</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Email</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Phone</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Level</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Join Date</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Referrals</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Actions</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">

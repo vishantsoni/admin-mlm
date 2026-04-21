@@ -219,7 +219,7 @@ const CouponsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-theme dark:text-gray-300">Coupons</h2>
-          <p className="text-muted-foreground dark:text-gray-500">Manage your coupons</p>
+          <p className="text-muted-foreground dark:text-gray-400">Manage your coupons</p>
         </div>
         <Button onClick={openCreateModal}>
           <Plus className="mr-2 h-4 w-4" />
@@ -231,7 +231,7 @@ const CouponsPage: React.FC = () => {
         <div className="p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">{error}</div>
       )}
 
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-lg border bg-white overflow-hidden dark:bg-gray-900">
         <Table>
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>

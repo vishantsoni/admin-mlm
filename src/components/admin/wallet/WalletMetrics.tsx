@@ -30,7 +30,7 @@ const WalletMetrics = () => {
     return (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
             {/* Total Balance */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
                 <div className="flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-xl dark:bg-emerald-900/30">
                     <DollarLineIcon className="text-emerald-600 size-6 dark:text-emerald-400" />
                 </div>
@@ -44,7 +44,7 @@ const WalletMetrics = () => {
             </div>
 
             {/* Pending Commissions */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
                 <div className="flex items-center justify-center w-12 h-12 bg-amber-100 rounded-xl dark:bg-amber-900/30">
                     <TimeIcon className="text-amber-600 size-6 dark:text-amber-400" />
                 </div>
@@ -58,7 +58,7 @@ const WalletMetrics = () => {
             </div>
 
             {/* Mature Commissions */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
                 <div className="flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-xl dark:bg-emerald-900/30">
                     <CheckCircleIcon className="text-emerald-600 size-6 dark:text-emerald-400" />
                 </div>
@@ -72,7 +72,7 @@ const WalletMetrics = () => {
             </div>
 
             {/* Total Transactions */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 md:p-6">
                 <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl dark:bg-blue-900/30">
                     <GroupIcon className="text-blue-600 size-6 dark:text-blue-400" />
                 </div>

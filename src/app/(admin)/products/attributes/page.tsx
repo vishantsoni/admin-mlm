@@ -132,7 +132,7 @@ const AttributesPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Attributes</h1>
-            <p className="text-gray-500 mt-1">Manage product attributes and their values ({attributes.length} total).</p>
+            <p className="text-gray-400 mt-1">Manage product attributes and their values ({attributes.length} total).</p>
           </div>
           <button
             onClick={handleAddAttribute}
@@ -153,7 +153,7 @@ const AttributesPage = () => {
             />
           </div>
           <div className="lg:col-span-1 space-y-4">
-            <div className="p-6 rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <div className="p-6 rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-gray-900">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-blue-100 rounded-xl dark:bg-blue-900/20">
                   <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400" />

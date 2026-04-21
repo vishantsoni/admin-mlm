@@ -137,7 +137,7 @@ const allNavItems: NavItem[] = [
   {
     icon: <FileIcon />,
     name: "Transactions",
-    permission: "transactions",
+    permission: "p-transactions",
     
     subItems:[
       {

@@ -13,8 +13,8 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title:
-    "Feel safe | Dashboard",
-  description: "Feel Safe Description",
+    "Dashboard | Feel Safe Private Limited",
+  description: "Feel Safe Private Limited Description",
 };
 
 export default function RootLayout({

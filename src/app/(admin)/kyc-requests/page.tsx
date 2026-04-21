@@ -148,10 +148,10 @@ const KycRequestsPage = () => {
     <div className="space-y-6 p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-300">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
             KYC Requests
           </h1>
-          <p className="text-muted-foreground dark:text-gray-500">
+          <p className="text-muted-foreground dark:text-gray-300">
             Manage pending KYC verification requests
           </p>
         </div>
@@ -182,17 +182,17 @@ const KycRequestsPage = () => {
         <Alert variant="error" title="Error" message={error} />
       )}
 
-      <div className="rounded-xl border bg-card overflow-hidden">
+      <div className="rounded-xl border bg-card overflow-hidden bg-white dark:bg-gray-900">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">User</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Email</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Status</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Submitted</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Documents</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">User</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Email</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Submitted</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Documents</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Actions</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">

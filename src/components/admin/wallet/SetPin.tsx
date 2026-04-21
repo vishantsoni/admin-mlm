@@ -62,8 +62,8 @@ const SetPin = () => {
     if (user && !user.transaction_pin_hash) {
         return (
             <>
-                <div className="mb-6">
-                    <div className="flex items-center justify-between p-4 border border-warning-200 bg-warning-50 rounded-lg">
+                <div className="mb-6 ">
+                    <div className="flex items-center justify-between p-4 border border-warning-200 bg-warning-50 dark:bg-warning-200 rounded-lg">
                         <div className="flex items-center gap-3">
                             <Badge color="warning" variant="solid">Action Required</Badge>
                             <p className="text-sm text-warning-800 font-medium">

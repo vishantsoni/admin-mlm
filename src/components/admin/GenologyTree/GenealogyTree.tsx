@@ -38,7 +38,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ member, onSelect }) => {
   return (
     <li className='bg-warning'>
       <a href="#" >
-        <div className={`member-view-box ${ member.kyc_status ? member.is_active ? 'bg-gray-200 dark:bg-gray-300':'bg-warning-300 dark:bg-warning-300' : 'bg-error-300 dark:bg-error-300' }`} onClick={toggleOpen}>
+        <div className={`member-view-box ${ member.kyc_status ? member.is_active ? 'bg-gray-200 dark:bg-gray-500':'bg-warning-300 dark:bg-warning-300' : 'bg-error-300 dark:bg-error-300' }`} onClick={toggleOpen}>
           <div className="member-header">
             <span>{member.phone}</span>
           </div>
@@ -74,7 +74,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ member, onSelect }) => {
 
 const GenealogyTree: React.FC<{ data: Member[], onSelect: (member: Member) => void }> = ({ data, onSelect }) => {
   return (
-    <div className="genealogy-body genealogy-scroll dark:bg-gray-800 ">
+    <div className="genealogy-body genealogy-scroll bg-gray-100 dark:bg-gray-800 ">
       <div className="genealogy-tree">
         <ul>
           {data.map((rootMember) => (

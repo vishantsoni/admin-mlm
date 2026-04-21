@@ -118,8 +118,12 @@ const ProductsPage = () => {
 
       {error && <Alert variant="error" title="Error" message={error} />}
 
-      <div className="rounded-xl border bg-card">
-        <ProductListTable products={products} onDelete={handleDelete} onRestore={handleRestore} loading={loading} />
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-gray-900">
+        <div className="max-w-full overflow-x-auto">
+          <div className="min-w-[1200px]">
+            <ProductListTable products={products} onDelete={handleDelete} onRestore={handleRestore} loading={loading} />
+          </div>
+        </div>
       </div>
     </div>
   );

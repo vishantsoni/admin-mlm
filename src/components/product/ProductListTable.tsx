@@ -21,15 +21,15 @@ interface ProductListTableProps {
 const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete, onRestore, loading = false }) => {
   if (loading) {
     return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableCell className="text-center py-8" colSpan={7}>
+      <>
+        {/* <TableHeader> */}
+          {/* <TableRow> */}
+            <div className="text-center py-8" >
               Loading products...
-            </TableCell>
-          </TableRow>
-        </TableHeader>
-      </Table>
+            </div>
+          {/* </TableRow> */}
+        {/* </TableHeader> */}
+      </>
     );
   }
 
@@ -41,15 +41,15 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete,
 
   return (
     <Table>
-      <TableHeader>
+      <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
         <TableRow>
-          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Image</TableCell>
-          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Name</TableCell>
-          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Price</TableCell>
-          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Category</TableCell>
-          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Variants</TableCell>
-          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Status</TableCell>
-          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
+          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Image</TableCell>
+          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Name</TableCell>
+          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Price</TableCell>
+          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Category</TableCell>
+          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Variants</TableCell>
+          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
+          <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Actions</TableCell>
         </TableRow>
       </TableHeader>
       <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">

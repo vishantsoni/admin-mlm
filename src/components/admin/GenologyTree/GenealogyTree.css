@@ -139,7 +139,8 @@
 .member-header {
   padding: 5px 0;
   text-align: center;
-  background: #345;
+  background: var(--color-brand-500);
+  /* background: #04a1d3; */
   color: #fff;
   font-size: 14px;
   border-radius: 4px 4px 0 0;

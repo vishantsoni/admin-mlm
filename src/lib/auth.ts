@@ -91,6 +91,7 @@ export const rolePermissions: Record<string, string[]> = {
     'commissions',
     'level-capping',
     'level-milestone',
+    'p-transactions',
     'transactions',
     'withdrawals',
     'gst-tds',
@@ -101,7 +102,8 @@ export const rolePermissions: Record<string, string[]> = {
     'cms',
     'static-content',
     'state-city',    
-    'wallet'
+    'wallet',
+    'withdrawals'
 
   ], // Has access to everything
   'admin': ['dashboard', 'analytics', 'members', 'kyc-requests', 'products', 'orders', 'commissions', 'withdrawals', 'gst-tds', 'reports', 'plan-settings', 'ranks'],
@@ -124,7 +126,8 @@ export const rolePermissions: Record<string, string[]> = {
     'gst-tds', 
     'ranks', 
     'kyc',
-    'reports' // for "News & Alerts"
+    'reports', // for "News & Alerts"
+    'checkout'
   ],
 };
 

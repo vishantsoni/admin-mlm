@@ -110,24 +110,24 @@ const D_OrderCompo = () => {
                 </div>
             ) : (
                 <>
-                    <div className="rounded-md border">
+                    <div className="rounded-md border bg-white dark:bg-gray-900">
                         <Table>
                             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                                 <TableRow>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Order ID</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Package Details</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">User Details</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Purchase Date</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Total</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Status</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Payment Method</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Order ID</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Package Details</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">User Details</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Purchase Date</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Total</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Status</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Payment Method</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Actions</TableCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                 {orders.map((order, index) => (
                                     <TableRow key={index}>
-                                        <TableCell className="px-6 py-4 font-bold">#{order.order_id || "N/A"}</TableCell>
+                                        <TableCell className="px-6 py-4 font-bold dark:text-gray-100">#{order.order_id || "N/A"}</TableCell>
                                         <TableCell className="px-6 py-4">
                                             {order.package_details ? (
                                                 <div className="flex flex-col items-start gap-1">
@@ -162,8 +162,8 @@ const D_OrderCompo = () => {
                                                 <span className="text-gray-400 italic">N/A</span>
                                             )}
                                         </TableCell>
-                                        <TableCell className="px-6 py-4">{date_formate(order.purchased_at)}</TableCell>
-                                        <TableCell className="px-6 py-4">
+                                        <TableCell className="px-6 py-4 dark:text-gray-100">{date_formate(order.purchased_at)}</TableCell>
+                                        <TableCell className="px-6 py-4 dark:text-gray-100">
                                             <div>Amount: ₹{formattedAmount(order.amount || 0)}</div>
                                             {/* <div>Tax: ₹{formattedAmount(order.tax_amount || 0)}</div>
                                             Total: <strong>₹{formattedAmount(order.total_amount)}</strong> */}
@@ -173,7 +173,7 @@ const D_OrderCompo = () => {
                                                 {order.status?.toUpperCase()}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="px-6 py-4">
+                                        <TableCell className="px-6 py-4 dark:text-gray-100">
                                             <Badge variant='solid' color={getStatusColor(order.payment_method)}>
                                                 {order.payment_method?.toUpperCase()}
                                             </Badge>
