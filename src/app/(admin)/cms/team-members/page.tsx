@@ -231,7 +231,7 @@ useEffect(() => {
     img.src = URL.createObjectURL(file);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (name !== 'image') {  // Skip image field
       setFormData((prev) => ({ ...prev, [name]: value }));

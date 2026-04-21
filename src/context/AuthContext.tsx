@@ -11,6 +11,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   role: string | null;
   hasPermission: (permission: string) => boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
