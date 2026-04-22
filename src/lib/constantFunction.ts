@@ -13,8 +13,8 @@ export interface ServerResponse<T = any> {
 }
 
 // Ensure the environment variable is picked up correctly in production
-const host: string = process.env.API_URL || 'http://localhost:5000';
-// const host: string = process.env.API_URL || 'https://backend-gamma-roan.vercel.app';
+// const host: string = process.env.API_URL || 'http://localhost:5000';
+const host: string = process.env.API_URL || 'https://backend-gamma-roan.vercel.app';
 
 /**
  * 2. TYPE GUARDS & CHECKS
