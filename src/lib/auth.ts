@@ -117,7 +117,9 @@ export const rolePermissions: Record<string, string[]> = {
     'products', // for "Shop"
     'product-list',
     'purchase',
-    'distributor-orders',
+    'shop',
+    'cart',
+    // 'distributor-orders',
     'orders', 
     'commissions', 
     'level-capping',
@@ -127,7 +129,8 @@ export const rolePermissions: Record<string, string[]> = {
     'ranks', 
     'kyc',
     'reports', // for "News & Alerts"
-    'checkout'
+    'checkout',
+    'activation'
   ],
 };
 

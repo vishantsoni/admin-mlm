@@ -1,20 +1,22 @@
-# Fix React Too Many Re-renders in SignUpStepForm
+# Fix placePurchaseOrder function in CheckoutForm.tsx
 
-## Approved Plan Steps:
+Status: In Progress
 
-### 1. [ ] Create TODO.md (Current - Done)
-### 2. [✅] Update SignUpStepForm.tsx to fix re-render loop
-   - Move initial load to useEffect([])
-   - Fix useEffect deps and add useCallback for functions
-   - Make all Inputs controlled with value/onChange
-   - Use useTransition for router.push
-   - Debounce/condition API calls
+## Steps:
+1. [x] Update CheckoutForm.tsx:
+   - Add selectedAddress state
+   - Remap cartItems to backend items format
+   - Use selectedAddress object in placePurchaseOrder payload
+   - Update payment_method='razorpay'
+   - Fix response handling for backend shape {success, data: {order, items}}
+   - Clear cart after success
 
-### 3. [ ] Test changes
-   - Restart dev server
-   - Test /signup navigation, ref param, localStorage persistence
+2. [x] Update src/types/orders.ts for backend response
 
-### 4. [ ] attempt_completion
+3. [ ] Test full checkout flow: cart -> checkout -> Razorpay test pay -> order created, cart cleared
 
-✅ Step 1 completed
+## Backend Notes:
+- Ensure /api/orders/d_p_o handles payment_method='razorpay'
+- Implement generateOrderId()
+- Add fields to orders table if missing
 

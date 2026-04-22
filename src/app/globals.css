@@ -293,7 +293,8 @@
 }
 
 .main-body{
-  background-color: #bde7e84f;
+  /* background-color: #bde7e8c9 dark:#465fff; */
+  @apply bg-[#bde7e8c9] dark:bg-[#1f2530];
 }
 
 /* third-party libraries CSS */

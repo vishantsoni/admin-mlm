@@ -20,6 +20,7 @@ interface BadgeProps {
   endIcon?: React.ReactNode; // Icon at the end
   children: React.ReactNode; // Badge content
   cursor?: string; // Cursor style, default is 'default'
+  className?:string;
 }
 
 const Badge: React.FC<BadgeProps> = ({
@@ -31,6 +32,7 @@ const Badge: React.FC<BadgeProps> = ({
   children,
   onClick,
   cursor = onClick ? "pointer" : "default",
+  className = ""
 }) => {
   const baseStyles =
     "inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium";
@@ -72,7 +74,7 @@ const Badge: React.FC<BadgeProps> = ({
   const colorStyles = variants[variant][color];
 
   return (
-    <span className={`${baseStyles} ${sizeClass} ${colorStyles}`}
+    <span className={`${baseStyles} ${sizeClass} ${colorStyles} ${className}`}
       onClick={onClick}
       style={{ cursor }}
 

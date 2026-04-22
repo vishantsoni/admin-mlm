@@ -145,27 +145,31 @@ const OrderPage = () => {
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
                   {/* <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">P. INFO</TableCell> */}
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Order ID</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Products</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">User</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Date</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Total</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Order ID</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Products</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">User</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Date</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Total</TableCell>
 
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Status</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Payment Status</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Payment Status</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Actions</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                 {orders.map((order, index) => (
                   <TableRow key={index}>
 
-                    <TableCell className="px-6 py-4 font-bold">#{order.order_id} </TableCell>
+                    <TableCell className="px-6 py-4 font-bold grid">#{order.order_id} 
+                      <Badge variant='solid' size='sm' className="w-30">{order.user_type}</Badge>
+
+                    </TableCell>
                     <TableCell className="px-6 py-4 font-bold">{order.products?.length}</TableCell>
                     <TableCell className="px-6 py-4">
                       <div>
                         {order.user_name}
                       </div>
+                      
                       <div>
                         Ph. : <strong>{order.user_phone}</strong>
                       </div>

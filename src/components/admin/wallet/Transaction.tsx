@@ -88,12 +88,12 @@ const Transaction = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Date</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Type</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Amount</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Category</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Remarks</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 text-left">Status</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Date</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Type</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Amount</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Category</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Remarks</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Status</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -97,29 +97,29 @@ const TreeConnector = () => {
 
                             <div className="space-y-8">
                                 <div className="flex items-start gap-6 p-8 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-500/10 dark:to-indigo-500/10 rounded-3xl border-2 border-brand-100 dark:border-brand-800/50">
-                                    <div className="w-24 h-24 bg-gradient-to-br from-brand-500 via-brand-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-2xl flex-shrink-0 ring-4 ring-white/50 -rotate-6">
+                                    {/* <div className="w-24 h-24 bg-gradient-to-br from-brand-500 via-brand-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-2xl flex-shrink-0 ring-4 ring-white/50 -rotate-6">
                                         {selectedNode.username.slice(-4)}
-                                    </div>
+                                    </div> */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-baseline gap-3 mb-2">
-                                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">{selectedNode.username}</h3>
+                                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">Username : {selectedNode.username}</h3>
                                             <div className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 rounded-full text-xs font-semibold uppercase tracking-wide">
                                                 Active
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-mono font-bold text-brand-600 mb-6 tracking-tight">{selectedNode.phone} 
+                                        <p className="text-3xl font-mono font-bold text-brand-600 mb-6 tracking-tight">Ph.: {selectedNode.phone} 
                                             <span className='text-lg'> ( {selectedNode.full_name} )</span>
                                         </p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
+                                            {/* <div>
                                                 <span className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-2 block">Node Path</span>
                                                 <code className="font-mono text-sm bg-gray-100 dark:bg-gray-400 px-3 py-2 rounded-xl block truncate">
                                                     {selectedNode.node_path}
                                                 </code>
-                                            </div>
+                                            </div> */}
                                             <div>
                                                 <span className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-2 block">Referrer</span>
-                                                <span className="font-semibold text-lg dark:text-gray-300">{selectedNode.referrer_id}</span>
+                                                <span className="font-semibold text-lg dark:text-gray-300">{selectedNode.referrer_id || "N/A"}</span>
                                             </div>
                                             <div>
                                                 <span className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-2 block">Referral Code</span>

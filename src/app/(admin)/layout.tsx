@@ -33,7 +33,7 @@ export default function AdminLayout({
       if(user?.role === 'Super Admin') {
         
       } else{
-        router.replace('/purchase');
+        router.replace('/activation');
       }
     }
   }, [user, role, router, isLoading]);
