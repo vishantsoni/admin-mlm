@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table/index";
 import Image from 'next/image';
 import Badge from '@/components/ui/badge/Badge';
-import serverCallFuction from '@/lib/constantFunction';
+import serverCallFuction, { formattedAmount } from '@/lib/constantFunction';
 import { formatDate } from '@fullcalendar/core/index.js';
 // const transactions = [
 //   {
@@ -90,7 +90,7 @@ const Transaction = () => {
               <TableRow>
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Date</TableCell>
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Type</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Amount</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">UV Points</TableCell>
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Category</TableCell>
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Remarks</TableCell>
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-gray-100 text-left">Status</TableCell>
@@ -105,7 +105,7 @@ const Transaction = () => {
                     {tx.type?.toUpperCase()}
                     </Badge>
                     </TableCell>
-                  <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-bold text-emerald-600 "> {tx.amount}</TableCell>
+                  <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-bold text-emerald-600 "> {formattedAmount(tx.amount)}</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300  text-emerald-600"> {tx.category}</TableCell>
                   {/* <TableCell className="px-6 py-4">
                     {tx.customer ? (

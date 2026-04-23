@@ -1,22 +1,16 @@
-# Fix placePurchaseOrder function in CheckoutForm.tsx
+# Withdrawal Request Modal TODO
 
-Status: In Progress
+## Approved Plan Summary
+Add "Raise New Request" button to withdrawals page. Opens Modal with form: search/select distributor user, UV amount (auto RS=UV*10), bank details (name/ac/ifsc). POST to `api/admin/withdrawals`, refetch list. Use direct Modal component + useState. Assume user search API `api/admin/users?search=term`.
 
-## Steps:
-1. [x] Update CheckoutForm.tsx:
-   - Add selectedAddress state
-   - Remap cartItems to backend items format
-   - Use selectedAddress object in placePurchaseOrder payload
-   - Update payment_method='razorpay'
-   - Fix response handling for backend shape {success, data: {order, items}}
-   - Clear cart after success
+## Steps (to be checked off)
+- [x] Step 1: Update src/app/(admin)/withdrawals/page.tsx - Add imports, states, "Raise New Request" button, empty Modal skeleton.
 
-2. [x] Update src/types/orders.ts for backend response
+- [x] Step 2: Implement user search in modal (fetch API, list/select).
+- [ ] Step 3: Add form fields (UV/RS compute, bank inputs), fetch user details/balance on select.
+- [ ] Step 4: Implement submit handler (validate, POST create, refetch list).
+- [ ] Step 5: Polish UI (labels, loading, errors), test form.
+- [ ] Complete: Run `npm run dev`, test end-to-end.
 
-3. [ ] Test full checkout flow: cart -> checkout -> Razorpay test pay -> order created, cart cleared
-
-## Backend Notes:
-- Ensure /api/orders/d_p_o handles payment_method='razorpay'
-- Implement generateOrderId()
-- Add fields to orders table if missing
+**Current Progress**: Step 2 complete (user search + list). Proceeding to Step 3.
 

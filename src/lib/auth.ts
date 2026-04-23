@@ -4,6 +4,9 @@ export interface User {
   email?: string;
   phone?: string;
   role: string;
+  role_id?:number;
+  role_name?:string;
+  permissions?: string[];
   node_path?: string;
   // Profile fields
   profile_pic?: string;
@@ -23,7 +26,7 @@ export interface User {
   ifscCode?: string;
   branch?: string;
   referral_code?: string;
-  referrer_id?:number;
+  referrer_id?: number;
   referrerName?: string;
   referrerContact?: string;
   nominee_name?: string;
@@ -34,7 +37,7 @@ export interface User {
   businessLevel?: string;
   agreedToTerms?: boolean;
   kyc_status?: boolean;
-  is_active?:boolean;
+  is_active?: boolean;
   is_kyc_completed?: boolean;
   transaction_pin_hash?: string;
 }
@@ -75,7 +78,7 @@ export const rolePermissions: Record<string, string[]> = {
     'dashboard',
     'analytics',
     'members',
-    'network-tree',    
+    'network-tree',
     'kyc-requests',
     'products',
     'products/add',
@@ -97,22 +100,26 @@ export const rolePermissions: Record<string, string[]> = {
     'gst-tds',
     'reports',
     'settings',
+    'staff-header',
+    'roles',
+    'staff',
     'ranks',
     'nofications',
     'cms',
     'static-content',
-    'state-city',    
+    'state-city',
     'wallet',
     'withdrawals'
 
   ], // Has access to everything
   'admin': ['dashboard', 'analytics', 'members', 'kyc-requests', 'products', 'orders', 'commissions', 'withdrawals', 'gst-tds', 'reports', 'plan-settings', 'ranks'],
   'distributor': [
-    'dashboard', 
-    'referral', 
-    'my-profile', 
-    'wallet', 
-    'network-tree', 
+    'dashboard',
+    'referral',
+    'my-profile',
+    'wallet',
+    'withdrawals',
+    'network-tree',
     'members', // for "My Team"
     'products', // for "Shop"
     'product-list',
@@ -120,18 +127,17 @@ export const rolePermissions: Record<string, string[]> = {
     'shop',
     'cart',
     // 'distributor-orders',
-    'orders', 
-    'commissions', 
+    'orders',
+    'commissions',
     'level-capping',
     'level-milestone',
-    'simulator', 
-    'gst-tds', 
-    'ranks', 
+    'simulator',
+    'gst-tds',
+    'ranks',
     'kyc',
     'reports', // for "News & Alerts"
     'checkout',
-    'activation'
-  ],
+    'activation']
 };
 
 // export function hasPermission(userRole: User['role'] | null, permission: string): boolean {
@@ -144,26 +150,13 @@ export const rolePermissions: Record<string, string[]> = {
 export function hasPermission(userRole: string | null, permission: string): boolean {
   if (!userRole) return false;
 
+
   // Normalize to lowercase to match the keys in rolePermissions
   const roleKey = userRole.toLowerCase();
   const perms = rolePermissions[roleKey] || [];
 
-  // console.log("DEBUG hasPermission - roleKey:", roleKey, "perms:", perms, "permission:", permission, "result:", perms.includes('*') || perms.includes(permission));
-  
+  console.log("DEBUG hasPermission - roleKey:", roleKey, "perms:", perms, "permission:", permission, "result:", perms.includes('*') || perms.includes(permission));
+
   // Check for the wildcard '*' or the specific permission string
   return perms.includes('*') || perms.includes(permission);
 }
-
-export function generateToken(user: User): string {
-  const header = btoa(JSON.stringify({ typ: 'JWT', alg: 'HS256' }));
-  const payload = btoa(JSON.stringify({
-    sub: user.id,
-    email: user.email,
-    role: user.role,
-    iat: Date.now(),
-    exp: Date.now() + 24 * 60 * 60 * 1000 // 24h
-  }));
-  const signature = btoa('fake-signature'); // Demo only
-  return `${header}.${payload}.${signature}`;
-}
-

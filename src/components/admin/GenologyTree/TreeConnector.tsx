@@ -6,27 +6,26 @@ import GenealogyTree from './GenealogyTree';
 import { Calendar, CopyIcon, Mail, Phone, RefreshCw, X } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import Button from '@/components/ui/button/Button';
+import { useSearchParams } from 'next/navigation';
 const TreeConnector = () => {
 
     const [treeData, setTreeData] = React.useState<TreeUser[]>([]);
     const [loading, setLoading] = React.useState(true);
 
+
+    // 1. Get the search params from the URL
+    const searchParams = useSearchParams();
+    const urlSelectedId = searchParams.get('selectd_id');
+
     const [selectedNode, setSelectedNode] = React.useState<TreeUser | null>(null);
-
-    const handleNodeSelect = (user: TreeUser) => {
-        setSelectedNode(user);
-    };
-
-    const closeModal = () => setSelectedNode(null);
-    useEffect(() => {
-
-        fetchTreeData()
-    }, []);
 
     const fetchTreeData = async () => {
         try {
             setLoading(true);
-            const res = await serverCallFuction('GET', 'api/users/tree');
+            const endpoint = urlSelectedId 
+                ? `api/users/tree-by-id/${urlSelectedId}` 
+                : 'api/users/tree';
+            const res = await serverCallFuction('GET', endpoint);
             setLoading(false);
             if (res.status) {
                 setTreeData(res.data);
@@ -36,6 +35,23 @@ const TreeConnector = () => {
             console.error('Error fetching tree data:', error);
         }
     }
+    // 2. Fetch data whenever the URL ID changes
+    useEffect(() => {
+        fetchTreeData();
+    }, [urlSelectedId]);
+
+
+
+    const handleNodeSelect = (user: TreeUser) => {
+        setSelectedNode(user);
+    };
+
+    const closeModal = () => setSelectedNode(null);
+    useEffect(() => {
+        fetchTreeData()
+    }, []);
+
+
 
     const handleRefresh = () => {
         fetchTreeData()
@@ -107,7 +123,7 @@ const TreeConnector = () => {
                                                 Active
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-mono font-bold text-brand-600 mb-6 tracking-tight">Ph.: {selectedNode.phone} 
+                                        <p className="text-3xl font-mono font-bold text-brand-600 mb-6 tracking-tight">Ph.: {selectedNode.phone}
                                             <span className='text-lg'> ( {selectedNode.full_name} )</span>
                                         </p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -118,8 +134,13 @@ const TreeConnector = () => {
                                                 </code>
                                             </div> */}
                                             <div>
-                                                <span className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-2 block">Referrer</span>
-                                                <span className="font-semibold text-lg dark:text-gray-300">{selectedNode.referrer_id || "N/A"}</span>
+                                                <span className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-2 block">Upline</span>
+                                                <span className="font-semibold text-lg dark:text-gray-300 me-2">
+                                                    {selectedNode.referrer ? <>{selectedNode.referrer?.full_name}</> : "N/A"}
+                                                </span>
+                                                <span className="font-semibold text-md dark:text-gray-300 ">
+                                                    ({selectedNode.referrer ? <>{selectedNode.referrer?.phone}</> : "N/A"})
+                                                </span>
                                             </div>
                                             <div>
                                                 <span className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-2 block">Referral Code</span>

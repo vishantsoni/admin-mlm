@@ -23,6 +23,7 @@ import {
   UserCircleIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
+import { Users } from "lucide-react";
 
 
 type NavItem = {
@@ -78,13 +79,7 @@ const allNavItems: NavItem[] = [
       { name: "Attributes", path: "/products/attributes", permission:'attributes' },      
     ]
   },
-  {
-    icon: <BoxCubeIcon />,
-    name: "Products",
-    permission: "all-products",
-    path: "/products",
-    
-  },
+
   {
     icon : <svg xmlns="http://www.w3.org/2000/svg" 
     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
@@ -154,11 +149,18 @@ const allNavItems: NavItem[] = [
   },
   // Super Admin
   {
+    icon: <BoxCubeIcon />,
+    name: "Wallet",
+    permission: "wallet",
+    path: "/wallet",
+  },
+  {
     icon: <ListIcon />,
     name: "Withdrawals",
     permission: "withdrawals",
     path: "/withdrawals",
   },
+
   {
     icon: <TableIcon />,
     name: "GST / TDS",
@@ -186,6 +188,23 @@ const allNavItems: NavItem[] = [
     name: "Settings",
     permission: "settings",
     path: "/settings",
+  },
+  {
+    icon: <Users />,
+    name: "Staff",
+    permission: "staff-header",
+    subItems:[
+      {
+        name:'Roles',
+        permission:'roles',
+        path:'/roles'
+      },
+      {
+        name:'Staffs',
+        permission:'staff',
+        path:'/staff'
+      }
+    ]
   },
   // Distributor Specific
   // {
@@ -220,15 +239,10 @@ const allNavItems: NavItem[] = [
   {
     icon: <AlertIcon />,
     name: "Notifications",
-    permission: "nofications",
+permission: "notifications",
     path:'/notifications',
   },
-  {
-    icon: <BoxCubeIcon />,
-    name: "Wallet",
-    permission: "wallet",
-    path: "/wallet",
-  },
+  
 
   {
     icon: <PlugInIcon />,

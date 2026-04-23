@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import Badge from "@/components/ui/badge/Badge";
 import Avatar from "@/components/ui/avatar/Avatar";
-import { Pencil, Plus, Trash2, Eye } from "lucide-react";
+import { Pencil, Plus, Trash2, Eye, Network } from "lucide-react";
 import { useModal } from "@/hooks/useModal";
 import Button from "@/components/ui/button/Button";
 import { Modal } from "@/components/ui/modal";
@@ -18,6 +18,7 @@ import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 
 import serverCallFuction from "@/lib/constantFunction";
+import { useRouter } from "next/navigation";
 
 interface Member {
   id: number;
@@ -55,6 +56,9 @@ const MembersPage = () => {
     phone: "",
     status: "active",
   });
+
+
+  const router = useRouter();
 
   // Fetch members
   useEffect(() => {
@@ -237,6 +241,13 @@ const MembersPage = () => {
                       </TableCell>
                       <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
                         <div className="flex items-center gap-2 justify-center">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push("/network-tree?selectd_id="+member.id)}
+                          >
+                            <Network className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

@@ -1,7 +1,8 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, rolePermissions, hasPermission as libHasPermission } from '@/lib/auth';
-
+import { User, rolePermissions } from '@/lib/auth';
+import type { Role, RolesResponse } from '@/types/role';
+import serverCallFuction from '@/lib/constantFunction';
 
 interface AuthContextType {
   user: User | null;
@@ -29,58 +30,33 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  // const initUser = () => {
-  //   const token = localStorage.getItem('authToken');
-  //   const storedUser = localStorage.getItem('user');
-  //   if (storedUser) {
-  //     try {
-  //       const user: User = JSON.parse(storedUser);
-  //       setUser(user);
-  //     } catch {
-  //       localStorage.removeItem('user');
-  //     }
-  //   }
-  //   else if (token) {
-  //     try {
-  //       const payload = JSON.parse(atob(token.split('.')[1]));
-  //       return {
-  //         id: payload.id || payload.sub || '',
-  //         phone: payload.phone || '',
-  //         username: payload.username || '',
-  //         role: payload.role || '',
-  //       } as User;
-  //     } catch {
-  //       localStorage.removeItem('authToken');
-  //     }
-  //   }
-  //   return null;
-  // };
-
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [dynamicPermissions, setDynamicPermissions] = useState<Record<string, string[]>>({});
 
-  // Use useEffect to handle localStorage safely on the client side
+  // Load user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('authToken');
     if (storedUser) {
       try {
-        const user: User = JSON.parse(storedUser);
-        setUser(user);
+        const parsedUser: User = JSON.parse(storedUser);
+        setUser(parsedUser);
       } catch {
         localStorage.removeItem('user');
       }
     } else if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        const user: User = {
+        const parsedUser: User = {
           id: payload.id || payload.sub || '',
           phone: payload.phone || '',
           username: payload.username || '',
-          role: payload.role || '',
+          // role: payload.role || '',
+          permissions: payload.permissions || [], // <--- MUST ADD THIS
         };
-        setUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
+        setUser(parsedUser);
+        localStorage.setItem('user', JSON.stringify(parsedUser));
       } catch {
         localStorage.removeItem('authToken');
       }
@@ -88,9 +64,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(false);
   }, []);
 
+  // Fetch dynamic roles when user is set
+  useEffect(() => {
+    if (user) {
+      fetchRoles();
+    }
+  }, [user]);
+
+  const fetchRoles = async () => {
+    try {
+      const resp = await serverCallFuction<RolesResponse>('GET', 'api/roles');
+      if (resp.status && resp.data) {
+        const map: Record<string, string[]> = {};
+        resp.data.forEach((role: Role) => {
+          map[role.name.toLowerCase()] = role.permissions || [];
+        });
+        setDynamicPermissions(map);
+      }
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+      // Fallback to static
+    }
+  };
+
   const login = (data: { token: string, user: User }) => {
     const { token, user } = data;
-    // Set cookie for server-side middleware
     document.cookie = `authToken=${token}; path=/; max-age=${24 * 60 * 60}; SameSite=strict`;
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
@@ -101,19 +99,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     setUser(null);
+    setDynamicPermissions({});
   };
 
   const isAuthenticated = !!user;
-  const role = user?.role || null;
+  const role = user?.role_id ? user?.role_name :  user?.role || null;
+
+  // const hasPermission = (permission: string): boolean => {
+  //   if (!user) return false;
+  //   const roleKey = user.role.toLowerCase();
+  //   console.log("DEGUB - ROlE - ",roleKey);
+    
+  //   const perms = dynamicPermissions[roleKey] || rolePermissions[roleKey] || [];
+  //   console.log("\n\n\n Dynamic perss - ", perms);
+    
+  //   return perms.includes('*') || perms.includes(permission);
+  // };
 
   const hasPermission = (permission: string): boolean => {
-    if (!user) return false;
-    return libHasPermission(user.role, permission);
-  };
+  if (!user) return false;
+  
+  const roleKey = user.role_id ? user.role_name.toLowerCase() : user.role.toLowerCase();
+
+  // console.log("\n role key - auth context == ",roleKey);
+  
+  // 1. Check permissions directly from the JWT Payload (Staff specific)
+  // Logic: Handles 'orders' matching 'orders.view' or 'orders'
+  if (user.permissions && Array.isArray(user.permissions)) {
+    const hasDirectAccess = user.permissions.some(p => 
+      p === '*' || 
+      p === permission || 
+      p.startsWith(`${permission}.`)
+    );
+    if (hasDirectAccess) return true;
+  }
+
+  // 2. Fallback: Check Dynamic Permissions (Fetched from DB) or Static
+  const perms = dynamicPermissions[roleKey] || rolePermissions[roleKey] || [];
+  
+  return perms.includes('*') || 
+         perms.includes(permission) || 
+         perms.some(p => p.startsWith(`${permission}.`));
+};
 
   const updateUserProfile = (profileData: Partial<User>) => {
     if (!user) return;
-    
     const updatedUser = { ...user, ...profileData };
     localStorage.setItem('user', JSON.stringify(updatedUser));
     setUser(updatedUser);
@@ -133,6 +163,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
       {children}
     </AuthContext.Provider>
   );
-
 }
 
