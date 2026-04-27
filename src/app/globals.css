@@ -295,6 +295,7 @@
 .main-body{
   /* background-color: #bde7e8c9 dark:#465fff; */
   @apply bg-[#bde7e8c9] dark:bg-[#1f2530];
+  
 }
 
 /* third-party libraries CSS */
@@ -375,6 +376,9 @@
     left: auto !important;
     right: 0 !important;
     margin-right: -30px;
+  }
+  .main-body{
+    margin-bottom: 60px;
   }
 }
 

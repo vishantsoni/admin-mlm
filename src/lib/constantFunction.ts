@@ -13,8 +13,8 @@ export interface ServerResponse<T = any> {
 }
 
 // Ensure the environment variable is picked up correctly in production
-const host: string = process.env.API_URL || 'http://localhost:5000';
-// const host: string = process.env.API_URL || 'https://backend-gamma-roan.vercel.app';
+// const host: string = process.env.API_URL || 'http://localhost:5000';
+const host: string = process.env.API_URL || 'https://fsbackend.gtsol.in';
 
 /**
  * 2. TYPE GUARDS & CHECKS
@@ -31,11 +31,38 @@ export const isUri = (string: unknown): boolean => {
 /**
  * 3. FORMATTING UTILITIES
  */
+
+export const formattedAmountCommas = (value: number): string => {
+  let amount: string = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  
+  return amount;
+};
+
+
 export const formattedAmount = (value: number): string => {
   let amount: string;
   if (value >= 100000) { // 1 Lakh
     amount = formatInIndianUnits(value);
   } else {
+    amount = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  }
+  return amount;
+};
+export const formattedAmountPoints = (value: number): string => {
+  let amount: string;
+  if (value >= 100000) { // 1 Lakh
+    amount = formatInIndianUnits(value);
+  }
+  if (value >= 1000) { // 1 Lakh
+    amount = formatInIndianUnits(value);
+  }
+   else {
     amount = new Intl.NumberFormat('en-IN', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2

@@ -30,7 +30,7 @@ export interface NewCartResponse {
 export interface BackendCartItem {
   id: number | string;
   product_id: number;
-  product?: Partial<Product> & { name?: string; f_image?: string };
+  product?: Partial<Product> & { name?: string; f_image?: string, tax_data?: { name?: string, percentage?: number } };
   variant_id?: number | string | null;
   variant_details?: any;
   product_name?: string;

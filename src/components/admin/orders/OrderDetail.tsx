@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import serverCallFuction from '@/lib/constantFunction';
+import serverCallFuction, { formattedAmountCommas } from '@/lib/constantFunction';
 import { Order } from '@/types/orders';
 import {
     Table,
@@ -37,9 +37,7 @@ const OrderDetail = () => {
             if (res.status !== false && res.data) {
                 const item = res.data;
                 setOrder({
-                    ...item,
-                    user_name: item.name,
-                    user_phone: item.phone,
+                    ...item
                 });
             } else {
                 setError('Order not found');
@@ -97,7 +95,7 @@ const OrderDetail = () => {
     }
 
     return (
-        <div className="space-y-6 p-6 max-w-7xl mx-auto">
+        <div className="space-y-6 p-6  mx-auto">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b">
                 <div className="flex items-center gap-4">
@@ -130,11 +128,11 @@ const OrderDetail = () => {
                     <CardContent className="space-y-4">
                         <div>
                             <label className="text-sm font-medium text-muted-foreground">Name</label>
-                            <p className="font-semibold mt-1">{order.user_name}</p>
+                            <p className="font-semibold mt-1">{order.user_name || "N/A"}</p>
                         </div>
                         <div>
                             <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                            <p>{order.user_phone}</p>
+                            <p>{order.user_phone || "N/A"}</p>
                         </div>
                         {/* <div>
                             <label className="text-sm font-medium text-muted-foreground">Email</label>
@@ -151,15 +149,20 @@ const OrderDetail = () => {
                     <CardContent className="space-y-3">
                         <div className="flex justify-between text-sm">
                             <span>Subtotal:</span>
-                            <span>₹{formattedAmount(order.sub_total || 0)}</span>
+                            <span>₹{formattedAmountCommas(order.sub_total || 0)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span>Tax:</span>
                             <span>₹{formattedAmount(order.tax_amount || 0)}</span>
                         </div>
+                        <div className="flex justify-between text-sm">
+                            <span>Shipping Charges:</span>
+                            <span>₹{formattedAmount(order.shipping_charges || 0)}</span>
+                        </div>
+                        
                         <div className="flex justify-between text-lg font-bold border-t pt-2">
                             <span>Total:</span>
-                            <span>₹{formattedAmount(order.total_amount)}</span>
+                            <span>₹{formattedAmountCommas(order.total_amount)}</span>
                         </div>
                         {order.payment_method && (
                             <div className="flex justify-between text-sm text-muted-foreground pt-2 border-t">
@@ -250,9 +253,9 @@ const OrderDetail = () => {
                                                 <div>
                                                     <div>{product.product_name}</div>
                                                     {product.variant_details && (
-                                                        <Badge color='primary'>
-                                                            {product.variant_details.attributes.map(attr => attr.value).join(', ')}
-                                                        </Badge>
+                                                        <div className='flex gap-2'>
+                                                            {product.variant_details.attributes.map((attr, index) => <Badge color='primary' key={index}>{attr.value}</Badge>)}
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>

@@ -31,7 +31,7 @@ type NavItem = {
   icon: React.ReactNode;
   path?: string;
   permission?: string; // Add permission key
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean,permission?: string; }[];
+  subItems?: { name: string; path: string; pro?: boolean; new?: boolean, permission?: string; }[];
 };
 
 const allNavItems: NavItem[] = [
@@ -66,44 +66,56 @@ const allNavItems: NavItem[] = [
     permission: "analytics",
     path: "/analytics",
   },
-    
+
   {
     icon: <BoxCubeIcon />,
     name: "Products",
     permission: "products",
     // path: "/products",
     subItems: [
-      { name: "All Products", path: "/products", permission:'product-list' },
-      { name: "Add Product", path: "/products/add", permission:'add-product' },
-      { name: "Category", path: "/products/category", permission:'pro-category' },
-      { name: "Attributes", path: "/products/attributes", permission:'attributes' },      
+      { name: "All Products", path: "/products", permission: 'product-list' },
+      { name: "Add Product", path: "/products/add", permission: 'add-product' },
+      { name: "Category", path: "/products/category", permission: 'pro-category' },
+      { name: "Attributes", path: "/products/attributes", permission: 'attributes' },
+      { name: "Inventory", path: "/products/inventory", permission: 'inventory' },
     ]
   },
 
   {
-    icon : <svg xmlns="http://www.w3.org/2000/svg" 
-    width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
-    className="lucide lucide-circle-percent-icon lucide-circle-percent">
-      <circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="M9 9h.01"/><path d="M15 15h.01"/></svg>,
-    name:"Coupons",
-    permission:'coupons',
-    path:'/coupons'    
+    icon: <svg xmlns="http://www.w3.org/2000/svg"
+      width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      className="lucide lucide-circle-percent-icon lucide-circle-percent">
+      <circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="M9 9h.01" /><path d="M15 15h.01" /></svg>,
+    name: "Coupons",
+    permission: 'coupons',
+    path: '/coupons'
   },
   // Shared but role-filtered
   {
     icon: <TableIcon />,
     name: "Orders",
-    permission: "orders",
+    permission: "s-orders",
     path: "/orders",
   },
   {
     icon: <TableIcon />,
     name: "Distributor Orders",
     permission: "distributor-orders",
-    path: "/distributor-orders",
+    subItems: [
+      {
+        name: "Placed Order",
+        path: "/placed_order",
+        permission: 'placed_order'
+      },
+      {
+        name: "Recieved Order",
+        path: "/recieved_order",
+        permission: "recieved_order"
+      }
+    ]
   },
   {
-    icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-barcode-icon lucide-barcode"><path d="M3 5v14"/><path d="M8 5v14"/><path d="M12 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/></svg>,
+    icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-barcode-icon lucide-barcode"><path d="M3 5v14" /><path d="M8 5v14" /><path d="M12 5v14" /><path d="M17 5v14" /><path d="M21 5v14" /></svg>,
     name: "Shop",
     permission: "purchase",
     path: "/shop",
@@ -112,20 +124,20 @@ const allNavItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Commissions",
     permission: "commissions",
-    subItems:[
+    subItems: [
       {
-        name:"Level Commission",
+        name: "Level Commission",
         path: "/commissions",
       },
       {
-        name:"Level Capping",
+        name: "Level Capping",
         path: "/commissions/level-capping",
-        permission:'level-capping'
+        permission: 'level-capping'
       },
       {
-        name:"Level Milestone",
+        name: "Level Milestone",
         path: "/commissions/level-milestone",
-        permission:'level-milestone'
+        permission: 'level-milestone'
       },
     ]
   },
@@ -133,17 +145,17 @@ const allNavItems: NavItem[] = [
     icon: <FileIcon />,
     name: "Transactions",
     permission: "p-transactions",
-    
-    subItems:[
+
+    subItems: [
       {
         name: "All Transactions",
         path: "/transactions",
-        permission:'transactions'
+        permission: 'transactions'
       },
       {
         name: "Withdrawal Transactions",
-        path: "/transactions/withdrawals",    
-        permission:"withdrawals"
+        path: "/transactions/withdrawals",
+        permission: "withdrawals"
       }
     ]
   },
@@ -171,38 +183,52 @@ const allNavItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Reports",
     permission: "reports",
-    subItems:[
+    subItems: [
       {
         name: "Sales Report",
-        path:'/reports/sales',
+        path: '/reports/sales',
       },
       {
         name: "Commission Report",
-        path:'/reports/commissions',
-      }      
+        path: '/reports/commissions',
+      },
+      {
+        name: "Profit/ Loss",
+        path: '/reports/profit-loss',
+      }
     ]
   },
-  
+
   {
     icon: <PlugInIcon />,
     name: "Settings",
     permission: "settings",
-    path: "/settings",
+    // path: "/settings",
+    subItems: [
+      {
+        name: 'Configuration',
+        path: "/settings"
+      },
+      {
+        name: "Tax Setting",
+        path: "/tax-setting"
+      }
+    ]
   },
   {
     icon: <Users />,
     name: "Staff",
     permission: "staff-header",
-    subItems:[
+    subItems: [
       {
-        name:'Roles',
-        permission:'roles',
-        path:'/roles'
+        name: 'Roles',
+        permission: 'roles',
+        path: '/roles'
       },
       {
-        name:'Staffs',
-        permission:'staff',
-        path:'/staff'
+        name: 'Staffs',
+        permission: 'staff',
+        path: '/staff'
       }
     ]
   },
@@ -214,35 +240,35 @@ const allNavItems: NavItem[] = [
   //   path: "/profile",
   // },
   {
-    icon: <PencilIcon/>,
-    name:"CMS",
-    permission:'cms',
-    subItems:[
+    icon: <PencilIcon />,
+    name: "CMS",
+    permission: 'cms',
+    subItems: [
       {
-        name:"Static Content",
-        path:'/cms/static-content',
-        permission:'static-content'
+        name: "Static Content",
+        path: '/cms/static-content',
+        permission: 'static-content'
       },
       {
-        name:"States / CIty",
-        path:'/cms/state-city',
-        permission:'state-city'
+        name: "States / CIty",
+        path: '/cms/state-city',
+        permission: 'state-city'
       },
-      
+
       {
-        name:"Team Members",
-        path:'/cms/team-members',
-        permission:'team-member'
+        name: "Team Members",
+        path: '/cms/team-members',
+        permission: 'team-member'
       },
     ]
   },
   {
     icon: <AlertIcon />,
     name: "Notifications",
-permission: "notifications",
-    path:'/notifications',
+    permission: "notifications",
+    path: '/notifications',
   },
-  
+
 
   {
     icon: <PlugInIcon />,
@@ -262,7 +288,7 @@ permission: "notifications",
     permission: "ranks",
     path: "/ranks",
   }
-  
+
 ];
 
 
@@ -276,26 +302,26 @@ const AppSidebar: React.FC = () => {
   // );
 
   const navItems = allNavItems
-  .filter((item) => !item.permission || hasPermission(item.permission)) // 1. Filter Parent
-  .map((item) => {
-    // 2. If item has subItems, filter them
-    if (item.subItems) {
-      return {
-        ...item,
-        subItems: item.subItems.filter(
-          (sub) => !sub.permission || hasPermission(sub.permission)
-        ),
-      };
-    }
-    return item;
-  })
-  // 3. Optional: Remove parent if it has subItems but the list became empty after filtering
-  .filter((item) => {
-    if (item.subItems && item.subItems.length === 0 && !item.path) {
-      return false;
-    }
-    return true;
-  });
+    .filter((item) => !item.permission || hasPermission(item.permission)) // 1. Filter Parent
+    .map((item) => {
+      // 2. If item has subItems, filter them
+      if (item.subItems) {
+        return {
+          ...item,
+          subItems: item.subItems.filter(
+            (sub) => !sub.permission || hasPermission(sub.permission)
+          ),
+        };
+      }
+      return item;
+    })
+    // 3. Optional: Remove parent if it has subItems but the list became empty after filtering
+    .filter((item) => {
+      if (item.subItems && item.subItems.length === 0 && !item.path) {
+        return false;
+      }
+      return true;
+    });
 
 
   const renderMenuItems = (

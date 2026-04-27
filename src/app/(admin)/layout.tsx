@@ -8,6 +8,7 @@ import AppHeader from '@/layout/AppHeader';
 import AppSidebar from '@/layout/AppSidebar';
 import Backdrop from '@/layout/Backdrop';
 import React from 'react';
+import AppBottomBar from '@/layout/AppBottomBar';
 
 
 export default function AdminLayout({
@@ -19,20 +20,20 @@ export default function AdminLayout({
   const router = useRouter();
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
 
-  useEffect(() => {   
+  useEffect(() => {
 
     if (!isLoading && !user) {
       router.replace('/signin');
     } else if (user?.kyc_status === false) {
-      if(user?.role === 'Super Admin') {
-        
-      } else{
+      if (user?.role === 'Super Admin') {
+
+      } else {
         router.replace('/kyc');
       }
-    }else if(user?.is_active === false){
-      if(user?.role === 'Super Admin') {
-        
-      } else{
+    } else if (user?.is_active === false) {
+      if (user?.role === 'Super Admin') {
+
+      } else {
         router.replace('/activation');
       }
     }
@@ -52,9 +53,10 @@ export default function AdminLayout({
     <div className="min-h-screen xl:flex">
       <AppSidebar />
       <Backdrop />
-      <div className={`flex-1 main-body transition-all duration-300 ease-in-out ${mainContentMargin}`}>
+      <div className={`flex-1 main-body transition-all duration-300 ease-in-out min-h-screen ${mainContentMargin}`}>
         <AppHeader />
         <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+        <AppBottomBar />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import serverCallFuction from '@/lib/constantFunction';
+import serverCallFuction, { formattedAmount, formattedAmountPoints } from '@/lib/constantFunction';
 import Input from '@/components/form/input/InputField';
 import TextArea from '@/components/form/input/TextArea';
 import Select from '@/components/form/Select';
@@ -9,11 +9,15 @@ import DropZone from '@/components/form/DropZone';
 import Button from '@/components/ui/button/Button';
 import Alert from '@/components/ui/alert/Alert';
 import Label from '@/components/form/Label';
-import {  Image as ImageIcon, X as XIcon, PlusCircle } from 'lucide-react';
+import { Image as ImageIcon, X as XIcon, PlusCircle } from 'lucide-react';
 import VariantManager from '@/app/(admin)/products/add/components/VariantManager';
 import { Modal } from '@/components/ui/modal';
 import VariantsAccordion from '@/app/(admin)/products/add/components/VariantsAccordion';
 import { Metadata } from 'next';
+import { Tax } from '@/types/tax';
+import { useRouter } from 'next/navigation';
+import { useSetting } from '@/context/SettingContext';
+import Badge from '../ui/badge/Badge';
 
 
 
@@ -23,10 +27,6 @@ interface Category {
   parent_id: number | null;
 }
 
-interface Tax {
-  id: number;
-  name: string;
-}
 
 interface Subcategory {
   id: number;
@@ -60,7 +60,7 @@ const AddProductPage = () => {
     name: '',
     description: '',
     price: '',
-    discounted_price:'',
+    discounted_price: '',
     cat_id: '',
     subcategories: [] as string[],
     attributes: [] as string[],
@@ -90,8 +90,10 @@ const AddProductPage = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [points_setting, set_points_setting] = useState(null)
 
-  console.log("varients - ", formData.variants);
+  const { settings, isLoading, getSettingByKey } = useSetting()
+
 
 
   // Fetch attr_values when attributes change
@@ -125,7 +127,7 @@ const AddProductPage = () => {
       try {
         const [catRes, taxRes, attrRes] = await Promise.all([
           serverCallFuction('GET', 'api/products/categories'),
-          serverCallFuction('GET', 'api/taxes'),
+          serverCallFuction('GET', 'api/tax'),
 
           serverCallFuction('GET', 'api/products/attributes')
         ]);
@@ -134,6 +136,10 @@ const AddProductPage = () => {
         if (taxRes && taxRes.status !== false) setTaxes(taxRes.data || []);
         // if (subcatRes && subcatRes.status !== false) setSubcategories(subcatRes.data || []);
         if (attrRes && attrRes.status !== false) setAttributes(attrRes.data || []);
+
+
+
+
       } catch (err) {
         console.error(err);
         setError('Failed to load data');
@@ -141,6 +147,13 @@ const AddProductPage = () => {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    set_points_setting(settings && settings['point_system'])
+  }, [settings])
+
+
+
 
   const fetchSubcategories = async (catId: string) => {
     setSubcategories(categories.filter(cat => cat.parent_id?.toString() === catId) || []);
@@ -202,12 +215,18 @@ const AddProductPage = () => {
   };
 
 
+  const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
       setError('Product name is required');
       return;
+    }
+
+    if (!formData.tax_id) {
+      setError("Please tax");
+      return
     }
 
     setSubmitLoading(true);
@@ -237,13 +256,13 @@ const AddProductPage = () => {
 
       const response = await serverCallFuction('POST', 'api/products/products', formDataToSend);
 
-      if (response && response.status !== false) {
+      if (response && response.status === true) {
         setSuccess('Product created successfully!');
         setFormData({
           name: '',
           description: '',
           price: '',
-          discounted_price:'',
+          discounted_price: '',
           cat_id: '',
           subcategories: [],
           attributes: [],
@@ -255,6 +274,9 @@ const AddProductPage = () => {
         });
         setFImagePreview('');
         setGImagePreviews([]);
+        setTimeout(() => {
+          router.push('/products')
+        }, 2000);
       } else {
         setError(response?.message || 'Failed to create product');
       }
@@ -267,8 +289,8 @@ const AddProductPage = () => {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      
+    <div className="space-y-6 p-6 bg-white rounded-lg mt-4" >
+
 
       {error && <Alert variant="error" title="Error" message={error} />}
       {success && <Alert variant="success" title="Success" message={success} />}
@@ -291,7 +313,7 @@ const AddProductPage = () => {
             <Label htmlFor="cat_id">Category</Label>
             <Select
               options={categories.filter(cat => cat.parent_id == null).map(cat => ({ value: cat.id.toString(), label: cat.name }))}
-              placeholder="Select category"              
+              placeholder="Select category"
               onChange={(value) => {
                 setFormData(prev => ({ ...prev, cat_id: value }))
                 fetchSubcategories(value);
@@ -318,7 +340,7 @@ const AddProductPage = () => {
                 { value: 'inactive', label: 'Inactive' }
               ]}
               onChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
-              value={formData.status}
+              defaultValue={formData.status}
             />
 
 
@@ -327,10 +349,10 @@ const AddProductPage = () => {
           <div>
             <Label htmlFor="tax_id">Tax</Label>
             <Select
-              options={taxes.map(tax => ({ value: tax.id.toString(), label: tax.name }))}
+              options={taxes.map(tax => ({ value: tax.id.toString(), label: `${tax.tax_name} - (${tax.tax_percentage}%)` }))}
               placeholder="Select tax"
               onChange={(value) => setFormData(prev => ({ ...prev, tax_id: value }))}
-              value={formData.tax_id}
+              defaultValue={formData.tax_id}
             />
 
 
@@ -340,11 +362,12 @@ const AddProductPage = () => {
         <div>
           <Label htmlFor="description">Description</Label>
           <TextArea
-            id="description"
             name="description"
             placeholder="Enter product description"
             value={formData.description}
-            onChange={handleInputChange}
+            onChange={(value) => {
+              setFormData({ ...formData, description: value })
+            }}
             rows={4}
           />
         </div>
@@ -359,8 +382,8 @@ const AddProductPage = () => {
               type="number"
               step="0.01"
               placeholder="0.00"
-              value={formData.price}
-              onChange={handlePriceChange}
+              defaultValue={formData.price}
+              onChange={handleInputChange}
             />
           </div>
           <div>
@@ -371,10 +394,28 @@ const AddProductPage = () => {
               type="number"
               step="0.01"
               placeholder="0.00"
-              value={formData.discounted_price}
-              onChange={handlePriceChange}
+              defaultValue={formData.discounted_price}
+              onChange={handleInputChange}
             />
           </div>
+
+
+          {/* point syatem */}
+          {((formData.discounted_price || formData.price) && points_setting) &&
+            <div className='text-sm bg-brand-200 rounded-lg p-4'>
+              <Label>Points calculation</Label>
+
+              <ul className='flex gap-4'>
+                <li><Badge> PV - {formattedAmount(parseFloat(formData.price) * parseFloat(points_setting.pv))}</Badge> </li>
+                <li><Badge> BV - {formattedAmountPoints((parseFloat(formData.price) * parseFloat(points_setting.bv)) / 100)}</Badge> </li>
+                <li><Badge> UV - {formattedAmount((parseFloat(formData.price) * parseFloat(points_setting.uv)) / 100)}</Badge> </li>
+              </ul>
+
+            </div>
+          }
+
+
+
         </div>
 
         {/* New fields */}
@@ -412,6 +453,14 @@ const AddProductPage = () => {
             onVariantChange={(index, field, value) => {
               const newVariants = [...formData.variants];
               (newVariants[index] as any)[field] = value;
+
+              if (field === "price") {
+                (newVariants[index] as any).pv_point = (value * points_setting.pv);
+                (newVariants[index] as any).bv_point = (value * points_setting.bv) / 100;
+                (newVariants[index] as any).uv_point = (value * points_setting.uv) / 100;
+              }
+
+
               setFormData(prev => ({ ...prev, variants: newVariants }));
             }}
             onDelete={(index) => {
@@ -424,6 +473,7 @@ const AddProductPage = () => {
         {/* Variant Modal */}
         <Modal isOpen={showVariantModal} onClose={() => setShowVariantModal(false)} className='max-w-4xl mx-auto max-h-[90vh]'>
           <VariantManager
+            points_system={points_setting}
             selectedAttributes={formData.attributes}
             attrValues={attrValues}
             variants={formData.variants}
@@ -490,7 +540,9 @@ const AddProductPage = () => {
 
 
         <div className="flex gap-3 pt-4 border-t">
-          <Button disabled={submitLoading || !formData.name.trim()}>
+          <Button disabled={submitLoading || !formData.name.trim()}
+            type='submit'
+          >
             {submitLoading ? 'Creating...' : 'Create Product'}
           </Button>
           <Button variant="outline" onClick={() => window.history.back()}>

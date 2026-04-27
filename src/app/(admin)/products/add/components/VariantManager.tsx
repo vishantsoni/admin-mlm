@@ -1,15 +1,16 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Input from '@/components/form/input/InputField';
 import Button from '@/components/ui/button/Button';
 
 interface VariantManagerProps {
   selectedAttributes: string[];
   attrValues: Record<string, { id: string, value: string }[]>;
-  variants: Array<{ id: string; sku: string, price: string, bv_point: number, stock: number, attr_mappings: Array<{ attr_id: string, value_id: string }> }>;
+  variants: Array<{ id: string; sku: string, price: string, pv_point: number, bv_point: number, uv_point: number, stock: number, attr_mappings: Array<{ attr_id: string, value_id: string }> }>;
   onVariantsChange: (variants: Array<{ id: string; sku: string, price: string, bv_point: number, stock: number, attr_mappings: Array<{ attr_id: string, value_id: string }> }>) => void;
   onClose?: () => void;
+  points_system?: Record<string, { bv: number, bv_type: string, pv: number, uv: number, uv_type: string, uv_value: number }>;
 }
 
 const VariantManager: React.FC<VariantManagerProps> = ({
@@ -17,7 +18,8 @@ const VariantManager: React.FC<VariantManagerProps> = ({
   attrValues,
   variants,
   onVariantsChange,
-  onClose
+  onClose,
+  points_system
 }) => {
 
 
@@ -72,6 +74,13 @@ const VariantManager: React.FC<VariantManagerProps> = ({
   const handleUpdateField = (index: number, field: 'sku' | 'price' | 'bv_point' | 'stock', value: string | number) => {
     const newVariants = [...variants];
     (newVariants[index] as any)[field] = value;
+
+
+    if (field === "price") {
+      (newVariants[index] as any).pv_point = (value * points_system.pv);
+      (newVariants[index] as any).bv_point = (value * points_system.bv)/100;
+      (newVariants[index] as any).uv_point = (value * points_system.uv)/100;
+    }
     onVariantsChange(newVariants);
   };
 
@@ -79,6 +88,8 @@ const VariantManager: React.FC<VariantManagerProps> = ({
     const newVariants = variants.filter((_, i) => i !== index);
     onVariantsChange(newVariants);
   };
+
+
 
   return (
     <div className="p-6">
@@ -111,9 +122,19 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                     <label className="text-xs font-medium text-gray-600 mb-1 block">Price</label>
                     <Input type="number" placeholder="Price" defaultValue={variant.price || '0.00'} onChange={(e) => handleUpdateField(index, 'price', e.target.value)} />
                   </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-600 mb-1 block">BV Point</label>
-                    <Input type="number" placeholder="BV Point" defaultValue={variant.bv_point || 0} onChange={(e) => handleUpdateField(index, 'bv_point', parseFloat(e.target.value) || 0)} />
+                  <div className='flex gap-2'>
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">PV Point</label>
+                      <Input type="number" disabled placeholder="BV Point" defaultValue={variant.pv_point || 0} onChange={(e) => handleUpdateField(index, 'bv_point', parseFloat(e.target.value) || 0)} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">BV Point</label>
+                      <Input type="number" disabled placeholder="BV Point" defaultValue={variant.bv_point || 0} onChange={(e) => handleUpdateField(index, 'bv_point', parseFloat(e.target.value) || 0)} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">UV Point</label>
+                      <Input type="number" disabled placeholder="BV Point" defaultValue={variant.uv_point || 0} onChange={(e) => handleUpdateField(index, 'bv_point', parseFloat(e.target.value) || 0)} />
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-gray-600 mb-1 block">Stock</label>

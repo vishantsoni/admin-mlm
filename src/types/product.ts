@@ -32,7 +32,7 @@ export interface Product {
   slug?: string;
   description?: string;
   base_price: string;
-  discounted_price?: string;
+  discounted_price?: number;
   cat_id: string;
   category?: Category;
   category_name? :string;
@@ -47,6 +47,11 @@ export interface Product {
   tax?: Tax;
   created_at: string;
   updated_at?: string;
+  tax_data?:{
+    name?:string,
+    percentage?:number,
+    id?:number
+  } | null
 }
 
 export interface ApiResponse<T> {

@@ -96,7 +96,7 @@ const OrderPage = () => {
                 // className="flex-1"
                 onClick={() => setFilter('all')}
               >
-                All
+                All ( Direct + To Dist. )
               </Button>
               <Button
                 variant={filter === 'my' ? "primary" : "outline"}
@@ -104,8 +104,10 @@ const OrderPage = () => {
                 // className="flex-1 w-full"
                 onClick={() => setFilter('my')}
               >
-                My Orders
+                Direct Orders
               </Button>
+
+              
               <Button
                 variant={filter === 'distributor' ? "primary" : "outline"}
                 size="sm"
@@ -140,7 +142,7 @@ const OrderPage = () => {
         </div>
       ) : (
         <>
-          <div className="rounded-md border">
+          <div className="rounded-md border bg-white overflow-hidden">
             <Table>
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
@@ -176,13 +178,19 @@ const OrderPage = () => {
                     </TableCell>
                     <TableCell className="px-6 py-4">{date_formate(order.created_at)}</TableCell>
                     <TableCell className="px-6 py-4">
-                      <div>
-                        Subtotal: ₹{formattedAmount(order.sub_total || 0)}
+                      <div className='flex justify-between'>
+                        <span>Subtotal:</span> 
+                        <span>₹{formattedAmount(order.sub_total || 0)}</span>
                       </div>
-                      <div>
-                        Tax: ₹{formattedAmount(order.tax_amount || 0)}
+                      <div className='flex justify-between'>
+                        <span>Tax: </span> <span>₹{formattedAmount(order.tax_amount || 0)}</span>
                       </div>
-                      Total: <strong>₹{formattedAmount(order.total_amount)}</strong>
+                      <div className='flex justify-between'>
+                        <span>Shipping C.:</span> <span>₹{formattedAmount(order.shipping_charges || 0)}</span>
+                      </div>
+                      <div className='flex justify-between'>
+                      <span>Total:</span> <strong>₹{formattedAmount(order.total_amount)}</strong>
+                      </div>
                     </TableCell>
                     <TableCell className="px-6 py-4">
                       <Badge variant='solid' color={getStatusColor(order.order_status)}>

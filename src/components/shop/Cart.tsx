@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { BackendCartItem } from '@/types/cart';
-import { formattedAmount, getCurrencyIcon } from '@/lib/constantFunction';
+import { formattedAmount, formattedAmountCommas, getCurrencyIcon } from '@/lib/constantFunction';
 import { ShoppingCart, Trash2, Minus, Plus, ArrowRight, X } from 'lucide-react';
 import Button from '@/components/ui/button/Button';
 
@@ -204,7 +204,7 @@ const Cart = () => {
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div className="flex justify-between items-center text-2xl font-black text-gray-800 dark:text-white">
                     <span>Total:</span>
-                    <span>{currency}{formattedAmount(totalAmount)}</span>
+                    <span>{currency}{formattedAmountCommas(totalAmount)}</span>
                   </div>
                 </div>
                 <Button

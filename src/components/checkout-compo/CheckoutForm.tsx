@@ -231,12 +231,16 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
     }
   };
 
+  console.log("cart item - ",cartItems);
+  
+
   const placePurchaseOrder = async (razorpayOrderId: string, paymentMethod = 'razorpay') => {
     try {
       const items = cartItems.map(item => ({
         product_id: item.product_id,
         variant_id: item.variant_id || null,
-        qty: item.quantity
+        qty: item.quantity,
+        tax_data: item.product?.tax_data || null
       }));
 
       const res = await serverCallFuction('POST', 'api/orders/d_p_o', {
