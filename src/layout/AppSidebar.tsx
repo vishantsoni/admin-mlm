@@ -260,6 +260,12 @@ const allNavItems: NavItem[] = [
         path: '/cms/team-members',
         permission: 'team-member'
       },
+
+      {
+        name: "Banners",
+        path: '/cms/banners',
+        permission: 'banners'
+      },
     ]
   },
   {
