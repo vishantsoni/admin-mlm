@@ -24,7 +24,7 @@ interface Coupon {
   valid_from: string;
   expires_at: string;
   applicable_products?: string[];
-  product_names?:string[];
+  product_names?: string[];
   applicable_users?: string[];
   status: 'active' | 'inactive';
   created_at?: string;
@@ -42,7 +42,7 @@ interface FormData {
   applicable_products: string[];
   applicable_users: string[];
   status: 'active' | 'inactive';
-  product_names:string[];
+  product_names: string[];
 }
 
 const CouponsPage: React.FC = () => {
@@ -67,7 +67,7 @@ const CouponsPage: React.FC = () => {
     applicable_products: [],
     applicable_users: [],
     status: 'active',
-    product_names:[]
+    product_names: []
   });
 
   const { isOpen: modalOpen, openModal, closeModal } = useModal();
@@ -86,7 +86,7 @@ const CouponsPage: React.FC = () => {
       applicable_products: [],
       applicable_users: [],
       status: 'active',
-      product_names:[]
+      product_names: []
     });
     setEditingCoupon(null);
   };
@@ -120,11 +120,27 @@ const CouponsPage: React.FC = () => {
       return;
     }
 
+    if (editingCoupon) {
+
+    }
+
     const url = editingCoupon ? `api/coupons/${editingCoupon.id}` : 'api/coupons';
     const method = editingCoupon ? 'PUT' : 'POST';
 
+    let payload = { ...formData };
+    if (editingCoupon) {
+      // Remove fields that the backend shouldn't receive during an update
+      delete (payload as any).index;
+      delete (payload as any).actual_used_count;
+      delete (payload as any).product_names;
+      delete (payload as any).updated_at;
+
+      // Optional: If 'id' is in formData but already in the URL, you might remove it too
+      // delete (payload as any).id; 
+    }
+
     try {
-      const response = await serverCallFuction(method, url, formData);
+      const response = await serverCallFuction(method, url, payload);
       if (response && response.status !== false) {
         alert(editingCoupon ? 'Coupon updated!' : 'Coupon created!');
         closeModal();
@@ -148,7 +164,7 @@ const CouponsPage: React.FC = () => {
       usage_limit: coupon.usage_limit || 0,
       applicable_products: applicable,
       applicable_users: coupon.applicable_users || [],
-      product_names : coupon.product_names || []
+      product_names: coupon.product_names || []
     });
     setEditingCoupon(coupon);
     openModal();

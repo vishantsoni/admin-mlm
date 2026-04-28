@@ -59,7 +59,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete,
           let total_price = parseFloat(product.base_price);
           let tax_amount = 0;
           if (tax_data) {
-            tax_amount = (total_price * Number(tax_data.percentage))/100
+            tax_amount = (total_price * Number(tax_data.percentage)) / 100
             total_price += tax_amount
           }
 
@@ -103,7 +103,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete,
               </TableCell>
               <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
                 <div className="flex gap-2">
-                  <Link href={`/products/${product.id}`} className="p-2 hover:bg-gray-100 rounded">
+                  <Link href={`https://feel-safe-mlm-website.vercel.app/products/${product?.slug}`} target='_blank' className="p-2 hover:bg-gray-100 rounded">
                     <Eye className="h-4 w-4" />
                   </Link>
                   {hasPermission('products/edit') &&

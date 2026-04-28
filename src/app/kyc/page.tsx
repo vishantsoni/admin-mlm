@@ -148,9 +148,9 @@ const KYCPage = () => {
       xhrRef.current = null;
     });
 
-    xhr.open('POST', 'http://localhost:5000/api/users/kyc/upload');
-    // xhr.open('POST', 'https://backend-gamma-roan.vercel.app/api/users/kyc/upload');
-    
+    // xhr.open('POST', 'http://localhost:5000/api/users/kyc/upload');
+    xhr.open('POST', 'https://fsbackend.gtsol.in/api/users/kyc/upload');
+
     xhr.send(formDataToSend);
   };
 
@@ -242,15 +242,15 @@ const KYCPage = () => {
           <div className="flex justify-center mb-6">
             <div className="flex items-center space-x-2">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === 'upload'
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 border border-brand-200 dark:border-brand-800'
+                ? 'bg-brand-500 text-white'
+                : 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 border border-brand-200 dark:border-brand-800'
                 }`}>
                 1
               </div>
               <div className="w-12 h-1 bg-brand-200 dark:bg-brand-800" />
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === 'submit'
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                ? 'bg-brand-500 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
                 }`}>
                 2
               </div>
@@ -265,72 +265,72 @@ const KYCPage = () => {
 
 
 
-            {step === 'upload' ? 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { key: 'aadhaarFront' as const, label: 'Aadhaar Front Side', required: true },
-                { key: 'aadhaarBack' as const, label: 'Aadhaar Back Side', required: true },
-                { key: 'pan' as const, label: 'PAN Card', required: true },
-                { key: 'bankPassbook' as const, label: 'Bank Passbook / Cheque', required: true },
-                { key: 'profileImage' as const, label: 'Profile Photo', required: false }
-              ].map(({ key, label, required }) => (
-                <div key={key} className="space-y-2">
-                  <Label>{label} {required && <span className="text-error-500">*</span>}</Label>
-                  <div className="relative">
-                    <input
-                      ref={fileInputRefs[key]}
-                      type="file"
-                      accept="image/jpeg,image/png,image/jpg"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const sizeKB = (file.size / 1024).toFixed(0);
-                          if (file.size < 50 * 1024 || file.size > 5 * 1024 * 1024) {
-                            setError(`File size must be 50KB - 5MB. Current: ${sizeKB}KB`);
-                            return;
+            {step === 'upload' ?
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { key: 'aadhaarFront' as const, label: 'Aadhaar Front Side', required: true },
+                  { key: 'aadhaarBack' as const, label: 'Aadhaar Back Side', required: true },
+                  { key: 'pan' as const, label: 'PAN Card', required: true },
+                  { key: 'bankPassbook' as const, label: 'Bank Passbook / Cheque', required: true },
+                  { key: 'profileImage' as const, label: 'Profile Photo', required: false }
+                ].map(({ key, label, required }) => (
+                  <div key={key} className="space-y-2">
+                    <Label>{label} {required && <span className="text-error-500">*</span>}</Label>
+                    <div className="relative">
+                      <input
+                        ref={fileInputRefs[key]}
+                        type="file"
+                        accept="image/jpeg,image/png,image/jpg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const sizeKB = (file.size / 1024).toFixed(0);
+                            if (file.size < 50 * 1024 || file.size > 5 * 1024 * 1024) {
+                              setError(`File size must be 50KB - 5MB. Current: ${sizeKB}KB`);
+                              return;
+                            }
+                            handleFileChange(key, file);
                           }
-                          handleFileChange(key, file);
-                        }
-                      }}
-                      className="hidden"
-                      required={required}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full justify-start text-sm h-11"
-                      onClick={() => triggerFileInput(key)}
-                    >
-                      {files[key]?.name || `Choose ${label.toLowerCase()}`}
-                    </Button>
-                  </div>
-                  {files[key] && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border">
-                      <img
-                        src={URL.createObjectURL(files[key]!)}
-                        alt={label}
-                        className="w-16 h-16 object-cover rounded border"
+                        }}
+                        className="hidden"
+                        required={required}
                       />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-gray-900 truncate">{files[key]?.name}</p>
-                        <p className="text-xs text-gray-500">{(files[key]?.size! / 1024).toFixed(0)} KB</p>
-                      </div>
                       <Button
+                        type="button"
                         variant="outline"
-                        size="sm"
-                        className="p-0"
-                        onClick={() => setFiles(prev => ({ ...prev, [key]: null }))}
+                        className="w-full justify-start text-sm h-11"
+                        onClick={() => triggerFileInput(key)}
                       >
-                        <TrashBinIcon style={{ color: 'red' }} />
+                        {files[key]?.name || `Choose ${label.toLowerCase()}`}
                       </Button>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-: <>
-<p>Your document has been uploaded. Please submit for review</p>
-</>}
+                    {files[key] && (
+                      <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border">
+                        <img
+                          src={URL.createObjectURL(files[key]!)}
+                          alt={label}
+                          className="w-16 h-16 object-cover rounded border"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-900 truncate">{files[key]?.name}</p>
+                          <p className="text-xs text-gray-500">{(files[key]?.size! / 1024).toFixed(0)} KB</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="p-0"
+                          onClick={() => setFiles(prev => ({ ...prev, [key]: null }))}
+                        >
+                          <TrashBinIcon style={{ color: 'red' }} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              : <>
+                <p>Your document has been uploaded. Please submit for review</p>
+              </>}
             {step === 'submit' ? <Button
               type="submit"
               className="w-full"

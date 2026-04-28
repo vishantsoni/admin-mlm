@@ -256,7 +256,7 @@ const AddProductPage = () => {
 
       const response = await serverCallFuction('POST', 'api/products/products', formDataToSend);
 
-      if (response && response.status === true) {
+      if (response && response.success === true) {
         setSuccess('Product created successfully!');
         setFormData({
           name: '',

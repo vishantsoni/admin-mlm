@@ -126,7 +126,7 @@ const TaxSettingPage = () => {
       if (editMode && currentItem) {
         response = await serverCallFuction(
           'PUT',
-          `api/settings/tax/${currentItem.id}`,
+          `api/tax/${currentItem.id}`,
           formData
         );
       } else {

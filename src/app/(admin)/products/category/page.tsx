@@ -118,8 +118,9 @@ const CategoryPage = () => {
         parent_id: formData.parent_id === '' ? null : Number(formData.parent_id),
       };
       const data = await serverCallFuction('POST', 'api/products/category/create', payload);
-      if (data.status !== false) { // Assume truthy if success
+      if (data.success !== false) { // Assume truthy if success
         fetchCategories();
+        // setCategories(categories.concat(data.data))
         setIsCreateModalOpen(false);
         resetForm();
       } else {
@@ -139,9 +140,11 @@ const CategoryPage = () => {
       const payload = {
         ...formData,
         parent_id: formData.parent_id === '' ? null : Number(formData.parent_id),
+        id: selectedCategory.id
       };
-      const data = await serverCallFuction('PUT', `categories/${selectedCategory.id}`, payload);
-      if (data.status !== false) {
+      const data = await serverCallFuction('PUT', `api/products/category/update`, payload);
+      if (data.success !== false) {
+
         fetchCategories();
         setIsEditModalOpen(false);
         resetForm();
@@ -158,9 +161,10 @@ const CategoryPage = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure to delete this category?')) return;
     try {
-      const data = await serverCallFuction('DELETE', `api/product/category/${id}`);
-      if (data.status) {
-        fetchCategories();
+      const data = await serverCallFuction('DELETE', `api/products/category/${id}`);
+      if (data.success) {
+        // fetchCategories();
+        setCategories(categories.filter(cat => cat.id !== id))
       } else {
         setError(data.message || 'Failed to delete category');
       }
@@ -237,20 +241,20 @@ const CategoryPage = () => {
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{new Date(cat.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
                     <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         startIcon={<Edit className="h-3 w-3" />}
                         onClick={() => openEdit(cat)}
                       />
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         startIcon={<Trash2 className="h-3 w-3" color='red' />}
                         onClick={() => handleDelete(cat.id)}
                       />
-                        
-                      
+
+
                     </div>
                   </TableCell>
                 </TableRow>
@@ -262,14 +266,14 @@ const CategoryPage = () => {
 
       {/* Create/Edit Modal */}
       {(isCreateModalOpen || isEditModalOpen) && (
-        <Modal 
-          isOpen={true} 
+        <Modal
+          isOpen={true}
           onClose={() => {
             setIsCreateModalOpen(false);
             setIsEditModalOpen(false);
           }}
           className='max-w-lg mx-auto'
-          
+
         >
           <div className="p-6">
             <h2 className="text-lg font-bold mb-6">
@@ -297,7 +301,7 @@ const CategoryPage = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50"
                   required
-                  placeholder='slug-auto generated'                  
+                  placeholder='slug-auto generated'
                 />
               </div>
               <div>
@@ -330,14 +334,14 @@ const CategoryPage = () => {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <Button 
+              <Button
                 onClick={isEditModalOpen ? handleEdit : handleCreate}
                 disabled={submitLoading || !formData.name || !formData.slug}
               >
                 {submitLoading ? 'Saving...' : (isEditModalOpen ? 'Update' : 'Create')}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setIsCreateModalOpen(false);
                   setIsEditModalOpen(false);
