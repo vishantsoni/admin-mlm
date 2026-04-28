@@ -21,6 +21,7 @@ import { Plus } from 'lucide-react';
 import Select from '@/components/form/Select';
 import { CreateAddressPayload } from '@/types/address';
 import { States } from '@/types/static-content';
+import { usePreloader } from '@/context/PreloaderContext';
 
 
 interface CartCheckoutProps {
@@ -158,7 +159,10 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
   const router = useRouter();
   const { updateUserProfile } = useAuth();
 
+  const { showLoader, hideLoader } = usePreloader();
+
   const currency = getCurrencyIcon('INR');
+
 
   // Fetch addresses
   const fetchAddresses = async () => {
@@ -203,6 +207,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
         alert("Please select Shipping Address");
         return;
       }
+      showLoader("Creating order...")
       const res = await serverCallFuction('POST', 'api/payment/create-order', {
         amount: Math.round(amt),
         currency: 'INR',
@@ -223,6 +228,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
   const verifyPayment = async (paymentData: RazorpayPaymentResponse) => {
     try {
+      showLoader("Verifying payment...")
       const res = await serverCallFuction('POST', 'api/payment/verify', paymentData);
       if (!res.success) throw new Error(res.message || 'Payment verification failed');
       return res.data;
@@ -231,11 +237,13 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
     }
   };
 
-  console.log("cart item - ",cartItems);
-  
+
+
 
   const placePurchaseOrder = async (razorpayOrderId: string, paymentMethod = 'razorpay') => {
     try {
+
+      showLoader("Almost done! Loading...")
       const items = cartItems.map(item => ({
         product_id: item.product_id,
         variant_id: item.variant_id || null,
@@ -250,11 +258,11 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
       });
       if (res.success) {
         // Clear cart
-        
+
         await serverCallFuction('DELETE', 'api/ecom/cart/d_clear');
         alert('Order placed successfully!');
         onSuccess();
-        router.replace("/")
+        hideLoader()
       } else {
         throw new Error(res.message || 'Order placement failed');
       }
@@ -315,8 +323,10 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
       const paymentObject = new (window.Razorpay as any)(options);
       paymentObject.open();
     } catch (error) {
+      hideLoader()
       alert(`Error: ${(error as Error).message}`);
     } finally {
+      hideLoader()
       setLoading(false);
     }
   };
@@ -387,7 +397,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                   <p>Loading addresses...</p>
                 ) : addresses.length === 0 ? (
                   <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500 dark:border-gray-600">
-                    No addresses found. <span  className="text-brand-500 hover:underline font-medium" onClick={() => setIsAddAddressModalOpen(true)}>Add address</span>
+                    No addresses found. <span className="text-brand-500 hover:underline font-medium" onClick={() => setIsAddAddressModalOpen(true)}>Add address</span>
                   </div>
                 ) : (
                   <RadioGroup value={selectedShippingId} onValueChange={(value) => {
@@ -409,8 +419,8 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                             setSelectedAddress(address);
                           }}
                           className={`flex items-start p-4 border-2 rounded-xl transition-all cursor-pointer mb-3 ${isSelected
-                              ? 'border-brand-500 bg-brand-50 shadow-md ring-1 ring-brand-500' // Highlighted
-                              : 'border-gray-100 hover:border-gray-300 bg-white' // Not selected
+                            ? 'border-brand-500 bg-brand-50 shadow-md ring-1 ring-brand-500' // Highlighted
+                            : 'border-gray-100 hover:border-gray-300 bg-white' // Not selected
                             }`}
                         >
                           <div className="mt-1 mr-3">

@@ -129,7 +129,7 @@ export default function NotificationDropdown() {
         </Link>
       </Dropdown>
 
-      {user?.role !== "Super Admin" && popups.length > 0 && popups.map((popup, index) => {
+      {user?.kyc_status && user?.is_active && user?.role !== "Super Admin" && popups.length > 0 && popups.map((popup, index) => {
         return <Modal isOpen={true} className="max-w-2xl" key={index} onClose={() => removePopup(popup.id)}>
           <div className="p-6">
             <h2 className="text-lg font-bold mb-6">

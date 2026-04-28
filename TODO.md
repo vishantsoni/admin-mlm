@@ -1,7 +1,9 @@
-# Banner Management Implementation
+# GST-TDS Page Implementation
 
-- [x] 1. Plan approved by user
-- [x] 2. Add `Banner` type to `src/types/static-content.ts`
-- [x] 3. Implement banner CRUD page at `src/app/(admin)/cms/banners/page.tsx`
-- [x] 4. Test & verify build
+## Steps
+- [x] 1. Add GST report types to `src/types/gst-report.ts`
+- [x] 2. Create `src/app/(admin)/gst-tds/page.tsx` with GST & TDS sections
+- [x] 3. GST section with summary cards, GST split, chart, and tables
+- [x] 4. TDS section with coming-soon placeholder
+- [ ] 5. Build verification
 

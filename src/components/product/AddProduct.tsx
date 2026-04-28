@@ -406,9 +406,21 @@ const AddProductPage = () => {
               <Label>Points calculation</Label>
 
               <ul className='flex gap-4'>
-                <li><Badge> PV - {formattedAmount(parseFloat(formData.price) * parseFloat(points_setting.pv))}</Badge> </li>
-                <li><Badge> BV - {formattedAmountPoints((parseFloat(formData.price) * parseFloat(points_setting.bv)) / 100)}</Badge> </li>
-                <li><Badge> UV - {formattedAmount((parseFloat(formData.price) * parseFloat(points_setting.uv)) / 100)}</Badge> </li>
+                <li><Badge> PV - {formattedAmount(
+                  (parseFloat(formData.discounted_price) > 0
+                    ? parseFloat(formData.discounted_price)
+                    : parseFloat(formData.price)) * parseFloat(points_setting.pv)
+                )}</Badge> </li>
+                <li><Badge> BV - {formattedAmount(
+                  (parseFloat(formData.discounted_price) > 0
+                    ? parseFloat(formData.discounted_price)
+                    : parseFloat(formData.price)) * parseFloat(points_setting.bv) / 100
+                )}</Badge> </li>
+                <li><Badge> UV - {formattedAmount((
+                  (parseFloat(formData.discounted_price) > 0
+                    ? parseFloat(formData.discounted_price)
+                    : parseFloat(formData.price))
+                  * parseFloat(points_setting.uv)) / 100)}</Badge> </li>
               </ul>
 
             </div>

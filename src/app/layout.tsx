@@ -7,6 +7,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { Metadata } from 'next';
 import { SettingProvider } from '@/context/SettingContext';
 import { NotificationProvider } from '@/context/NotificationContext';
+import { PreloaderProvider } from '@/context/PreloaderContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -28,13 +29,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.className} dark:bg-gray-900`}>
         <ThemeProvider>
-          <AuthProvider>
-            <SettingProvider>
-              <NotificationProvider>
-              <SidebarProvider>{children}</SidebarProvider>
-              </NotificationProvider>
-            </SettingProvider>
-          </AuthProvider>
+          <PreloaderProvider>
+            <AuthProvider>
+              <SettingProvider>
+                <NotificationProvider>
+                  <SidebarProvider>{children}</SidebarProvider>
+                </NotificationProvider>
+              </SettingProvider>
+            </AuthProvider>
+          </PreloaderProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -16,7 +16,7 @@ declare global {
 
 const CheckoutPage = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { items, totalItems, totalAmount, loading, clearCart } = useCart();
 
   if (loading) {
@@ -67,7 +67,12 @@ const CheckoutPage = () => {
             user={user}
             onSuccess={() => {
               clearCart();
-              router.replace('/shop');
+              if (user?.is_active) {
+                router.replace('/placed_order');
+              } else {
+                logout()
+                // router.replace('/shop');
+              }
             }}
           />
         </div></div>
