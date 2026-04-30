@@ -137,3 +137,109 @@ export interface DashboardResponse {
   message: string;
 }
 
+// ====== DISTRIBUTOR DASHBOARD TYPES ======
+
+export interface DistributorProfile {
+  id: number;
+  full_name: string;
+  username: string;
+  phone: string;
+  email: string;
+  referral_code: string;
+  binary_path: string;
+  level: number;
+  is_active: boolean;
+  kyc_status: boolean;
+  created_at: string;
+}
+
+export interface DistributorWallet {
+  total_balance: string;
+  pending_balance: string;
+  available_balance: string;
+}
+
+export interface DistributorOrders {
+  total_orders: number;
+  total_spent: string;
+  avg_order_value: string;
+  pending_orders: number;
+  delivered_orders: number;
+  cancelled_orders: number;
+  paid_orders: number;
+  unpaid_orders: number;
+}
+
+export interface DistributorTransaction {
+  id: number;
+  amount: string;
+  type: string;
+  category: string;
+  status: string;
+  remarks: string;
+  created_at: string;
+}
+
+export interface DistributorTransactions {
+  total_commissions: string;
+  total_withdrawals: string;
+  total_purchases: string;
+  total_ref_bonuses: string;
+  total_credits: number;
+  total_debits: number;
+}
+
+export interface DistributorTeam {
+  total_team_members: number;
+  direct_referrals: number;
+  downline_members: number;
+}
+
+export interface DistributorRecentOrder {
+  id: number;
+  order_id: string;
+  total_amount: string;
+  order_status: string;
+  payment_status: string;
+  created_at: string;
+}
+
+export interface DailyOrder {
+  date: string;
+  orders: number;
+  spending: string;
+}
+
+export interface DailyTransaction {
+  date: string;
+  credits: string;
+  debits: string;
+}
+
+export interface DistributorRecent {
+  orders: DistributorRecentOrder[];
+  transactions: DistributorTransaction[];
+}
+
+export interface DistributorCharts {
+  daily_orders: DailyOrder[];
+  daily_transactions: DailyTransaction[];
+}
+
+export interface DistributorDashboardData {
+  profile: DistributorProfile;
+  wallet: DistributorWallet;
+  orders: DistributorOrders;
+  transactions: DistributorTransactions;
+  team: DistributorTeam;
+  recent: DistributorRecent;
+  charts: DistributorCharts;
+}
+
+export interface DistributorDashboardResponse {
+  success: boolean;
+  data: DistributorDashboardData;
+  errors: string[];
+  message: string;
+}
+

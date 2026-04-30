@@ -33,7 +33,7 @@ const QuickActionDash = () => {
                         Add Product
                     </Button>
                     <Button onClick={redirection("/notifications")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">Send Notification</Button>
-                    <Button onClick={redirection("/payouts")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Payouts</Button>
+                    <Button onClick={redirection("/withdrawals")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Payouts</Button>
                     <Button onClick={redirection("/transactions")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Transaction</Button>
                     <Button onClick={redirection("/orders")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Orders</Button>
                 </div>
@@ -42,7 +42,7 @@ const QuickActionDash = () => {
             {/* Upcoming Events Card */}
             <div className="rounded-2xl border border-gray-200 p-6 dark:border-gray-800 bg-[linear-gradient(135deg,var(--color-brand-50)_0%,#ffffff_100%)] dark:bg-gray-900">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">Upcoming Events</h3>
-                
+
                 <div className="pt-2 overflow-y-auto max-h-[300px] custom-scrollbar">
                     <ul className="space-y-3">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
