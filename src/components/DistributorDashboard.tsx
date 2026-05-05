@@ -140,10 +140,10 @@ export const DistributorDashboard = ({ data, loading }: DistributorDashboardProp
                             <span className="text-sm text-gray-500 dark:text-gray-400">Total Spent</span>
                             <span className="font-medium text-gray-800 dark:text-white">₹{formatAmount(data?.orders?.total_spent)}</span>
                         </div>
-                        <div className="flex justify-between">
+                        {/* <div className="flex justify-between">
                             <span className="text-sm text-gray-500 dark:text-gray-400">Avg Order Value</span>
                             <span className="font-medium text-gray-800 dark:text-white">₹{formatAmount(data?.orders?.avg_order_value)}</span>
-                        </div>
+                        </div> */}
                         <div className="flex justify-between">
                             <span className="text-sm text-gray-500 dark:text-gray-400">Delivered</span>
                             <span className="font-medium text-gray-800 dark:text-white">{data?.orders?.delivered_orders ?? 0}</span>

@@ -65,14 +65,6 @@ export const fakeUsers: Record<string, User> = {
   }
 };
 
-// export const rolePermissions: Record<User['role'], string[]> = {
-//   'super admin': ['*'],
-//   'admin': ['dashboard', 'calendar', 'profile', 'forms', 'tables', 'pages', 'charts', 'ui-elements', 'auth'],
-//   'distributor': ['*'],
-//   'DISTRIBUTOR': ['*'], // API uppercase
-//   'staff': ['dashboard']
-// };
-
 export const rolePermissions: Record<string, string[]> = {
   'super admin': [
     'dashboard',
@@ -91,6 +83,7 @@ export const rolePermissions: Record<string, string[]> = {
     'coupons',    
     'orders',
     'commissions',
+    'commissions/add',
     'level-capping',
     'level-milestone',
     'p-transactions',
@@ -109,10 +102,26 @@ export const rolePermissions: Record<string, string[]> = {
     'static-content',
     'state-city',
     'wallet',
-    'withdrawals'
-
-  ], // Has access to everything
-  'admin': ['dashboard', 'analytics', 'members', 'kyc-requests', 'products', 'orders', 'commissions', 'withdrawals', 'gst-tds', 'reports', 'plan-settings', 'ranks'],
+    'withdrawals',
+    'blog',
+    'support',
+    'support-tickets'
+  ],
+  'admin': [
+    'dashboard', 
+    'analytics', 
+    'members', 
+    'kyc-requests', 
+    'products', 
+    'orders', 
+    'commissions', 
+    'withdrawals', 
+    'gst-tds', 
+    'reports', 
+    'plan-settings', 
+    'ranks',
+    'support-tickets'
+  ],
   'distributor': [
     'dashboard',
     'referral',    
@@ -120,8 +129,8 @@ export const rolePermissions: Record<string, string[]> = {
     'wallet',
     'withdrawals',
     'network-tree',
-    'members', // for "My Team"
-    'products', // for "Shop"
+    'members',
+    'products',
     'product-list',
     'inventory',
     'purchase',
@@ -131,35 +140,28 @@ export const rolePermissions: Record<string, string[]> = {
     'orders',
     'placed_order',
     'recieved_order',
-    'commissions',
-    'level-capping',
+    'commissions',    
     'level-milestone',
     'simulator',
     'gst-tds',
     'ranks',
     'kyc',
-    'reports', // for "News & Alerts"
+    'reports',
     'checkout',
-    'activation']
+    'activation',
+    'my-tickets',
+    
+  ]
 };
-
-// export function hasPermission(userRole: User['role'] | null, permission: string): boolean {
-//   if (!userRole) return false;
-//   const roleKey = userRole.toLowerCase();
-//   const perms = rolePermissions[roleKey as keyof typeof rolePermissions] || [];
-//   return perms.includes('*') || perms.includes(permission);
-// }
 
 export function hasPermission(userRole: string | null, permission: string): boolean {
   if (!userRole) return false;
 
-
-  // Normalize to lowercase to match the keys in rolePermissions
   const roleKey = userRole.toLowerCase();
   const perms = rolePermissions[roleKey] || [];
 
   console.log("DEBUG hasPermission - roleKey:", roleKey, "perms:", perms, "permission:", permission, "result:", perms.includes('*') || perms.includes(permission));
 
-  // Check for the wildcard '*' or the specific permission string
   return perms.includes('*') || perms.includes(permission);
 }
+

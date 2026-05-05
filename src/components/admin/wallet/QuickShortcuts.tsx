@@ -8,7 +8,7 @@ const QuickShortcuts = () => {
       <div className="grid grid-cols-2 gap-3">
         <Button className="w-full h-14" variant="outline">Withdraw</Button>
         <Button className="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">Transfer</Button>
-        <Button className="w-full h-14" variant="outline">Deposit</Button>
+
         <Button className="w-full h-14" variant="outline">View History</Button>
       </div>
     </div>

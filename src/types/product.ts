@@ -7,7 +7,8 @@ export interface Category {
 
 export interface Tax {
   id: number;
-  name: string;
+  tax_name: string;
+  tax_percentage:string;
 }
 
 export interface AttributeValue {

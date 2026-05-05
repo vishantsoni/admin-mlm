@@ -192,10 +192,10 @@ const allNavItems: NavItem[] = [
         name: "Commission Report",
         path: '/reports/commissions',
       },
-      {
-        name: "Profit/ Loss",
-        path: '/reports/profit-loss',
-      }
+      // {
+      //   name: "Profit/ Loss",
+      //   path: '/reports/profit-loss',
+      // }
     ]
   },
 
@@ -233,12 +233,24 @@ const allNavItems: NavItem[] = [
     ]
   },
   // Distributor Specific
-  // {
-  //   icon: <UserCircleIcon />,
-  //   name: "My Profile",
-  //   permission: "my-profile",
-  //   path: "/profile",
-  // },
+  {
+    icon: <UserCircleIcon />,
+    name: "Blogs",
+    permission: "blogs",
+    subItems: [
+
+      {
+        name: "Blog",
+        path: '/blog',
+        permission: 'blog'
+      },
+      {
+        name: "Blog Categories",
+        path: '/blog/categories',
+        permission: 'blog-categories'
+      }
+    ]
+  },
   {
     icon: <PencilIcon />,
     name: "CMS",
@@ -266,6 +278,8 @@ const allNavItems: NavItem[] = [
         path: '/cms/banners',
         permission: 'banners'
       },
+
+
     ]
   },
   {
@@ -288,12 +302,7 @@ const allNavItems: NavItem[] = [
     permission: "simulator",
     path: "/simulator",
   },
-  {
-    icon: <BoxCubeIcon />,
-    name: "Ranks & Badges",
-    permission: "ranks",
-    path: "/ranks",
-  }
+
 
 ];
 

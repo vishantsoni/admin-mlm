@@ -15,12 +15,14 @@ import {
   TableCell,
 } from '@/components/ui/table/index';
 import type { LevelCommission } from '@/types/commission-type';
+import { useAuth } from '@/context/AuthContext';
 
 // interface removed, using imported type
 
 const RANKS = ['Distributor', 'Silver', 'Gold', 'Platinum', 'Diamond'] as const;
 
 const LevelCommissionComponent = () => {
+  const { hasPermission } = useAuth()
   const [commissions, setCommissions] = useState<LevelCommission[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -32,12 +34,12 @@ const LevelCommissionComponent = () => {
 
   const [formData, setFormData] = useState({
     level_no: '',
-    level_name:'',
+    level_name: '',
     commission_percentage: '',
     team_size: '',
-    ir_direct:'',
-    bima:'2 Lakh',
-    ir_commission:''
+    ir_direct: '',
+    bima: '2 Lakh',
+    ir_commission: ''
   });
 
   const fetchCommissions = useCallback(async () => {
@@ -81,12 +83,12 @@ const LevelCommissionComponent = () => {
     setCurrentItem(item);
     setFormData({
       level_no: item.level_no.toString(),
-      level_name:item.level_name,
+      level_name: item.level_name,
       commission_percentage: item.commission_percentage,
       team_size: item.team_size,
       ir_direct: item.ir_direct,
       ir_commission: item.ir_commission,
-      bima:item.bima
+      bima: item.bima
     });
     openModal();
   };
@@ -107,7 +109,7 @@ const LevelCommissionComponent = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.level_no || !formData.commission_percentage || !formData.team_size || !formData.ir_direct || !formData.ir_commission ) {
+    if (!formData.level_no || !formData.commission_percentage || !formData.team_size || !formData.ir_direct || !formData.ir_commission) {
       alert('Please fill all fields');
       return;
     }
@@ -143,9 +145,11 @@ const LevelCommissionComponent = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Level Commissions</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Manage level commission structure</p>
         </div>
-        <Button onClick={handleOpenCreate} startIcon={<Plus className="w-4 h-4" />}>
-          New Level
-        </Button>
+        {hasPermission('commissions/add') &&
+          <Button onClick={handleOpenCreate} startIcon={<Plus className="w-4 h-4" />}>
+            New Level
+          </Button>
+        }
       </div>
 
       {error && (
@@ -167,7 +171,8 @@ const LevelCommissionComponent = () => {
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">IR Commission</TableCell>
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Insurance (BIMA)</TableCell>
                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Created At</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-right">Actions</TableCell>
+                {hasPermission('commissions/add') &&
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-right">Actions</TableCell>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -185,22 +190,24 @@ const LevelCommissionComponent = () => {
                   <TableCell className="px-6 py-4 text-emerald-600 font-semibold ">{commission.ir_commission}%</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-semibold ">{commission.bima} LAKH</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{formatDate(commission.created_at)}</TableCell>
-                  <TableCell className="px-6 py-4 text-right">
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleOpenEdit(commission)}
-                        startIcon={<Pencil className="w-4 h-4" />}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(commission.id, commission.level_no)}
-                        startIcon={<Trash2 className="w-4 h-4" color='red'/>}
-                      />
-                    </div>
-                  </TableCell>
+                  {hasPermission('commissions/add') &&
+                    <TableCell className="px-6 py-4 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenEdit(commission)}
+                          startIcon={<Pencil className="w-4 h-4" />}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(commission.id, commission.level_no)}
+                          startIcon={<Trash2 className="w-4 h-4" color='red' />}
+                        />
+                      </div>
+                    </TableCell>
+                  }
                 </TableRow>
               ))}
             </TableBody>
@@ -213,7 +220,7 @@ const LevelCommissionComponent = () => {
         closeModal();
         resetForm();
       }}
-      className='w-lg'
+        className='w-lg'
       >
         <div className="p-6 md:p-8 space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -250,8 +257,8 @@ const LevelCommissionComponent = () => {
                 onChange={(e) => setFormData({ ...formData, commission_percentage: e.target.value })}
               />
             </div>
-            
-            <div > 
+
+            <div >
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Team Size</label>
               <Input
                 type="number"
@@ -263,7 +270,7 @@ const LevelCommissionComponent = () => {
                 onChange={(e) => setFormData({ ...formData, team_size: e.target.value })}
               />
             </div>
-            <div > 
+            <div >
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">IR Direct</label>
               <Input
                 type="number"
@@ -276,7 +283,7 @@ const LevelCommissionComponent = () => {
               />
             </div>
 
-            <div > 
+            <div >
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">IR Commission</label>
               <Input
                 type="number"
@@ -289,7 +296,7 @@ const LevelCommissionComponent = () => {
               />
             </div>
 
-            <div className="md:col-span-2"> 
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Insurance (BIMA)</label>
               <Input
                 type="text"
@@ -302,7 +309,7 @@ const LevelCommissionComponent = () => {
               />
             </div>
 
-            
+
           </div>
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => {

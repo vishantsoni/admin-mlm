@@ -7,6 +7,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 export interface ServerResponse<T = any> {
   status: boolean;
+  success:boolean;
   message: string;
   e_code?: number;
   data?: T | null;
@@ -14,7 +15,7 @@ export interface ServerResponse<T = any> {
 
 // Ensure the environment variable is picked up correctly in production
 // const host: string = process.env.API_URL || 'http://localhost:5000';
-const host: string = process.env.API_URL || 'https://fsbackend.gtsol.in';
+const host: string = process.env.API_URL || 'https://backend.feelsafeco.in';
 
 /**
  * 2. TYPE GUARDS & CHECKS

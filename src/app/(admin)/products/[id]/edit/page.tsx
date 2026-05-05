@@ -1,18 +1,30 @@
-import EditProduct from '@/components/product/EditProduct';
-import { Metadata } from 'next';
+"use client"
 
-export const metadata: Metadata = {
-  title: "Edit Product - Dashboard | Feel Safe",
-  description: "Edit product details",
-};
+import { use } from "react"; // Import the use hook
+import EditProductPage from '@/components/product/EditProduct';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import Button from '@/components/ui/button/Button';
 
-const Page = () => {
+// Note: Metadata stays in a separate layout.tsx or a Server Component. 
+// You cannot export metadata from a file with "use client".
+
+const EditProductWrapper = ({ params }: { params: Promise<{ id: string }> }) => {
+  // Unwrap the params promise
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
+
   return (
     <>
-      <EditProduct />
+      <div className="flex items-center gap-3 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight dark:text-gray-300">Edit Product</h1>
+          <p className="text-muted-foreground dark:text-gray-500 text-sm">Update existing product details</p>
+        </div>
+      </div>
+      <EditProductPage productId={id} />
     </>
   );
 };
 
-export default Page;
-
+export default EditProductWrapper;

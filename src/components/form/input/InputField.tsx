@@ -6,19 +6,20 @@ interface InputProps {
   name?: string;
   placeholder?: string;
   defaultValue?: string | number;
+  value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
   min?: string;
   max?: string;
-  maxLength?:number;
+  maxLength?: number;
   step?: string;
   disabled?: boolean;
   success?: boolean;
   error?: boolean;
   hint?: string; // Optional hint text
-  required?:boolean;
-  accept?:string;
-  inputMode?:string;
+  required?: boolean;
+  accept?: string;
+  inputMode?: string;
 }
 
 const Input: FC<InputProps> = ({
@@ -27,6 +28,7 @@ const Input: FC<InputProps> = ({
   name,
   placeholder,
   defaultValue,
+  value,
   onChange,
   className = "",
   min,
@@ -38,7 +40,7 @@ const Input: FC<InputProps> = ({
   error = false,
   hint,
   required = false,
-  inputMode  = "text"
+  inputMode = "text"
 }) => {
   // Determine input styles based on state (disabled, success, error)
   let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${className}`;
@@ -61,7 +63,8 @@ const Input: FC<InputProps> = ({
         id={id}
         name={name}
         placeholder={placeholder}
-        value={defaultValue}
+        value={value}
+        defaultValue={defaultValue}
         onChange={onChange}
         min={min}
         max={max}
@@ -76,13 +79,12 @@ const Input: FC<InputProps> = ({
       {/* Optional Hint Text */}
       {hint && (
         <p
-          className={`mt-1.5 text-xs ${
-            error
-              ? "text-error-500"
-              : success
+          className={`mt-1.5 text-xs ${error
+            ? "text-error-500"
+            : success
               ? "text-success-500"
               : "text-gray-500"
-          }`}
+            }`}
         >
           {hint}
         </p>

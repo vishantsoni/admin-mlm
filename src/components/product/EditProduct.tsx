@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import serverCallFuction from '@/lib/constantFunction';
 import Input from '@/components/form/input/InputField';
 import TextArea from '@/components/form/input/TextArea';
@@ -10,268 +9,365 @@ import DropZone from '@/components/form/DropZone';
 import Button from '@/components/ui/button/Button';
 import Alert from '@/components/ui/alert/Alert';
 import Label from '@/components/form/Label';
-import { Image as ImageIcon, X as XIcon, PlusCircle, Loader2, Save } from 'lucide-react';
+import { Image as ImageIcon, X as XIcon, PlusCircle } from 'lucide-react';
+import VariantManager from '@/app/(admin)/products/add/components/VariantManager';
+import { Modal } from '@/components/ui/modal';
+import VariantsAccordion from '@/app/(admin)/products/add/components/VariantsAccordion';
+import { Product, Tax } from '@/types/product';
 import { useRouter } from 'next/navigation';
+import { useSetting } from '@/context/SettingContext';
+import Link from 'next/link';
 
-interface Category {
-  id: number;
-  name: string;
-  parent_id: number | null;
+interface Props {
+  productId: string;
 }
 
-interface Tax {
-  id: number;
-  name: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  description?: string;
-  price: string;
-  discounted_price?: string;
-  cat_id: string;
-  category?: Category;
-  status: string;
-  tax_id: string;
-  f_image: string;
-  g_image: string[];
-  variants: Array<any>;
-}
-
-const EditProductPage: React.FC = () => {
-  const params = useParams();
-  const id = params.id as string;
-  const router = useRouter();
-
+const EditProductPage = ({ productId }: Props) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     discounted_price: '',
     cat_id: '',
-    status: 'active' as 'active' | 'inactive',
+    subcategories: [] as string[],
+    attributes: [] as string[],
+    variants: [] as any[],
+    f_image: null as File | null,
+    g_image: [] as File[],
+    status: 'active',
     tax_id: '',
+    slug: '',
   });
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [taxes, setTaxes] = useState<Tax[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
-
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [attributes, setAttributes] = useState<any[]>([]);
+  const [taxes, setTaxes] = useState<Tax[]>([]);
+  const [fImagePreview, setFImagePreview] = useState<string>('');
+  const [gImagePreviews, setGImagePreviews] = useState<string[]>([]);
+  const [attrValues, setAttrValues] = useState<Record<string, any[]>>({});
+  const [showVariantModal, setShowVariantModal] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [points_setting, set_points_setting] = useState<any>(null);
 
-  // Fetch product data
-  useEffect(() => {
-    if (!id) return;
-    const fetchProduct = async () => {
-      try {
-        const res = await serverCallFuction('GET', `api/products/products/${id}`);
-        if (res.status !== false) {
-          const p = res.data;
-          setProduct(p);
-          setFormData({
-            name: p.name,
-            description: p.description || '',
-            price: p.price,
-            discounted_price: p.discounted_price || '',
-            cat_id: p.cat_id,
-            status: p.status,
-            tax_id: p.tax_id,
-          });
-        } else {
-          setError('Product not found');
-        }
-      } catch (err) {
-        setError('Failed to load product');
-      }
-    };
-    fetchProduct();
-  }, [id]);
+  const { settings } = useSetting();
+  const router = useRouter();
 
-  // Fetch dropdown data
+  // 1. Fetch Global Data (Categories, Taxes, Attributes)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, taxRes] = await Promise.all([
+        const [catRes, taxRes, attrRes] = await Promise.all([
           serverCallFuction('GET', 'api/products/categories'),
-          serverCallFuction('GET', 'api/taxes'),
+          serverCallFuction('GET', 'api/tax'),
+          serverCallFuction('GET', 'api/products/attributes')
         ]);
-        if (catRes.status !== false) setCategories(catRes.data || []);
-        if (taxRes.status !== false) setTaxes(taxRes.data || []);
+        if (catRes?.success !== false) setCategories(catRes.data || []);
+        if (taxRes?.success !== false) setTaxes(taxRes.data || []);
+        if (attrRes?.success !== false) setAttributes(attrRes.data || []);
       } catch (err) {
-        console.error(err);
+        setError('Failed to load initial data');
       }
     };
     fetchData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name as keyof typeof prev]: value }));
-    if (error) setError('');
+  // 2. Fetch Specific Product Data
+  useEffect(() => {
+    if (!productId) return;
+    const fetchProduct = async () => {
+      try {
+        const res = await serverCallFuction('GET', `api/products/products/${productId}`);
+        if (res.success) {
+          const p = res.data as Product;
+          setProduct(p);
+          setFormData({
+            name: p.name || '',
+            description: p.description || '',
+            price: p.base_price?.toString() || '0',
+            discounted_price: p.discounted_price?.toString() || '',
+            cat_id: p.cat_id?.toString() || '',
+            subcategories: (p.subcategories || []).map(id => id.toString()),
+            attributes: (p.attributes || []).map(id => id.toString()),
+            variants: p.variants || [],
+            f_image: null,
+            g_image: [],
+            status: p.status || 'active',
+            tax_id: p.tax_id?.toString() || '',
+            slug: p.slug || ""
+          });
+          setFImagePreview(p.f_image || '');
+          setGImagePreviews(p.g_image || []); // These are URLs from the server initially
+        }
+      } catch (err) {
+        setError('Failed to load product details');
+      }
+    };
+    fetchProduct();
+  }, [productId]);
+
+  // 3. Handle Subcategory Filtering logic
+  useEffect(() => {
+    if (formData.cat_id && categories.length > 0) {
+      const filtered = categories.filter(cat => cat.parent_id?.toString() === formData.cat_id);
+      setSubcategories(filtered);
+    }
+  }, [formData.cat_id, categories]);
+
+  // 4. Handle Point System Settings
+  useEffect(() => {
+    set_points_setting(settings?.['point_system']);
+  }, [settings]);
+
+  // Image Handlers
+  const handleFeaturedImageChange = (files: File[]) => {
+    if (files[0]) {
+      setFormData(prev => ({ ...prev, f_image: files[0] }));
+      setFImagePreview(URL.createObjectURL(files[0]));
+    }
   };
 
-  const handleSelectChange = (value: string, field: string) => {
-    setFormData(prev => ({ ...prev, [field as keyof typeof prev]: value }));
+  const handleGalleryChange = (files: File[]) => {
+    setFormData(prev => ({ ...prev, g_image: files }));
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setGImagePreviews(newPreviews);
+  };
+
+  const removeGalleryImage = (index: number) => {
+    const newFiles = formData.g_image.filter((_, i) => i !== index);
+    const newPreviews = gImagePreviews.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, g_image: newFiles }));
+    setGImagePreviews(newPreviews);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      setError('Product name is required');
-      return;
-    }
-
     setSubmitLoading(true);
     setError('');
-    setSuccess('');
 
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
       formDataToSend.append('description', formData.description);
-      formDataToSend.append('price', formData.price);
-      formDataToSend.append('discounted_price', formData.discounted_price);
+      formDataToSend.append('base_price', formData.price);
+      formDataToSend.append('discounted_price', formData.discounted_price || '0');
       formDataToSend.append('cat_id', formData.cat_id);
       formDataToSend.append('status', formData.status);
       formDataToSend.append('tax_id', formData.tax_id);
+      formDataToSend.append('slug', formData.slug);
 
-      const response = await serverCallFuction('PUT', `api/products/products/${id}`, formDataToSend, null);
+      // Method Spoofing for APIs that require it for PUT requests with FormData
+      formDataToSend.append('_method', 'PUT');
 
-      if (response.status !== false) {
-        setSuccess('Product updated successfully!');
-        setTimeout(() => router.push(`/products/${id}`), 1500);
-      } else {
-        setError(response.message || 'Failed to update product');
+      formData.subcategories.forEach(sub => formDataToSend.append('subcategories[]', sub));
+      formData.attributes.forEach(attr => formDataToSend.append('attributes[]', attr));
+
+      if (formData.f_image) formDataToSend.append('f_image', formData.f_image);
+
+      formData.g_image.forEach((image, index) => {
+        formDataToSend.append(`g_image[${index}]`, image);
+      });
+      // formData.g_image.forEach((image) => formDataToSend.append('g_image[]', image));
+
+      if (formData.variants.length > 0) {
+        formDataToSend.append('variants', JSON.stringify(formData.variants));
       }
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+
+      // Use POST with _method PUT spoofing for standard multipart support
+      const response = await serverCallFuction('PUT', `api/products/products/${productId}`, formDataToSend);
+
+      if (response?.success) {
+        setSuccess('Product updated successfully!');
+        setTimeout(() => router.push(`/products/${productId}`), 1500);
+      } else {
+        setError(response?.message || 'Update failed');
+      }
+    } catch (err) {
+      setError('An error occurred during save');
     } finally {
       setSubmitLoading(false);
     }
   };
 
-  if (!product) return <div className="p-6">Loading...</div>;
+  if (!product) return <div className="p-10 text-center animate-pulse">Loading product...</div>;
 
   return (
-    <div className="space-y-6 p-6 max-w-4xl mx-auto">
-      <div className="flex items-center gap-3">
-        <Button variant="outline" onClick={() => router.back()}>
-          Back
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Edit Product</h1>
-          <p className="text-muted-foreground">Update product details</p>
-        </div>
-      </div>
-
+    <div className="space-y-6 p-6 bg-white rounded-lg mt-4 dark:bg-gray-900 border">
       {error && <Alert variant="error" title="Error" message={error} />}
       {success && <Alert variant="success" title="Success" message={success} />}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Info Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <Label htmlFor="name">Product Name *</Label>
+            <Label>Product Name *</Label>
             <Input
-              id="name"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              placeholder="Product name"
+              placeholder="Product Name"
             />
           </div>
+
           <div>
-            <Label htmlFor="cat_id">Category</Label>
+            <Label>Category</Label>
             <Select
-              options={categories.map(cat => ({ value: cat.id.toString(), label: cat.name }))}
-              value={formData.cat_id}
-              onChange={(v) => handleSelectChange(v, 'cat_id')}
-              placeholder="Select category"
+              defaultValue={formData.cat_id}
+              options={categories
+                .filter(cat => !cat.parent_id)
+                .map(cat => ({ value: cat.id.toString(), label: cat.name }))
+              }
+              onChange={(val) => setFormData(prev => ({ ...prev, cat_id: val }))}
             />
           </div>
+
           <div>
-            <Label htmlFor="tax_id">Tax</Label>
-            <Select
-              options={taxes.map(tax => ({ value: tax.id.toString(), label: tax.name }))}
-              value={formData.tax_id}
-              onChange={(v) => handleSelectChange(v, 'tax_id')}
-              placeholder="Select tax"
+            <Label>Subcategories</Label>
+            <MultiSelect
+              value={formData.subcategories}
+              options={subcategories.map(sub => ({ value: sub.id.toString(), label: sub.name }))}
+              onChange={(val) => setFormData(prev => ({ ...prev, subcategories: val }))}
             />
           </div>
+
           <div>
-            <Label htmlFor="status">Status</Label>
+            <Label>Status</Label>
             <Select
+              defaultValue={formData.status}
               options={[
                 { value: 'active', label: 'Active' },
                 { value: 'inactive', label: 'Inactive' }
               ]}
-              value={formData.status}
-              onChange={(v) => handleSelectChange(v, 'status')}
+              onChange={(val) => setFormData(prev => ({ ...prev, status: val }))}
+            />
+          </div>
+
+          <div>
+            <Label>Tax</Label>
+            <Select
+              defaultValue={formData.tax_id}
+              options={taxes.map(tax => ({
+                value: tax.id.toString(),
+                label: `${tax.name || (tax as any).tax_name} (${(tax as any).percentage || (tax as any).tax_percentage}%)`
+              }))}
+              onChange={(val) => setFormData(prev => ({ ...prev, tax_id: val }))}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Pricing Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl">
           <div>
-            <Label htmlFor="price">Price</Label>
-            <Input
-              id="price"
-              name="price"
-              type="number"
-              step="0.01"
-              value={formData.price}
-              onChange={handleInputChange}
-            />
+            <Label>Base Price</Label>
+            <Input type="number" name="price" value={formData.price} onChange={handleInputChange} />
           </div>
           <div>
-            <Label htmlFor="discounted_price">Discounted Price</Label>
-            <Input
-              id="discounted_price"
-              name="discounted_price"
-              type="number"
-              step="0.01"
-              value={formData.discounted_price}
-              onChange={handleInputChange}
-            />
+            <Label>Discounted Price</Label>
+            <Input type="number" name="discounted_price" value={formData.discounted_price} onChange={handleInputChange} />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label>Description</Label>
           <TextArea
-            id="description"
             name="description"
             value={formData.description}
-            onChange={handleInputChange}
-            rows={4}
-            placeholder="Product description"
+            onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
+            rows={5}
           />
         </div>
 
-        <div className="flex gap-3 pt-4 border-t">
-          <Button type="submit" disabled={submitLoading}>
-            {submitLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Update Product
-              </>
+        {/* Variations Section */}
+        <div className="border-t pt-6">
+          <Label className="text-lg font-semibold">Product Variations</Label>
+          <div className="mt-2">
+            <MultiSelect
+              value={formData.attributes}
+              options={attributes.map(attr => ({ value: attr.id.toString(), label: attr.name }))}
+              onChange={(val) => setFormData(prev => ({ ...prev, attributes: val }))}
+            />
+          </div>
+
+          {formData.attributes.length > 0 && (
+            <Button type="button" variant="outline" className="mt-4" onClick={() => setShowVariantModal(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {formData.variants.length > 0 ? 'Modify Variants' : 'Generate Variants'}
+            </Button>
+          )}
+        </div>
+
+        {formData.variants.length > 0 && (
+          <VariantsAccordion
+            variants={formData.variants}
+            onEdit={() => setShowVariantModal(true)}
+            onDelete={(idx) => setFormData(prev => ({ ...prev, variants: prev.variants.filter((_, i) => i !== idx) }))}
+          />
+        )}
+
+        {/* Image Upload Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t pt-6">
+          <div>
+            <Label className="mb-2 block">Featured Image</Label>
+            <DropZone onFilesChange={handleFeaturedImageChange} maxFiles={1} />
+            {fImagePreview && (
+              <div className="mt-3 relative w-32 h-32">
+                <img src={fImagePreview} className="w-full h-full rounded-lg object-cover border" alt="Featured" />
+              </div>
             )}
+          </div>
+
+          <div>
+            <Label className="mb-2 block">Gallery Images</Label>
+            <DropZone onFilesChange={handleGalleryChange} multiple maxFiles={5} />
+            <div className="mt-3 flex flex-wrap gap-3">
+              {gImagePreviews.map((url, idx) => (
+                <div key={idx} className="relative group w-20 h-20">
+                  <img src={url} className="w-full h-full rounded-md object-cover border" alt="Gallery" />
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryImage(idx)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <XIcon className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex items-center gap-4 border-t pt-6">
+          <Button type="submit" disabled={submitLoading} className="px-8">
+            {submitLoading ? 'Saving Changes...' : 'Update Product'}
           </Button>
-          <Button variant="outline" type="button" onClick={() => router.back()}>
-            Cancel
+          <Button variant="outline" asChild>
+            <Link href={`/products/${productId}`}>Cancel</Link>
           </Button>
         </div>
       </form>
+
+      {/* Modal for Variant Management */}
+      <Modal isOpen={showVariantModal} onClose={() => setShowVariantModal(false)} className="max-w-4xl">
+        <VariantManager
+          points_system={points_setting}
+          selectedAttributes={formData.attributes}
+          attrValues={attrValues}
+          variants={formData.variants}
+          onVariantsChange={(v) => setFormData(prev => ({ ...prev, variants: v }))}
+          onClose={() => setShowVariantModal(false)}
+        />
+      </Modal>
     </div>
   );
 };
 
 export default EditProductPage;
-

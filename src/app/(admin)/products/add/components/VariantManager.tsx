@@ -78,8 +78,8 @@ const VariantManager: React.FC<VariantManagerProps> = ({
 
     if (field === "price") {
       (newVariants[index] as any).pv_point = (value * points_system.pv);
-      (newVariants[index] as any).bv_point = (value * points_system.bv)/100;
-      (newVariants[index] as any).uv_point = (value * points_system.uv)/100;
+      (newVariants[index] as any).bv_point = (value * points_system.bv) / 100;
+      (newVariants[index] as any).uv_point = (value * points_system.uv) / 100;
     }
     onVariantsChange(newVariants);
   };
@@ -90,6 +90,16 @@ const VariantManager: React.FC<VariantManagerProps> = ({
   };
 
 
+  // This checks if any variant is missing required data
+  const isInvalid = variants.length === 0 || variants.some(v =>
+    !v.price ||
+    parseFloat(v.price) <= 0 ||
+    v.stock === undefined ||
+    v.stock === null ||
+    v.stock < 1
+  );
+
+  console.log("variants - ", variants, isInvalid);
 
   return (
     <div className="p-6">
@@ -120,7 +130,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                   </div>
                   <div>
                     <label className="text-xs font-medium text-gray-600 mb-1 block">Price</label>
-                    <Input type="number" placeholder="Price" defaultValue={variant.price || '0.00'} onChange={(e) => handleUpdateField(index, 'price', e.target.value)} />
+                    <Input type="number" placeholder="Price" onChange={(e) => handleUpdateField(index, 'price', e.target.value)} />
                   </div>
                   <div className='flex gap-2'>
                     <div>
@@ -138,7 +148,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                   </div>
                   <div>
                     <label className="text-xs font-medium text-gray-600 mb-1 block">Stock</label>
-                    <Input type="number" placeholder="Stock" defaultValue={variant.stock || 0} onChange={(e) => handleUpdateField(index, 'stock', parseInt(e.target.value) || 0)} />
+                    <Input type="number" placeholder="Stock" onChange={(e) => handleUpdateField(index, 'stock', parseInt(e.target.value) || 0)} />
                   </div>
                 </div>
               </div>
@@ -153,7 +163,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={() => onClose?.()} disabled={variants.length === 0} className="font-medium">
+          <Button onClick={() => onClose?.()} disabled={variants.length === 0 || isInvalid} className="font-medium">
             Save & Close ({variants.length})
           </Button>
         </div>

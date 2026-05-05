@@ -118,7 +118,7 @@ const MembersPage = () => {
         isEditMode ? `api/users/downline/${editingId}` : "api/users/downline",
         formData
       );
-      
+
       if (res && res.status !== false) {
         if (isEditMode) {
           setMembers(members.map((m) => (m.id === editingId ? res.data : m)));
@@ -213,10 +213,10 @@ const MembersPage = () => {
                     <TableRow key={member.id}>
                       <TableCell className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <Avatar 
-                            src={member.image || '/images/user/user-01.jpg'} 
-                            size="medium" 
-                            alt={member.name} 
+                          <Avatar
+                            src={member.image || '/images/user/user-01.jpg'}
+                            size="medium"
+                            alt={member.name}
                           />
                           <div>
                             <span className="block font-medium text-gray-800 dark:text-white">
@@ -244,7 +244,7 @@ const MembersPage = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => router.push("/network-tree?selectd_id="+member.id)}
+                            onClick={() => router.push("/network-tree?selectd_id=" + member.id)}
                           >
                             <Network className="w-4 h-4" />
                           </Button>
@@ -293,7 +293,7 @@ const MembersPage = () => {
                 id="name"
                 name="name"
                 defaultValue={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
             </div>
@@ -304,7 +304,7 @@ const MembersPage = () => {
                 name="email"
                 type="email"
                 defaultValue={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
             </div>
@@ -314,7 +314,7 @@ const MembersPage = () => {
                 id="phone"
                 name="phone"
                 defaultValue={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               />
             </div>
             <div>
@@ -323,7 +323,7 @@ const MembersPage = () => {
                 id="status"
                 name="status"
                 value={formData.status}
-                onChange={(e) => setFormData({...formData, status: e.target.value as MemberFormData['status']})}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as MemberFormData['status'] })}
                 className="w-full p-3 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600"
               >
                 <option value="active">Active</option>

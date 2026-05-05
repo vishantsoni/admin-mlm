@@ -9,12 +9,15 @@ import Alert from '@/components/ui/alert/Alert';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import Select from '@/components/form/Select';
+import { hasPermission } from '@/lib/auth';
+import { useAuth } from '@/context/AuthContext';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('active');
+  const { user } = useAuth()
 
   const fetchProducts = async (status = 'active') => {
     try {
@@ -88,6 +91,8 @@ const ProductsPage = () => {
   //   ? products 
   //   : products.filter(p => p.status === selectedStatus || (selectedStatus === 'trash' && p.status === 'inactive'));
 
+
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -96,10 +101,12 @@ const ProductsPage = () => {
           <p className="text-muted-foreground dark:text-gray-500">Manage your products</p>
         </div>
         <div className="inline-flex items-center">
-          <Link href="/products/add" className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition mr-2">
-            <Plus className="h-4 w-4" />
-            Add Product
-          </Link>
+          {hasPermission(user?.role, 'add-product') &&
+            <Link href="/products/add" className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition mr-2">
+              <Plus className="h-4 w-4" />
+              Add Product
+            </Link>
+          }
           <div>
             <Select
               options={[

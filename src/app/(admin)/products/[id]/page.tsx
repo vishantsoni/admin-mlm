@@ -45,19 +45,13 @@ const ProductDetail = () => {
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center gap-3">
-        <Button variant="outline" asChild>
-          <Link href="/products">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to products
-          </Link>
-        </Button>
         <div>
-          <h1 className="text-2xl font-bold">{product.name}</h1>
-          <p className="text-muted-foreground">Product details</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 ">{product.name}</h1>
+          <p className="text-muted-foreground dark:text-gray-300">Product details</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white rounded-lg p-5">
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Details</h2>
           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -75,8 +69,8 @@ const ProductDetail = () => {
           <Image
             src={product.f_image?.startsWith('http') ? product.f_image : `http://localhost:5000${product.f_image || ''}` || '/images/product/product-01.jpg'}
             alt={product.name}
-            width={400}
-            height={400}
+            width={80}
+            height={80}
             className="rounded-lg object-cover w-full h-96"
             priority={false}
             onError={(e) => console.error('Detail page image failed:', product.f_image, e.target)}
@@ -93,8 +87,8 @@ const ProductDetail = () => {
                 key={index}
                 src={img}
                 alt={`Gallery ${index + 1}`}
-                width={200}
-                height={200}
+                width={80}
+                height={80}
                 className="rounded-lg object-cover"
               />
             ))}
@@ -103,14 +97,14 @@ const ProductDetail = () => {
       )}
 
       {product.description && (
-        <div>
+        <div className='bg-white rounded-lg p-5'>
           <h2 className="text-xl font-semibold mb-4">Description</h2>
           <p className="whitespace-pre-wrap">{product.description}</p>
         </div>
       )}
 
       {product.variants && product.variants.length > 0 && (
-        <div>
+        <div className='bg-white rounded-lg p-5'>
           <h2 className="text-xl font-semibold mb-4">Variants ({product.variants.length})</h2>
           <div className="rounded-xl border bg-card overflow-hidden">
             <Table>
@@ -138,11 +132,11 @@ const ProductDetail = () => {
       )}
 
       <div className="flex gap-3 pt-4 border-t">
-        <Button asChild>
-          <Link href={`/products/${product.id}/edit`}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Product
-          </Link>
+        <Button onClick={() => navigation.navigate(`/products/${product.id}/edit`)}>
+
+          <Edit className="h-4 w-4 mr-2" />
+          Edit Product
+
         </Button>
       </div>
     </div>

@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Save } from 'lucide-react';
 import type { Milestone, LevelCommission } from '@/types/commission-type';
+import { useAuth } from '@/context/AuthContext';
 
 export default function MilestonesTable() {
     const {
@@ -37,6 +38,8 @@ export default function MilestonesTable() {
     const [currentItem, setCurrentItem] = useState<Milestone | null>(null);
     const [levelCommissions, setLevelCommissions] = useState<LevelCommission[]>([]);
     const [fetchingLevels, setFetchingLevels] = useState(false);
+
+    const { hasPermission } = useAuth()
 
     const [formData, setFormData] = useState({
         level_id: '',
@@ -139,6 +142,8 @@ export default function MilestonesTable() {
         return <div className="p-6 text-center">Loading milestones...</div>;
     }
 
+    const isPermitCrud = hasPermission("level-capping/add")
+
     return (
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
@@ -146,9 +151,11 @@ export default function MilestonesTable() {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Level Milestones</h1>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Manage milestone rewards for each level</p>
                 </div>
-                <Button onClick={handleOpenCreate} startIcon={<Plus className="w-4 h-4" />}>
-                    New Milestone
-                </Button>
+                {isPermitCrud &&
+                    <Button onClick={handleOpenCreate} startIcon={<Plus className="w-4 h-4" />}>
+                        New Milestone
+                    </Button>
+                }
             </div>
 
             {error && (
@@ -190,26 +197,28 @@ export default function MilestonesTable() {
                                     <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
                                         {milestone.created_at ? new Date(milestone.created_at).toLocaleDateString() : '-'}
                                     </TableCell>
-                                    <TableCell className="px-6 py-4 text-right">
-                                        <div className="flex gap-2 justify-end">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleOpenEdit(milestone)}
-                                                startIcon={<Pencil className="w-4 h-4" />}
-                                            >
-                                                {' '}
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleDelete(milestone.id)}
-                                                startIcon={<Trash2 className="w-4 h-4" color="red" />}
-                                            >
-                                                {' '}
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+                                    {isPermitCrud &&
+                                        <TableCell className="px-6 py-4 text-right">
+                                            <div className="flex gap-2 justify-end">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleOpenEdit(milestone)}
+                                                    startIcon={<Pencil className="w-4 h-4" />}
+                                                >
+                                                    {' '}
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(milestone.id)}
+                                                    startIcon={<Trash2 className="w-4 h-4" color="red" />}
+                                                >
+                                                    {' '}
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    }
                                 </TableRow>
                             ))}
                             {milestones.length === 0 && (
