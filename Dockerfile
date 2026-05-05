@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=builder /app ./
 
 # Port 3000 expose karein (Agar aap port badalna chahte hain toh yahan change karein)
-EXPOSE 3000
+EXPOSE 3001
 
 # Next.js app start karne ki command
 CMD ["npm", "start"]
