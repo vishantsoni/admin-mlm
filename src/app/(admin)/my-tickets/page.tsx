@@ -17,7 +17,7 @@ import { Modal } from '@/components/ui/modal';
 
 
 export default function MyTicketsPage() {
-    const { getMyTickets, raiseTicket, loading, getTicket } = useSupportTickets();
+    const { getMyTickets, raiseTicket, loading, getTicket, replyToTicket } = useSupportTickets();
     const [tickets, setTickets] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(null);
@@ -71,7 +71,7 @@ export default function MyTicketsPage() {
                         onView={async (caseId) => {
                             const res = await getTicket(caseId);
                             if (res.success) {
-                                setTicketDetail(res.ticket);
+                                setTicketDetail({ ...res.ticket, replies: res.replies });
                             }
                         }}
                     />
@@ -89,10 +89,10 @@ export default function MyTicketsPage() {
                                         onClose={() => setTicketDetail(null)}
                                         onReply={async (message) => {
                                             // Get caseId from ticketDetail.case_id
-                                            // await replyToTicket(ticketDetail.case_id, { message });
-                                            // // Reload detail
-                                            // const res = await useSupportTickets().getTicket(ticketDetail.case_id);
-                                            // setTicketDetail(res.ticket);
+                                            await replyToTicket(ticketDetail.case_id, { message });
+                                            // Reload detail
+                                            const res = await getTicket(ticketDetail.case_id);
+                                            setTicketDetail(res.ticket);
                                         }}
                                     />
                                 </div>

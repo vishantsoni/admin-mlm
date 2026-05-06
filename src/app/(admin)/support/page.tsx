@@ -5,23 +5,24 @@ import { hasPermission } from '@/lib/auth';
 import { useSupportTickets } from '@/hooks/useSupportTickets';
 import { TicketTable } from '@/components/support/TicketTable';
 
-import Select from '@/components/form/Select';
 import Button from '@/components/ui/button/Button';
-import { TicketStatus } from '@/types/ticket';
+import { TicketStatus, type Ticket } from '@/types/ticket';
 import ComponentCard from '@/components/common/ComponentCard';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import Badge from '@/components/ui/badge/Badge';
 import { useAuth } from '@/context/AuthContext';
+import { TicketDetail } from '@/components/support/TicketDetail';
+import { Modal } from '@/components/ui/modal';
 
 export default function SupportPage() {
-    const { getAdminTickets, loading } = useSupportTickets();
+    const { getAdminTickets, loading, updateTicketStatus, getTicket, replyToTicket } = useSupportTickets();
     const [tickets, setTickets] = useState([]);
-    const [pagination, setPagination] = useState(null);
+    const [pagination, setPagination] = useState<{ page: number; limit: number; total: number; totalPages: number } | undefined>(undefined);
     const [filterStatus, setFilterStatus] = useState<TicketStatus | ''>('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedTicket, setSelectedTicket] = useState(null);
-
-    const { user } = useAuth()
+    const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+    const [ticketDetail, setTicketDetail] = useState(null);
+    const { user } = useAuth();
 
     const loadTickets = async () => {
         const params = {
@@ -29,22 +30,32 @@ export default function SupportPage() {
             limit: 10,
             ...(filterStatus && { status: filterStatus }),
         };
+
         const res = await getAdminTickets(params);
+        if (!res) return;
+
         if (res.success) {
-            setTickets(res.tickets);
-            setPagination(res.pagination);
+            const data = res.tickets;
+            const list = Array.isArray(data) ? data : (data as any)?.tickets ?? [];
+            setTickets(list);
+
+            const pag = res?.pagination;
+            setPagination(pag);
         }
     };
 
     useEffect(() => {
-        loadTickets();
+        const run = async () => {
+            await loadTickets();
+        };
+        run();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, filterStatus]);
 
     const handleStatusChange = async (id: number, status: TicketStatus) => {
-        // Update via API
-        const res = await useSupportTickets().updateTicketStatus(id, { status });
-        if (res.success) {
-            loadTickets(); // Refresh
+        const res = await updateTicketStatus(id, { status });
+        if ((res as any)?.success) {
+            await loadTickets();
         }
     };
 
@@ -63,7 +74,24 @@ export default function SupportPage() {
                 { title: "Support" }
             ]} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+
+                <div className="space-y-6">
+                    <ComponentCard title="Quick Stats">
+                        <div className="space-y-4">
+                            <div className="flex justify-between">
+                                <span>Total</span>
+                                <Badge>{pagination?.total ?? 'N/A'}</Badge>
+                            </div>
+                            {/* <div className="flex justify-between">
+                                <span>In Progress</span>
+                                <Badge variant="light">5</Badge>
+                            </div> */}
+                        </div>
+                    </ComponentCard>
+                </div>
+
+
                 <ComponentCard title="Tickets List" className="lg:col-span-2">
                     <div className="flex flex-col sm:flex-row gap-4 mb-6">
                         {/* <Select value={filterStatus} onValueChange={setFilterStatus as any}>
@@ -88,33 +116,51 @@ export default function SupportPage() {
                         isAdmin
                         loading={loading}
                         onStatusChange={handleStatusChange}
-                        onView={(caseId) => setSelectedTicket(caseId)}
+                        onView={async (caseId) => {
+                            const res = await getTicket(caseId);
+                            if (res.success) {
+                                setTicketDetail({ ...res.ticket, replies: res.replies });
+                            }
+                        }}
                     />
+
+                    {ticketDetail && (
+                        <Modal isOpen={ticketDetail} className="mt-8 max-w-5xl" onClose={() => {
+                            setTicketDetail(null)
+                        }} >
+                            <div className="p-6">
+                                <h2 className="text-lg font-bold mb-6">
+                                    #{ticketDetail?.case_id || 'N/A'} - {ticketDetail?.subject || 'N/A'}
+                                </h2>
+                                <div className="space-y-4">
+                                    <TicketDetail
+                                        ticket={ticketDetail}
+                                        onClose={() => setTicketDetail(null)}
+                                        onReply={async (message) => {
+                                            // Get caseId from ticketDetail.case_id
+                                            await replyToTicket(ticketDetail.case_id, { message });
+                                            // Reload detail
+                                            const res = await getTicket(ticketDetail.case_id);
+                                            setTicketDetail(res.ticket);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </Modal>
+                    )}
+
+
                 </ComponentCard>
 
                 {/* Stats cards */}
-                <div className="space-y-6">
-                    <ComponentCard title="Quick Stats">
-                        <div className="space-y-4">
-                            <div className="flex justify-between">
-                                <span>Open</span>
-                                <Badge>12</Badge>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>In Progress</span>
-                                <Badge variant="light">5</Badge>
-                            </div>
-                        </div>
-                    </ComponentCard>
-                </div>
+
             </div>
 
-            {selectedTicket && (
-                <div className="mt-8">
-                    {/* TicketDetail modal or page */}
+            {/* {selectedTicket && (
+                <div className="mt-8">                    
                     <p>Viewing {selectedTicket}</p>
                 </div>
-            )}
+            )} */}
         </div>
     );
 }

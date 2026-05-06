@@ -82,7 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setDynamicPermissions(map);
       }
     } catch (error) {
-      console.error('Failed to fetch roles:', error);
+      // console.error('Failed to fetch roles:', error);
       // Fallback to static
     }
   };
@@ -103,44 +103,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const isAuthenticated = !!user;
-  const role = user?.role_id ? user?.role_name :  user?.role || null;
+  const role = user?.role_id ? user?.role_name : user?.role || null;
 
   // const hasPermission = (permission: string): boolean => {
   //   if (!user) return false;
   //   const roleKey = user.role.toLowerCase();
   //   console.log("DEGUB - ROlE - ",roleKey);
-    
+
   //   const perms = dynamicPermissions[roleKey] || rolePermissions[roleKey] || [];
   //   console.log("\n\n\n Dynamic perss - ", perms);
-    
+
   //   return perms.includes('*') || perms.includes(permission);
   // };
 
   const hasPermission = (permission: string): boolean => {
-  if (!user) return false;
-  
-  const roleKey = user.role_id ? user.role_name.toLowerCase() : user.role.toLowerCase();
+    if (!user) return false;
 
-  // console.log("\n role key - auth context == ",roleKey);
-  
-  // 1. Check permissions directly from the JWT Payload (Staff specific)
-  // Logic: Handles 'orders' matching 'orders.view' or 'orders'
-  if (user.permissions && Array.isArray(user.permissions)) {
-    const hasDirectAccess = user.permissions.some(p => 
-      p === '*' || 
-      p === permission || 
-      p.startsWith(`${permission}.`)
-    );
-    if (hasDirectAccess) return true;
-  }
+    const roleKey = user.role_id ? user?.role_name?.toLowerCase() : user.role.toLowerCase();
 
-  // 2. Fallback: Check Dynamic Permissions (Fetched from DB) or Static
-  const perms = dynamicPermissions[roleKey] || rolePermissions[roleKey] || [];
-  
-  return perms.includes('*') || 
-         perms.includes(permission) || 
-         perms.some(p => p.startsWith(`${permission}.`));
-};
+    // console.log("\n role key - auth context == ",roleKey);
+
+    // 1. Check permissions directly from the JWT Payload (Staff specific)
+    // Logic: Handles 'orders' matching 'orders.view' or 'orders'
+    // console.log("role permission - ", permission, user.role_permissions);
+
+    if (user.role_permissions && Array.isArray(user.role_permissions)) {
+      const hasDirectAccess = user.role_permissions.some(p =>
+        p === '*' ||
+        p === permission ||
+        p.startsWith(`${permission}.`)
+      );
+      // console.log("has direct access  - ", hasDirectAccess);
+
+      if (hasDirectAccess) return true;
+    }
+
+    // 2. Fallback: Check Dynamic Permissions (Fetched from DB) or Static
+    const perms = dynamicPermissions[roleKey] || rolePermissions[roleKey] || [];
+
+    // console.log("dynamic - ", dynamicPermissions);
+
+    return perms.includes('*') ||
+      perms.includes(permission) ||
+      perms.some(p => p.startsWith(`${permission}.`));
+  };
 
   const updateUserProfile = (profileData: Partial<User>) => {
     if (!user) return;
@@ -151,12 +157,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider value={{
-      user, 
-      login, 
-      logout, 
+      user,
+      login,
+      logout,
       updateUserProfile,
-      isAuthenticated, 
-      role, 
+      isAuthenticated,
+      role,
       hasPermission,
       isLoading
     }}>

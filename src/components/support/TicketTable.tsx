@@ -58,7 +58,7 @@ export function TicketTable({
                 <CardTitle>Support Tickets</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="rounded-lg overflow-hidden border">
+                <div className="rounded-lg overflow-auto border">
                     <Table>
                         <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                             <TableRow>
@@ -91,22 +91,21 @@ export function TicketTable({
                                         </TableCell>
                                         <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{ticket.subject}</TableCell>
                                         <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{ticket.name}</TableCell>
+
                                         <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
                                             {isAdmin ? (
-                                                <Select value={localStatus[ticket.id] || ticket.status} onValueChange={(value) => handleStatusChange(ticket.id, value as TicketStatus)}>
-                                                    <SelectTrigger className="w-[140px]">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as TicketStatus[]).map((status) => (
-                                                            <SelectItem key={status} value={status}>
-                                                                <Badge variant={statusConfig[status].variant}>
-                                                                    {statusConfig[status].label}
-                                                                </Badge>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <>
+                                                    {/* {ticket.status || 'N/A'} */}
+                                                    <Select
+                                                        options={(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as TicketStatus[]).map((status) => {
+                                                            return { value: status, label: status }
+                                                        })}
+                                                        defaultValue={localStatus[ticket.id] || ticket.status} onValueChange={(value) => handleStatusChange(ticket.id, value as TicketStatus)}
+                                                        onChange={(value) => onStatusChange(ticket.id, value)}
+                                                    >
+
+                                                    </Select>
+                                                </>
                                             ) : (
                                                 <>
                                                     <Badge variant='solid' color={statusConfig[ticket.status as TicketStatus]?.variant || 'default'}>

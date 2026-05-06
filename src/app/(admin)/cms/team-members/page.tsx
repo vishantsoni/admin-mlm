@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import Badge from "@/components/ui/badge/Badge";
 import Avatar from "@/components/ui/avatar/Avatar";
-import { Pencil,  Plus, Trash } from "lucide-react";
+import { Pencil, Plus, Trash } from "lucide-react";
 import { useModal } from "@/hooks/useModal";
 import Button from "@/components/ui/button/Button";
 import { Modal } from "@/components/ui/modal";
@@ -57,7 +57,7 @@ const mockTeamMembers: TeamMember[] = [
 ];
 
 const TeamMembersPage = () => {
-const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen: isModalOpen, openModal, closeModal } = useModal();
   const [isEditMode, setIsEditMode] = useState(false);
@@ -70,32 +70,32 @@ const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     status: "active",
   });
 
-const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [imageError, setImageError] = useState<string>('');
 
 
 
-useEffect(() => {
-  let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  const fetchMembers = async () => {
-    try {
-      const res = await serverCallFuction("GET", "api/static/teamMember");
-      if (isMounted && res.success) {
-        setTeamMembers(res.data);
+    const fetchMembers = async () => {
+      try {
+        const res = await serverCallFuction("GET", "api/static/teamMember");
+        if (isMounted && res.success) {
+          setTeamMembers(res.data);
+        }
+      } catch (error) {
+        // handle error if needed
       }
-    } catch (error) {
-      // handle error if needed
-    }
-  };
+    };
 
-  fetchMembers();
+    fetchMembers();
 
-  return () => {
-    isMounted = false;
-  };
-}, []);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Cleanup preview URL on unmount
   useEffect(() => {
@@ -140,58 +140,58 @@ useEffect(() => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Validate image if new file selected
-  if (selectedImageFile && imageError) {
-    alert(imageError);
-    return;
-  }
-
-  try {
-    const submitFormData = new FormData();
-    submitFormData.append('name', formData.name);
-    submitFormData.append('title', formData.title);
-    submitFormData.append('bio', formData.bio);
-    submitFormData.append('status', formData.status);
-    
-    if (selectedImageFile) {
-      submitFormData.append('image', selectedImageFile);
-    } else if (formData.image) {
-      submitFormData.append('imageUrl', formData.image);
+    // Validate image if new file selected
+    if (selectedImageFile && imageError) {
+      alert(imageError);
+      return;
     }
 
-    const endpoint = isEditMode && editingId 
-      ? `api/static/teamMember/${editingId}` 
-      : 'api/static/teamMember';
+    try {
+      const submitFormData = new FormData();
+      submitFormData.append('name', formData.name);
+      submitFormData.append('title', formData.title);
+      submitFormData.append('bio', formData.bio);
+      submitFormData.append('status', formData.status);
 
-    const res = await serverCallFuction(
-      isEditMode ? "PUT" : "POST", 
-      endpoint, 
-      submitFormData
-    );
-    
-    if (res.success) {
-      if (isEditMode) {
-        setTeamMembers(teamMembers.map((m) => (m.id === editingId ? res.data : m)));
-      } else {
-        setTeamMembers((prev) => [res.data, ...prev]);
+      if (selectedImageFile) {
+        submitFormData.append('image', selectedImageFile);
+      } else if (formData.image) {
+        submitFormData.append('imageUrl', formData.image);
       }
-    }
 
-    // Reset Form and Close Modal
-    setFormData({ name: "", title: "", image: "", bio: "", status: "active" });
-    setSelectedImageFile(null);
-    setImagePreview('');
-    setImageError('');
-    setEditingId(null);
-    setIsEditMode(false);
-    closeModal();
-  } catch (error) {
-    console.error("Error saving team member:", error);
-    alert("Failed to save member. Please try again.");
-  }
-};
+      const endpoint = isEditMode && editingId
+        ? `api/static/teamMember/${editingId}`
+        : 'api/static/teamMember';
+
+      const res = await serverCallFuction(
+        isEditMode ? "PUT" : "POST",
+        endpoint,
+        submitFormData
+      );
+
+      if (res.success) {
+        if (isEditMode) {
+          setTeamMembers(teamMembers.map((m) => (m.id === editingId ? res.data : m)));
+        } else {
+          setTeamMembers((prev) => [res.data, ...prev]);
+        }
+      }
+
+      // Reset Form and Close Modal
+      setFormData({ name: "", title: "", image: "", bio: "", status: "active" });
+      setSelectedImageFile(null);
+      setImagePreview('');
+      setImageError('');
+      setEditingId(null);
+      setIsEditMode(false);
+      closeModal();
+    } catch (error) {
+      console.error("Error saving team member:", error);
+      alert("Failed to save member. Please try again.");
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -238,9 +238,19 @@ useEffect(() => {
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this member?")) {
-      setTeamMembers(teamMembers.filter((m) => m.id !== id));
+      const endpoint = `api/static/teamMember/${id}`
+
+
+      const res = await serverCallFuction(
+        "DELETE",
+        endpoint
+      );
+
+      if (res.success) {
+        setTeamMembers(teamMembers.filter((m) => m.id !== id));
+      }
     }
   };
 
@@ -258,13 +268,13 @@ useEffect(() => {
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-              <Input
-                type="text"
-                placeholder="Search members..."
-                defaultValue={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <Input
+              type="text"
+              placeholder="Search members..."
+              defaultValue={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
           <Button onClick={openAdd} className="gap-2">
             <Plus className="w-4 h-4" />
@@ -300,27 +310,27 @@ useEffect(() => {
             </div>
             <div>
               <Label htmlFor="image-upload">Image</Label>
-                <div className="space-y-2">
-                  <Input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="w-full"
-                  />
-                  {imageError && (
-                    <p className="text-red-500 text-sm mt-1">{imageError}</p>
-                  )}
-                  {imagePreview && !imageError && (
-                    <div className="mt-2 p-2 border rounded-lg bg-gray-50 dark:bg-gray-800 max-w-xs mx-auto">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-30 h-30 object-cover mx-auto"
-                      />
-                    </div>
-                  )}
-                </div>
+              <div className="space-y-2">
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full"
+                />
+                {imageError && (
+                  <p className="text-red-500 text-sm mt-1">{imageError}</p>
+                )}
+                {imagePreview && !imageError && (
+                  <div className="mt-2 p-2 border rounded-lg bg-gray-50 dark:bg-gray-800 max-w-xs mx-auto">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-30 h-30 object-cover mx-auto"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <Label htmlFor="bio">Bio</Label>
@@ -355,7 +365,7 @@ useEffect(() => {
               >
                 Cancel
               </Button>
-              <Button className="flex-1">
+              <Button className="flex-1" onClick={(e) => handleSubmit(e)}>
                 {isEditMode ? "Update Member" : "Add Member"}
               </Button>
             </div>
@@ -370,16 +380,16 @@ useEffect(() => {
             <Table>
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-100 text-start text-theme-xs dark:text-gray-400">
                     Member
                   </TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-100 text-start text-theme-xs dark:text-gray-400">
                     Bio
                   </TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-100 text-start text-theme-xs dark:text-gray-400">
                     Status
                   </TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-100 text-start text-theme-xs dark:text-gray-400">
                     Actions
                   </TableCell>
                 </TableRow>
@@ -412,8 +422,8 @@ useEffect(() => {
                           member.status === "active"
                             ? "success"
                             : member.status === "pending"
-                            ? "warning"
-                            : "error"
+                              ? "warning"
+                              : "error"
                         }
                       >
                         {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
@@ -426,9 +436,9 @@ useEffect(() => {
                           size="sm"
                           onClick={() => openEdit(member)}
                           className=""
-                          
+
                         >
-                          <Pencil className="w-4 h-4"  />
+                          <Pencil className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="outline"

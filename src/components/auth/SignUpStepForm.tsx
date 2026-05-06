@@ -128,7 +128,8 @@ export default function SignUpStepForm() {
         }
     };
 
-    const fetchCities = async (stateId) => {
+    const fetchCities = async (stateId: string) => {
+
         if (!stateId) {
             setCities([]);
             return;
@@ -159,8 +160,12 @@ export default function SignUpStepForm() {
     }, [formData.state]);
 
     useEffect(() => {
-        fetchReferral(formData.referralCode)
-    }, [formData.referralCode])
+        // Prevent referral API loop: only fetch when referralCode is non-empty
+        if (!formData.referralCode?.trim()) return;
+        fetchReferral(formData.referralCode);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.referralCode]);
+
 
     // Function to check if user reached the bottom of terms 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -206,21 +211,34 @@ export default function SignUpStepForm() {
         // }
         // return formData.agreedToTerms && hasScrolledToBottom;
 
-        // setFieldErrors(newErrors);
-        // return Object.keys(newErrors).length === 0;
-        return newErrors;
+        setFieldErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+        // return newErrors;
     };
 
+    // const handleNext = () => {
+    //     if (isStepValid()) {
+    //         const newStep = step + 1;
+    //         setStep(newStep);
+    //         localStorage.setItem('sakhi_registration_step', newStep.toString());
+    //         router.push(`/signup?step=${newStep}`);
+    //     } else {
+    //         // setFieldErrors({ error: "Please fill in all required fields marked with * to proceed." })
+    //         // setError('Please fill in all required fields marked with * to proceed Or Valiate the format Fields');
+    //         // alert("Please fill in all required fields marked with * to proceed.");
+    //     }
+    // };
+
     const handleNext = () => {
-        if (isStepValid()) {
+        const isValid = isStepValid(); // Function call karke result check karein
+        if (isValid) {
             const newStep = step + 1;
             setStep(newStep);
             localStorage.setItem('sakhi_registration_step', newStep.toString());
             router.push(`/signup?step=${newStep}`);
         } else {
-            // setFieldErrors({ error: "Please fill in all required fields marked with * to proceed." })
-            // setError('Please fill in all required fields marked with * to proceed Or Valiate the format Fields');
-            // alert("Please fill in all required fields marked with * to proceed.");
+            // Agar valid nahi hai to screen ke upar scroll kar dein taaki errors dikhein
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -363,13 +381,16 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Aadhaar No* </Label>
-                                <Input defaultValue={formData.aadhaarNo} placeholder="12-digit Number" onChange={(e) => setFormData({ ...formData, aadhaarNo: e.target.value })} />
+                                <Input
+                                    defaultValue={formData.aadhaarNo} placeholder="12-digit Number" onChange={(e) => setFormData({ ...formData, aadhaarNo: e.target.value })}
+                                    maxLength={12} />
                             </div>
                             <div>
                                 <Label>PAN No* </Label>
                                 <Input defaultValue={formData.panNo} placeholder="Permanent Account Number" onChange={(e) => setFormData({ ...formData, panNo: e.target.value })}
                                     error={!!fieldErrors.panNo}
                                     hint={fieldErrors.panNo}
+                                    maxLength={10}
                                 />
                             </div>
                             <div>
@@ -396,7 +417,7 @@ export default function SignUpStepForm() {
                             <div>
                                 <Label>Phone* </Label>
                                 <Input placeholder='Enter Phone no.'
-                                    defaultValue={formData.phone}
+                                    value={formData.phone || ""}
 
                                     onChange={(e) => {
                                         // Step 1: Remove all non-digits immediately
@@ -416,13 +437,15 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Password* </Label>
-                                <Input placeholder='Enter Password' defaultValue={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                                <Input placeholder='Enter Password'
+                                    defaultValue={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
                             </div>
                             <div>
                                 <Label>WhatsApp No* </Label>
-                                <Input defaultValue={formData.whatsappNo} placeholder="For updates"
+                                <Input value={formData.whatsappNo || ""} placeholder="For updates"
                                     // onChange={(e) => setFormData({ ...formData, whatsappNo: e.target.value })}
                                     onChange={(e) => {
+
                                         const val = e.target.value.replace(/\D/g, "");
 
                                         // Step 2: Validate Indian starting digit (6-9)
@@ -435,6 +458,7 @@ export default function SignUpStepForm() {
                                     error={!!fieldErrors.whatsappNo}
                                     hint={fieldErrors.whatsappNo}
                                     inputMode='numeric'
+                                    maxLength={10}
                                 />
                             </div>
                             <div>
@@ -505,15 +529,25 @@ export default function SignUpStepForm() {
                                     <Label>PIN* </Label>
                                     <Input
                                         placeholder='Enter PIN'
-                                        defaultValue={formData.pin}
+                                        value={formData.pin || ""}
                                         //  onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
                                         onChange={(e) => {
+                                            // const val = e.target.value.replace(/\D/g, "");
+
+                                            // // Step 2: Validate Indian starting digit (6-9)
+                                            // if (val === "" || /^[0-9]/.test(val)) {
+                                            //     // handleFieldChange('phone', val);
+                                            //     handleFieldChange('pin', e.target.value)
+                                            // }
+
                                             const val = e.target.value.replace(/\D/g, "");
 
                                             // Step 2: Validate Indian starting digit (6-9)
+
+
                                             if (val === "" || /^[0-9]/.test(val)) {
-                                                // handleFieldChange('phone', val);
-                                                handleFieldChange('pin', e.target.value)
+                                                // handleFieldChange('phone', val);                                    
+                                                handleFieldChange('pin', val);
                                             }
                                         }
                                         }
@@ -546,14 +580,19 @@ export default function SignUpStepForm() {
                         <Input
                             placeholder='Enter Account Number'
                             // 1. Switch to 'value' for strict numeric control
-                            defaultValue={formData.accountNo || ""}
+                            value={formData.accountNo || ""}
 
                             onChange={(e) => {
-                                // 2. Remove any non-numeric characters instantly
+
                                 const val = e.target.value.replace(/\D/g, "");
 
-                                // 3. Update state for ANY numeric string (including empty)
-                                handleFieldChange('accountNo', val);
+                                // Step 2: Validate Indian starting digit (6-9)
+
+
+                                if (val === "" || /^[0-9]/.test(val)) {
+
+                                    handleFieldChange('accountNo', val);
+                                }
                             }}
 
                             inputMode='numeric'
@@ -616,8 +655,9 @@ export default function SignUpStepForm() {
                                 </div>
                                 <div>
                                     <Label>Nominee Age*</Label>
-                                    <Input placeholder="Nominee Age"
-                                        defaultValue={formData.nomineeAge}
+                                    <Input
+                                        placeholder="Nominee Age"
+                                        value={formData.nomineeAge || ""}
                                         // onChange={(e) => {
                                         //     setFormData({ ...formData, nomineeAge: e.target.value })
                                         // }} 
@@ -627,16 +667,36 @@ export default function SignUpStepForm() {
                                             const val = e.target.value.replace(/\D/g, "");
 
                                             // 3. Update state for ANY numeric string (including empty)
-                                            handleFieldChange('nomineeAge', val);
-                                        }}
+                                            if (val === "" || /^[0-9]/.test(val)) {
+                                                console.log("true match - ", formData.nomineeAge);
 
+                                                handleFieldChange('nomineeAge', val);
+                                            }
+                                        }}
                                         inputMode='numeric'
+                                        maxLength={2}
 
                                     />
                                 </div>
                                 <div>
                                     <Label>Nominee Aadhaar*</Label>
-                                    <Input placeholder="Nominee Aadhaar" defaultValue={formData.nomineeAadhaar} onChange={(e) => setFormData({ ...formData, nomineeAadhaar: e.target.value })} />
+                                    <Input placeholder="Nominee Aadhaar" value={formData.nomineeAadhaar}
+                                        onChange={(e) => {
+
+                                            const val = e.target.value.replace(/\D/g, "");
+
+                                            // 3. Update state for ANY numeric string (including empty)
+                                            if (val === "" || /^[0-9]/.test(val)) {
+                                                console.log("true match - ", formData.nomineeAge);
+
+                                                handleFieldChange('nomineeAadhaar', val);
+                                            }
+
+
+                                            // setFormData({ ...formData, nomineeAadhaar: e.target.value })
+                                        }}
+                                        maxLength={12}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -762,10 +822,12 @@ export default function SignUpStepForm() {
                             <Button variant="outline" onClick={prevStep} className="w-1/2">Back</Button>
                             <Button
                                 type="submit"
-                                disabled={!isStepValid()}
-                                className={`w-1/2 transition-all ${isStepValid() ? 'bg-brand-500 hover:bg-brand-600 opacity-100' : 'bg-gray-300 cursor-not-allowed opacity-50'}`}
+                                // disabled={!isStepValid()}
+                                disabled={isSubmitting || !formData.agreedToTerms || !hasScrolledToBottom}
+                                className={`w-1/2 transition-all bg-brand-500 hover:bg-brand-600 opacity-100`}
                             >
-                                {!hasScrolledToBottom ? 'Scroll to Read Terms' : 'Submit Application'}
+                                {/* {!hasScrolledToBottom ? 'Scroll to Read Terms' : 'Submit Application'} */}
+                                {isSubmitting ? 'Submitting...' : (!hasScrolledToBottom ? 'Scroll to Read' : 'Submit')}
                             </Button>
                         </div>
                     </div>

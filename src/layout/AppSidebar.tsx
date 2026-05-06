@@ -94,7 +94,7 @@ const allNavItems: NavItem[] = [
   {
     icon: <TableIcon />,
     name: "Orders",
-    permission: "s-orders",
+    permission: "orders",
     path: "/orders",
   },
   {

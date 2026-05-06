@@ -44,7 +44,7 @@ export function useSupportTickets() {
 
   const getAdminTickets = useCallback(async (params: { page?: number; limit?: number; status?: TicketStatus } = {}) => {
     const searchParams = new URLSearchParams(params as any);
-    const endpoint = searchParams.toString() ? `/admin?${searchParams}` : '/admin';
+    const endpoint = searchParams.toString() ? `api/support/admin/all?${searchParams}` : 'api/support/admin/all';
     return execute<TicketsResponse>(() => serverCallFuction<TicketsResponse>( 'GET', endpoint));
   }, [execute]);
 

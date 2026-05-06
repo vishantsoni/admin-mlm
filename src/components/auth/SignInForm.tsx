@@ -67,7 +67,10 @@ export default function SignInForm() {
 
         login({ token: res.token!, user: res.user as User });
 
-        router.replace('/');
+        // router.replace('/');
+        setTimeout(() => {
+          router.replace('/');
+        }, 100);
 
       } catch (err) {
         console.log("err in login - ", err);
@@ -80,11 +83,11 @@ export default function SignInForm() {
   };
 
 
-  const handleSendOtp = async() => {
+  const handleSendOtp = async () => {
     try {
-      const res = await serverCallFuction('POST', 'api/auth/send-login-otp', { identifier:phone });
+      const res = await serverCallFuction('POST', 'api/auth/send-login-otp', { identifier: phone });
       if (res.success) {
-setError(res.message)
+        setError(res.message)
       }
 
     } catch (error) {

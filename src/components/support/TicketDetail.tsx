@@ -70,7 +70,7 @@ export function TicketDetail({ ticket, onClose, onReply, loading }: TicketDetail
 
                 {/* Replies */}
                 <div>
-                    <h3 className="font-semibold mb-4">Conversation ({ticket?.replies?.length} replies)</h3>
+                    <h3 className="font-semibold mb-4">Conversation ({ticket?.replies?.length ?? 0} replies)</h3>
                     <div className="space-y-4 max-h-96 overflow-y-auto">
                         {ticket?.replies?.map((reply) => (
                             <div key={reply.id} className={`p-4 rounded-lg ${reply.is_admin ? 'bg-blue-50 border-l-4 border-blue-500 ml-auto max-w-lg' : 'bg-gray-50 border-l-4 border-gray-500'}`}>
@@ -84,19 +84,21 @@ export function TicketDetail({ ticket, onClose, onReply, loading }: TicketDetail
                 </div>
 
                 {/* Reply Form */}
-                <div className="border-t pt-6">
-                    <TextArea
-                        placeholder="Type your reply..."
-                        value={replyText}
-                        onChange={(e) => setReplyText(e)}
-                        rows={4}
-                    />
-                    <div className="flex gap-2 mt-4">
-                        <Button onClick={handleReply} disabled={loading || !replyText.trim()} className="flex-1">
-                            {loading ? 'Sending...' : 'Send Reply'}
-                        </Button>
+                {ticket.status !== "CLOSED" &&
+                    <div className="border-t pt-6">
+                        <TextArea
+                            placeholder="Type your reply..."
+                            value={replyText}
+                            onChange={(e) => setReplyText(e)}
+                            rows={4}
+                        />
+                        <div className="flex gap-2 mt-4">
+                            <Button onClick={handleReply} disabled={loading || !replyText.trim()} className="flex-1">
+                                {loading ? 'Sending...' : 'Send Reply'}
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                }
             </CardContent>
         </Card>
     );

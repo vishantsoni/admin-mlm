@@ -6,7 +6,7 @@ export interface User {
   role: string;
   role_id?:number;
   role_name?:string;
-  permissions?: string[];
+  role_permissions?: string[];
   node_path?: string;
   // Profile fields
   profile_pic?: string;
@@ -42,28 +42,28 @@ export interface User {
   transaction_pin_hash?: string;
 }
 
-export const fakeUsers: Record<string, User> = {
-  'admin@test.com': {
-    id: '1',
-    email: 'admin@test.com',
-    role: 'admin'
-  },
-  'super@test.com': {
-    id: '2',
-    email: 'super@test.com',
-    role: 'super admin'
-  },
-  'dist@test.com': {
-    id: '3',
-    email: 'dist@test.com',
-    role: 'DISTRIBUTOR'
-  },
-  'staff@test.com': {
-    id: '4',
-    email: 'staff@test.com',
-    role: 'staff'
-  }
-};
+// export const fakeUsers: Record<string, User> = {
+//   'admin@test.com': {
+//     id: '1',
+//     email: 'admin@test.com',
+//     role: 'admin'
+//   },
+//   'super@test.com': {
+//     id: '2',
+//     email: 'super@test.com',
+//     role: 'super admin'
+//   },
+//   'dist@test.com': {
+//     id: '3',
+//     email: 'dist@test.com',
+//     role: 'DISTRIBUTOR'
+//   },
+//   'staff@test.com': {
+//     id: '4',
+//     email: 'staff@test.com',
+//     role: 'staff'
+//   }
+// };
 
 export const rolePermissions: Record<string, string[]> = {
   'super admin': [
@@ -101,6 +101,8 @@ export const rolePermissions: Record<string, string[]> = {
     'cms',
     'static-content',
     'state-city',
+    'team-member',
+    'banners',
     'wallet',
     'withdrawals',
     'blog',
@@ -160,7 +162,7 @@ export function hasPermission(userRole: string | null, permission: string): bool
   const roleKey = userRole.toLowerCase();
   const perms = rolePermissions[roleKey] || [];
 
-  console.log("DEBUG hasPermission - roleKey:", roleKey, "perms:", perms, "permission:", permission, "result:", perms.includes('*') || perms.includes(permission));
+  // console.log("DEBUG hasPermission - roleKey:", roleKey, "perms:", perms, "permission:", permission, "result:", perms.includes('*') || perms.includes(permission));
 
   return perms.includes('*') || perms.includes(permission);
 }
