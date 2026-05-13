@@ -1,9 +1,10 @@
 # TODO
 
-- [ ] Update `src/app/(admin)/my-profile/page.tsx` to call `PUT api/users/me/profile`.
-- [ ] Expand form state to include all required backend fields (snake_case keys).
-- [ ] Map existing `AuthContext.user` (camelCase) into formData (snake_case).
-- [ ] Convert `dob` to ISO string for API payload.
-- [ ] On success, update AuthContext `user` with response (or merged fallback).
-- [ ] Add missing UI input fields for address/city/state/pin/bank details.
-- [ ] Run lint/build checks.
+- [ ] Implement frontend wiring for ID card generation using existing `serverCallFunction` helper.
+- [ ] Confirm the backend endpoint path expected by `serverCallFunction` (it prefixes with `process.env.NEXT_PUBLIC_API_URL`).
+- [ ] Update `src/components/idCard/IDCardCompo.tsx` to call `POST /api/id-cards/generate` when images are missing.
+- [ ] Do not add/modify backend route handlers inside this repo (separate backend exists).
+- [ ] Manually test:
+  - POST request triggers generation when missing
+  - Repeated POST does not regenerate if files exist
+
