@@ -1,10 +1,10 @@
-import AddMemberStep from '@/components/auth/AddMemberStep'
+import IDCardCompo from '@/components/idCard/IDCardCompo'
 import React from 'react'
 
 const page = () => {
     return (
         <>
-            <AddMemberStep />
+            <IDCardCompo />
         </>
     )
 }

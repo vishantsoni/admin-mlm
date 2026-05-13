@@ -8,7 +8,7 @@ import Button from '@/components/ui/button/Button';
 import Input from '@/components/form/input/InputField';
 import Label from '@/components/form/Label';
 import Pagination from '@/components/tables/Pagination';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import { Pencil, Trash2, Plus, RefreshCcw } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { Product } from '@/types/product';
 import MultiSelect from '@/components/ui/select/MultiSelect';
@@ -170,6 +170,28 @@ const CouponsPage: React.FC = () => {
     openModal();
   };
 
+  const restoreCoupon = async (coupon: Coupon) => {
+    // setProductMode(applicable.length === 0 ? 'all' : 'specific');
+    // setFormData({
+    //   ...coupon,
+    //   min_order_amount: coupon.min_order_amount || 0,
+    //   max_discount_amount: coupon.max_discount_amount || 0,
+    //   usage_limit: coupon.usage_limit || 0,
+    //   applicable_products: applicable,
+    //   applicable_users: coupon.applicable_users || [],
+    //   product_names: coupon.product_names || []
+    // });
+    // setEditingCoupon(coupon);
+    // openModal();
+
+    const url = `api/coupons/${coupon.id}`
+    const res = await serverCallFuction('PUT', url, { status: 'active' });
+    if (res.success) {
+      alert('Coupon restored!');
+      fetchCoupons(currentPage);
+    }
+  };
+
   // Sync applicable_products when productMode changes
   useEffect(() => {
     if (productMode === 'all') {
@@ -280,12 +302,18 @@ const CouponsPage: React.FC = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(coupon)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDelete(coupon.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {coupon.status === 'trash' ? <>
+
+                    <Button variant="outline" size="sm" onClick={() => restoreCoupon(coupon)}>
+                      <RefreshCcw className="h-4 w-4" />
+                    </Button></> : <>
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(coupon)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDelete(coupon.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>}
                 </TableCell>
               </TableRow>
             ))}

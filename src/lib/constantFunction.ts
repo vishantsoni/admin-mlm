@@ -14,8 +14,9 @@ export interface ServerResponse<T = any> {
 }
 
 // Ensure the environment variable is picked up correctly in production
-// const host: string = process.env.API_URL || 'http://localhost:5000';
-const host: string = process.env.API_URL || 'https://backend.feelsafeco.in';
+// const host: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const host: string = process.env.NEXT_PUBLIC_API_URL || 'https://backend.feelsafeco.in';
+// const host:string = 'https://backend.feelsafeco.in';
 
 /**
  * 2. TYPE GUARDS & CHECKS
@@ -231,6 +232,63 @@ const serverCallFuction = async <T = any>(
 };
 
 export default serverCallFuction;
+
+
+export const downloadFile = async <T = any>(
+  method: HttpMethod = 'GET',
+  endPoints: string = '',
+  body: any = null
+): Promise<T | ServerResponse> => {
+  try {
+    // Check for token in localStorage (safe for Next.js/Browser)
+    const storedToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const token = storedToken || '';
+    
+    let headers: Record<string, string> = {
+      'x-auth-token': token
+    };
+
+    // If body is NOT FormData, we send JSON headers
+    if (body && !isFormData(body)) {
+      headers['Content-Type'] = 'application/json';
+    } else if (!body) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const requestOptions: RequestInit = {
+      method: method,
+      headers: headers,
+      body: body ? (isFormData(body) ? body : JSON.stringify(body)) : null
+    };
+
+    console.log(`[API Call]: ${method} ${host}/${endPoints}`);
+
+    const response = await fetch(`${host}/${endPoints}`, requestOptions);
+    const contentType = response.headers.get('content-type');
+    
+    
+
+    if (response.ok) {
+      return response.blob() as unknown as T;
+    } else {
+      return {
+        status: false,
+        e_code: response.status,
+        message: 'Something went wrong!'
+      }
+    }
+  } catch (e: any) {
+    console.error('Error in calling endpoint:', e);
+
+    return {
+      status: false,
+      message: e.message || 'Something went wrong',
+      data: null
+    };
+  }
+};
+
+
 
 /**
  * 6. BASE64 ENCODING/DECODING

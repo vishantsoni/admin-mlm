@@ -67,7 +67,7 @@ const ProductDetail = () => {
         <div>
           <h2 className="text-xl font-semibold mb-4">Featured Image</h2>
           <Image
-            src={product.f_image?.startsWith('http') ? product.f_image : `http://localhost:5000${product.f_image || ''}` || '/images/product/product-01.jpg'}
+            src={product.f_image?.startsWith('http') ? product.f_image : `${process.env.NEXT_PUBLIC_API_URL}${product.f_image || ''}` || '/images/product/product-01.jpg'}
             alt={product.name}
             width={80}
             height={80}

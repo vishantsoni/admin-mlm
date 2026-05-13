@@ -148,8 +148,8 @@ const KYCPage = () => {
       xhrRef.current = null;
     });
 
-    // xhr.open('POST', 'http://localhost:5000/api/users/kyc/upload');
-    xhr.open('POST', 'https://fsbackend.gtsol.in/api/users/kyc/upload');
+    xhr.open('POST', `${process.env.NEXT_PUBLIC_API_URL}/api/users/kyc/upload`);
+    // xhr.open('POST', 'https://fsbackend.gtsol.in/api/users/kyc/upload');
 
     xhr.send(formDataToSend);
   };

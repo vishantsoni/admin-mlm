@@ -64,6 +64,8 @@ export const useStaff = () => {
   }, []);
 
   const updateStaff = useCallback(async (id: string | number, payload: UpdateStaffPayload) => {
+    console.log("update staff call");
+    
     setLoading(true);
     setError(null);
     try {

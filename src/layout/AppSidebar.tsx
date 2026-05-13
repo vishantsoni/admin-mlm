@@ -23,7 +23,7 @@ import {
   UserCircleIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
-import { Users } from "lucide-react";
+import { IdCardIcon, Users } from "lucide-react";
 
 
 type NavItem = {
@@ -47,6 +47,12 @@ const allNavItems: NavItem[] = [
     name: "All Members",
     permission: "members",
     path: "/members",
+  },
+  {
+    icon: <IdCardIcon />,
+    name: "ID Card",
+    permission: "id-card",
+    path: "/id-card",
   },
   {
     icon: <BoxCubeIcon />,

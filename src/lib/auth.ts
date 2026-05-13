@@ -68,6 +68,7 @@ export interface User {
 export const rolePermissions: Record<string, string[]> = {
   'super admin': [
     'dashboard',
+    'my-profile',
     'analytics',
     'members',
     'network-tree',
@@ -128,6 +129,7 @@ export const rolePermissions: Record<string, string[]> = {
     'dashboard',
     'referral',    
     'profile',
+    'id-card',
     'wallet',
     'withdrawals',
     'network-tree',

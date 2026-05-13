@@ -159,7 +159,7 @@ const OrderDetail = () => {
                             <span>Shipping Charges:</span>
                             <span>₹{formattedAmount(order.shipping_charges || 0)}</span>
                         </div>
-                        
+
                         <div className="flex justify-between text-lg font-bold border-t pt-2">
                             <span>Total:</span>
                             <span>₹{formattedAmountCommas(order.total_amount)}</span>
@@ -180,15 +180,15 @@ const OrderDetail = () => {
                         <CardTitle>Shipping Address</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
-                         <div>
+                        <div>
                             <label className="text-sm font-medium text-muted-foreground">Address Line</label>
                             <p className="font-semibold mt-1">{order.shipping_address?.address_line1}, {order.shipping_address?.address_line2}</p>
-                        </div>                        
+                        </div>
                         <div>
                             <label className="text-sm font-medium text-muted-foreground">City</label>
                             <p className="font-semibold mt-1">{order.shipping_address?.city}, {order.shipping_address?.state}, {order.shipping_address?.pincode}</p>
                         </div>
-                        
+
                         <div>
                             <label className="text-sm font-medium text-muted-foreground">Phone</label>
                             <p className='font-semibold'>{order.user_phone}</p>
@@ -246,7 +246,7 @@ const OrderDetail = () => {
                                                     className="rounded object-cover"
                                                     priority={false}
                                                     onError={(e) => {
-                                                        //   console.error('Product image failed to load:', `http://localhost:5000${product.product_image}`, product.name);
+
                                                     }}
                                                     onLoad={() => console.log('Product image loaded:', product.product_name)}
                                                 />

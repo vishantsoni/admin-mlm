@@ -69,30 +69,30 @@ export default function SupportPage() {
 
     return (
         <div>
-            <PageBreadcrumb title="Support Tickets" items={[
+            {/* <PageBreadcrumb title="Support Tickets" items={[
                 { title: "Dashboard", href: "/dashboard" },
                 { title: "Support" }
-            ]} />
+            ]} /> */}
 
             <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
 
-                <div className="space-y-6">
+                {/* <div className="space-y-6">
                     <ComponentCard title="Quick Stats">
                         <div className="space-y-4">
                             <div className="flex justify-between">
                                 <span>Total</span>
                                 <Badge>{pagination?.total ?? 'N/A'}</Badge>
                             </div>
-                            {/* <div className="flex justify-between">
+                            <div className="flex justify-between">
                                 <span>In Progress</span>
                                 <Badge variant="light">5</Badge>
-                            </div> */}
+                            </div>
                         </div>
                     </ComponentCard>
-                </div>
+                </div> */}
 
 
-                <ComponentCard title="Tickets List" className="lg:col-span-2">
+                <ComponentCard title={`Tickets List : ${pagination?.total ?? 'N/A'}`} className="lg:col-span-2">
                     <div className="flex flex-col sm:flex-row gap-4 mb-6">
                         {/* <Select value={filterStatus} onValueChange={setFilterStatus as any}>
                             <SelectTrigger className="w-[180px]">

@@ -1,10 +1,9 @@
-# TODO - Income Simulator page
+# TODO
 
-- [ ] Create simulator UI page at `src/app/(admin)/simulator/page.tsx`
-- [ ] Add form fields for: personal_sales, direct_team_count, avg_l2_sales, l2_team_size_per_direct
-- [ ] Add optional inputs for: l1_commission_pct, l2_commission_pct, tds_pct
-- [ ] On submit, POST to `api/business/income-simulator` using `serverCallFuction`
-- [ ] Show loading state, inline validation errors, and API error state
-- [ ] Render API response in a generic view (summary + JSON preview)
-- [ ] Verify TypeScript build/lint passes
-
+- [ ] Update `src/app/(admin)/my-profile/page.tsx` to call `PUT api/users/me/profile`.
+- [ ] Expand form state to include all required backend fields (snake_case keys).
+- [ ] Map existing `AuthContext.user` (camelCase) into formData (snake_case).
+- [ ] Convert `dob` to ISO string for API payload.
+- [ ] On success, update AuthContext `user` with response (or merged fallback).
+- [ ] Add missing UI input fields for address/city/state/pin/bank details.
+- [ ] Run lint/build checks.

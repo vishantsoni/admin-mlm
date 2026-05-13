@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 
-import serverCallFuction, { formattedAmount, date_formate, getCurrencyIcon } from "@/lib/constantFunction";
+import serverCallFuction, { formattedAmount, date_formate, getCurrencyIcon, downloadFile } from "@/lib/constantFunction";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card/Card";
 import {
     Table,
@@ -25,7 +25,9 @@ import {
     Package,
     CreditCard,
     BarChart3,
+    Download,
 } from "lucide-react";
+import Button from "@/components/ui/button/Button";
 
 // Dynamically import ReactApexChart to avoid SSR issues
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -252,18 +254,65 @@ const SalesReportPage = () => {
         },
     ];
 
+
+    const handleDownloadSalesExcel = async () => {
+        try {
+            // अपनी API का URL (with dates)
+            // const url = `https://backend.feelsafeco.in/api/reports/sales-excel`;
+            const url = `api/reports/sales-excel`;
+
+            console.log("sales excel - ", url);
+
+            // const response = await fetch(url, { method: 'GET' });
+            // if (!response.ok) throw new Error('Download failed');
+
+            // const blob = await response.blob();
+
+            const response = await downloadFile('GET', url);
+            if (response instanceof Blob) {
+                const downloadUrl = window.URL.createObjectURL(response);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = `Sales_Report_${new Date().toLocaleDateString()}.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+
+                // सफाई (Cleanup)
+                link.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+            } else {
+                throw new Error('Download failed');
+            }
+
+
+        } catch (error) {
+            alert("Excel डाउनलोड करने में समस्या आई - ", error);
+        }
+    }
+
+
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    Sales Report
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400">
-                    Overview of your sales performance and metrics
-                </p>
-            </div>
+            <div className="flex items-center">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                        Sales Report
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400">
+                        Overview of your sales performance and metrics
+                    </p>
+                </div>
 
+                <Button variant="primary"
+                    size="sm"
+                    onClick={handleDownloadSalesExcel}
+                    className="ml-auto"
+                    startIcon={<Download className="w-4 h-4" />}
+                >
+                    Export in Excel
+                </Button>
+            </div>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
                 {summaryCards.map((card, index) => (

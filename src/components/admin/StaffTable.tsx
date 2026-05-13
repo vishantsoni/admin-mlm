@@ -59,8 +59,14 @@ const StaffTable = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.role_id) return;
+
+    console.log("Handle 1. = ", formData, editingStaff);
+    if (formData.role_id === undefined || formData.role_id === null) return;
+
+    console.log("Handle = ", editingStaff);
+
     if (editingStaff) {
+      console.log("Handle submit edit - ", editingStaff);
       const result = await updateStaff(editingStaff.id, formData as UpdateStaffPayload);
       if (result.success) {
         setOpen(false);
@@ -297,7 +303,10 @@ const StaffTable = () => {
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSubmit} disabled={!formData.role_id || loading}>
+              <Button
+                onClick={handleSubmit}
+                disabled={loading}
+              >
                 {loading ? 'Saving...' : editingStaff ? 'Update' : 'Create'}
               </Button>
             </div>

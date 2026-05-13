@@ -73,7 +73,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete,
                 className="rounded object-cover"
                 priority={false}
                 onError={(e) => {
-                  console.error('Product image failed to load:', `http://localhost:5000${product.f_image}`, product.name);
+
                 }}
                 onLoad={() => console.log('Product image loaded:', product.name)}
               />

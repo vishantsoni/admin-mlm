@@ -92,10 +92,11 @@ const MembersPage = () => {
   }, [searchTerm, members]);
 
   const openAdd = () => {
-    setIsEditMode(false);
-    setEditingId(null);
-    setFormData({ name: "", email: "", phone: "", status: "active" });
-    openModal();
+    // setIsEditMode(false);
+    // setEditingId(null);
+    // setFormData({ name: "", email: "", phone: "", status: "active" });
+    // openModal();
+    router.push("members/add");
   };
 
   const openEdit = (member: Member) => {

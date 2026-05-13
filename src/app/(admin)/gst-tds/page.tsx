@@ -171,7 +171,7 @@ const GstTdsPage = () => {
     const handleDownloadGstExcel = async () => {
         try {
             // अपनी API का URL (with dates)
-            const url = `https://fsbackend.gtsol.in/api/reports/gst-excel`;
+            const url = `https://backend.feelsafeco.in/api/reports/gst-excel`;
 
             const response = await fetch(url, { method: 'GET' });
             if (!response.ok) throw new Error('Download failed');
