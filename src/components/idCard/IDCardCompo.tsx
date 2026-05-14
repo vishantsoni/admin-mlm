@@ -2,119 +2,102 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { api } from "@/lib/serverCallFunction";
 import { useAuth } from "@/context/AuthContext";
 import serverCallFuction from "@/lib/constantFunction";
 import Badge from "../ui/badge/Badge";
 import { Download } from "lucide-react";
 
-
 const DEFAULT_IMG = "/images/placeholder.png";
 
 export default function IDCardCompo() {
-
-    const { user } = useAuth()
+    const { user } = useAuth();
     const effectiveUserId = user?.id;
-    // This component is intentionally frontend-only.
-    // The real generation must happen in your separate backend at:
-    //   POST /api/id-cards/generate
-    // and outputs:
-    //   /uploads/id-cards/[user-id]/front.jpg
-    //   /uploads/id-cards/[user-id]/back.jpg
-    //   /uploads/id-cards/[user-id]/qr.png
-
-
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const [idCardUrls, setIdCardUrls] = useState({
+        front: DEFAULT_IMG,
+        back: DEFAULT_IMG,
+        qr: DEFAULT_IMG,
+    });
+
     const baseUploadUrl = useMemo(() => {
-        // serverCallFunction uses NEXT_PUBLIC_API_URL; for images we rely on that
         return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
     }, []);
 
-    const idCardUrls = useMemo(() => {
-        if (effectiveUserId === undefined || effectiveUserId === null) {
-            return {
-                front: DEFAULT_IMG,
-                back: DEFAULT_IMG,
-                qr: DEFAULT_IMG,
-            };
-        }
-
-        return {
-            front: `${baseUploadUrl}/uploads/id-cards/${effectiveUserId}/front.jpg`,
-            back: `${baseUploadUrl}/uploads/id-cards/${effectiveUserId}/back.jpg`,
-            qr: `${baseUploadUrl}/uploads/id-cards/${effectiveUserId}/qr.png`,
-        };
-    }, [baseUploadUrl, effectiveUserId]);
-
-    // If backend generates “if missing”, we can just call it.
-    // Because body is empty (per your note), send an empty object.
     useEffect(() => {
         let cancelled = false;
-        const run = async () => {
-            if (effectiveUserId === undefined || effectiveUserId === null) return;
+
+        const handleIdCardLogic = async () => {
+            if (!effectiveUserId) return;
+
+            // 1. Construct the paths to check
+            const frontUrl = `${baseUploadUrl}/uploads/id-cards/${effectiveUserId}/front.jpg`;
+            const backUrl = `${baseUploadUrl}/uploads/id-cards/${effectiveUserId}/back.jpg`;
+            const qrUrl = `${baseUploadUrl}/uploads/id-cards/${effectiveUserId}/qr.png`;
 
             setLoading(true);
             setError(null);
-            try {
-                // Prefer empty body; serverCallFunction always JSON-stringifies body.
-                // backend should accept empty body.
-                await serverCallFuction("POST",
-                    "api/id-cards/generate"
-                );
 
-                if (!cancelled) {
-                    // ignore payload; backend is responsible for writing files
-                    // res may contain URLs/status, but not required.
+            try {
+                // 2. Check if the file exists already
+                const checkResponse = await fetch(frontUrl, { method: 'HEAD' });
+
+                if (checkResponse.ok) {
+                    // Files exist! Set them to state and exit.
+                    if (!cancelled) {
+                        setIdCardUrls({ front: frontUrl, back: backUrl, qr: qrUrl });
+                    }
+                } else {
+                    // 3. Files don't exist, trigger generation
+                    const res = await serverCallFuction("POST", "api/id-cards/generate");
+
+                    if (!cancelled && res.status) {
+                        setIdCardUrls({
+                            front: res.data.frontUrl || frontUrl,
+                            back: res.data.backUrl || backUrl,
+                            qr: res.data.qrUrl || qrUrl,
+                        });
+                    }
                 }
             } catch (e: unknown) {
                 const err = e as { message?: string };
-
                 if (!cancelled) {
-                    setError(err?.message || "Failed to generate ID card");
+                    setError(err?.message || "Failed to process ID card");
+                    // Fallback to constructed URLs even if check fails
+                    setIdCardUrls({ front: frontUrl, back: backUrl, qr: qrUrl });
                 }
             } finally {
                 if (!cancelled) setLoading(false);
             }
         };
 
-        run();
+        handleIdCardLogic();
+
         return () => {
             cancelled = true;
         };
-    }, [effectiveUserId]);
+    }, [effectiveUserId, baseUploadUrl]); // Only run when user ID or Base URL changes
 
     const downloadIdCard = (url: string, side: 'Front' | 'Back') => {
-        if (!url) return;
-
-        // Create a hidden link
+        if (!url || url === DEFAULT_IMG) return;
         const link = document.createElement("a");
         link.href = url;
-        link.target = "_blank"; // Open in new tab
-
-        // Suggest a filename: e.g., ID_Card_Front_1715600000.jpg
+        link.target = "_blank";
         link.download = `ID_Card_${side}_${Date.now()}.jpg`;
-
-        // Append to body, click, and remove
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     };
 
-
     return (
         <div className="w-full">
-            {loading ? (
-                <div className="text-sm text-gray-600">Generating ID card...</div>
-            ) : null}
-
-            {error ? (
-                <div className="text-sm text-red-600 mt-2">{error}</div>
-            ) : null}
+            {loading && <div className="text-sm text-gray-600 animate-pulse">Checking ID card status...</div>}
+            {error && <div className="text-sm text-red-600 mt-2">{error}</div>}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                {/* Front Side */}
                 <div className="rounded-xl border p-3 bg-white dark:bg-gray-900 relative">
                     <div className="text-sm font-medium mb-2">Front</div>
                     <Image
@@ -123,13 +106,13 @@ export default function IDCardCompo() {
                         width={300}
                         height={200}
                         className="w-full h-auto rounded-lg object-contain"
-
+                        unoptimized
                     />
                     <Badge
                         variant="solid"
-                        className="absolute top-2 right-2 mt-0 z-999 cursor-pointer flex items-center justify-center hover:bg-opacity-90 active:scale-95 transition-transform"
+                        className="absolute top-2 right-2 cursor-pointer flex items-center hover:bg-opacity-90"
                         onClick={(e) => {
-                            e.stopPropagation(); // Prevents triggering parent clicks
+                            e.stopPropagation();
                             downloadIdCard(idCardUrls.front, 'Front');
                         }}
                     >
@@ -138,6 +121,7 @@ export default function IDCardCompo() {
                     </Badge>
                 </div>
 
+                {/* Back Side */}
                 <div className="rounded-xl border p-3 bg-white dark:bg-gray-900 relative">
                     <div className="text-sm font-medium mb-2">Back</div>
                     <Image
@@ -150,9 +134,9 @@ export default function IDCardCompo() {
                     />
                     <Badge
                         variant="solid"
-                        className="absolute top-2 right-2 mt-0 z-999 cursor-pointer flex items-center justify-center hover:bg-opacity-90 active:scale-95 transition-transform"
+                        className="absolute top-2 right-2 cursor-pointer flex items-center hover:bg-opacity-90"
                         onClick={(e) => {
-                            e.stopPropagation(); // Prevents triggering parent clicks
+                            e.stopPropagation();
                             downloadIdCard(idCardUrls.back, 'Back');
                         }}
                     >
@@ -161,7 +145,8 @@ export default function IDCardCompo() {
                     </Badge>
                 </div>
 
-                <div className="rounded-xl border p-3 bg-white dark:bg-gray-900 ">
+                {/* QR Code */}
+                <div className="rounded-xl border p-3 bg-white dark:bg-gray-900">
                     <div className="text-sm font-medium mb-2">QR</div>
                     <div className="flex items-center justify-start gap-4">
                         <Image
@@ -178,4 +163,3 @@ export default function IDCardCompo() {
         </div>
     );
 }
-

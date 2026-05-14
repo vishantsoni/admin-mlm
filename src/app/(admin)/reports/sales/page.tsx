@@ -28,6 +28,7 @@ import {
     Download,
 } from "lucide-react";
 import Button from "@/components/ui/button/Button";
+import { useAuth } from "@/context/AuthContext";
 
 // Dynamically import ReactApexChart to avoid SSR issues
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -38,14 +39,19 @@ const SalesReportPage = () => {
     const [reportData, setReportData] = useState<SalesReportData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const { user } = useAuth()
 
     useEffect(() => {
         const fetchSalesReport = async () => {
             try {
                 setLoading(true);
+                let url = `api/reports/distributor-sales`;
+                if (user?.role?.toLocaleLowerCase() === "super admin") {
+                    url = `api/reports/sales`;
+                }
                 const res = (await serverCallFuction(
                     "GET",
-                    "api/reports/sales"
+                    url
                 )) as SalesReportResponse;
 
                 if (res && res.success === true && res.data) {
