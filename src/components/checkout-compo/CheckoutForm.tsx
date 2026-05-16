@@ -10,7 +10,7 @@ import Label from '@/components/form/Label';
 import Image from 'next/image';
 import { BackendCartItem } from '@/types/cart';
 import { RazorpayPaymentResponse } from '@/types/purchase';
-import serverCallFuction from '@/lib/constantFunction';
+import serverCallFuction, { formattedAmountCommas } from '@/lib/constantFunction';
 import { formattedAmount, getCurrencyIcon } from '@/lib/constantFunction';
 import { useAuth } from '@/context/AuthContext';
 import Badge from '../ui/badge/Badge';
@@ -18,16 +18,18 @@ import { Address } from '@/types/address';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Modal } from '@/components/ui/modal';
 import { Plus } from 'lucide-react';
-import Select from '@/components/form/Select';
+
 import { CreateAddressPayload } from '@/types/address';
 import { States } from '@/types/static-content';
 import { usePreloader } from '@/context/PreloaderContext';
+
 
 
 interface CartCheckoutProps {
   cartItems: BackendCartItem[];
   totalAmount: number;
   user: any;
+  shippingCharges: any;
   onSuccess: () => void;
 }
 
@@ -37,7 +39,7 @@ declare global {
   }
 }
 
-const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, user, onSuccess }) => {
+const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, user, onSuccess, shippingCharges }) => {
   const [formData, setFormData] = useState({
     full_name: user.full_name || user.username || '',
     email: user.email || '',
@@ -49,6 +51,10 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [loading, setLoading] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+
+
+
 
   // Add Address Modal State
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
@@ -456,10 +462,24 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                     })}
                   </RadioGroup>
                 )}
+
+
+                <div className='flex items-center justify-between w-full bg-gray-200 p-2 rounded-lg mb-2'>
+                  <Label className="block font-semibold">
+                    Shipping Charges <span className="text-red-500">*</span>
+                  </Label>
+                  <button
+                    type="button"
+                    className="p-1 hover:bg-gray-300 rounded-full transition-colors"
+                  >
+
+                    {currency}{shippingCharges}
+                  </button>
+                </div>
               </div>
 
               <Button className="w-full" disabled={loading || loadingAddresses || !selectedShippingId} onClick={handlePayment}>
-                {loading ? 'Processing...' : `Pay ${currency}${formattedAmount(totalAmount)} with Razorpay`}
+                {loading ? 'Processing...' : `Pay ${currency}${formattedAmountCommas(totalAmount)} with Razorpay`}
               </Button>
 
               {/* Add Address Modal */}
@@ -675,9 +695,9 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         ))}
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-lg">{currency}{formattedAmount(item.price)}</p>
+                        <p className=" text-sm font-bold ">{currency}{formattedAmount(item.price)}</p>
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                        <p className="text-sm text-gray-600">{currency}{formattedAmount(item.subtotal || (item.quantity * item.price))}</p>
+                        <p className=" font-bold text-lg text-gray-600">{currency}{formattedAmount(item.subtotal || (item.quantity * item.price))}</p>
                       </div>
                     </div>
                   </div>
@@ -685,7 +705,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                 <div className="p-4 pt-4">
                   <div className="flex justify-between text-xl font-bold text-gray-900 dark:text-white">
                     <span>Total:</span>
-                    <span>{currency}{formattedAmount(totalAmount)}</span>
+                    <span>{currency}{formattedAmountCommas(totalAmount - shippingCharges)}</span>
                   </div>
                 </div>
               </div>

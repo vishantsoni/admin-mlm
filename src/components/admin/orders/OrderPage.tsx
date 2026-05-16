@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import serverCallFuction from '@/lib/constantFunction';
+import serverCallFuction, { formattedAmountCommas } from '@/lib/constantFunction';
 import { Order, OrdersApiResponse } from '@/types/orders';
 import {
   Table,
@@ -107,7 +107,7 @@ const OrderPage = () => {
                 Direct Orders
               </Button>
 
-              
+
               <Button
                 variant={filter === 'distributor' ? "primary" : "outline"}
                 size="sm"
@@ -162,7 +162,7 @@ const OrderPage = () => {
                 {orders.map((order, index) => (
                   <TableRow key={index}>
 
-                    <TableCell className="px-6 py-4 font-bold grid">#{order.order_id} 
+                    <TableCell className="px-6 py-4 font-bold grid">#{order.order_id}
                       <Badge variant='solid' size='sm' className="w-30">{order.user_type}</Badge>
 
                     </TableCell>
@@ -171,7 +171,7 @@ const OrderPage = () => {
                       <div>
                         {order.user_name}
                       </div>
-                      
+
                       <div>
                         Ph. : <strong>{order.user_phone}</strong>
                       </div>
@@ -179,17 +179,17 @@ const OrderPage = () => {
                     <TableCell className="px-6 py-4">{date_formate(order.created_at)}</TableCell>
                     <TableCell className="px-6 py-4">
                       <div className='flex justify-between'>
-                        <span>Subtotal:</span> 
-                        <span>₹{formattedAmount(order.sub_total || 0)}</span>
+                        <span>Subtotal:</span>
+                        <span>₹{formattedAmountCommas(order.sub_total || 0)}</span>
                       </div>
                       <div className='flex justify-between'>
-                        <span>Tax: </span> <span>₹{formattedAmount(order.tax_amount || 0)}</span>
+                        <span>Tax: </span> <span>₹{formattedAmountCommas(order.tax_amount || 0)}</span>
                       </div>
                       <div className='flex justify-between'>
                         <span>Shipping C.:</span> <span>₹{formattedAmount(order.shipping_charges || 0)}</span>
                       </div>
                       <div className='flex justify-between'>
-                      <span>Total:</span> <strong>₹{formattedAmount(order.total_amount)}</strong>
+                        <span>Total:</span> <strong>₹{formattedAmountCommas(order.total_amount)}</strong>
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4">

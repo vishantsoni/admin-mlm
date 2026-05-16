@@ -79,7 +79,7 @@ export function formatInIndianUnits(amount: number): string {
   if (numAmount >= 10000000) { // 1 Crore
     return (numAmount / 10000000).toFixed(2) + ' Cr';
   } else if (numAmount >= 100000) { // 1 Lakh
-    return (numAmount / 100000).toFixed(2) + ' Lakh';
+    return (numAmount / 100000).toFixed(2) + ' L';
   } else if (numAmount >= 1000) { // 1 Thousand
     return (numAmount / 1000).toFixed(2) + 'K';
   } else {

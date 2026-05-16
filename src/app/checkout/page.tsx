@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import AppHeader from '@/layout/AppHeader';
 import CheckoutForm from '../../components/checkout-compo/CheckoutForm';
@@ -7,6 +7,7 @@ import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
+import { useSetting } from '@/context/SettingContext';
 
 declare global {
   interface Window {
@@ -18,10 +19,24 @@ const CheckoutPage = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { items, totalItems, totalAmount, loading, clearCart } = useCart();
+  const { settings, getSettingByKey } = useSetting();
+
+  // 1. Get the shipping charge and safely force convert it to a real number
+  const shippingCharges = useMemo(() => {
+    const charge = getSettingByKey("shipping_charge").charge;
+    const parsedCharge = Number(charge);
+    return isNaN(parsedCharge) ? 0 : parsedCharge;
+  }, [getSettingByKey, settings]);
+
+  // 2. Compute the combined final total amount (Cart Items Total + Shipping Charge)
+  const finalTotalAmount = useMemo(() => {
+    return totalAmount + shippingCharges;
+  }, [totalAmount, shippingCharges]);
 
   if (loading) {
     return (
       <div className="container mx-auto p-6 min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-500 mr-2"></div>
         <div>Loading cart...</div>
       </div>
     );
@@ -46,7 +61,7 @@ const CheckoutPage = () => {
   return (
     <>
       <AppHeader />
-      <div className=" bg-gray-50 dark:bg-gray-900 p-4 lg:p-8">
+      <div className="bg-gray-50 dark:bg-gray-900 p-4 lg:p-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -61,40 +76,31 @@ const CheckoutPage = () => {
               </div>
             </div>
           </div>
-          <CheckoutForm
-            cartItems={items}
-            totalAmount={totalAmount}
-            user={user}
-            onSuccess={() => {
-              clearCart();
-              if (user?.is_active) {
-                router.replace('/placed_order');
-              } else {
-                logout()
-                // router.replace('/shop');
-              }
-            }}
-          />
-        </div></div>
-      {/* <div className="container mx-auto p-6 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-        <div className="text-xl mb-8">
-          Review your order (Total: ₹{totalAmount.toLocaleString()})
+
+          {/* Changed condition check: 
+            We check if settings are loaded (`settings`) instead of checking `shippingCharges`.
+            This ensures that if shipping is 0 (Free Shipping), the CheckoutForm still displays correctly!
+          */}
+          {settings && (
+            <CheckoutForm
+              cartItems={items}
+              totalAmount={finalTotalAmount} // Pass down the combined sum total here
+              shippingCharges={shippingCharges} // Optional: Pass shipping separately if CheckoutForm needs to break down fees
+              user={user}
+              onSuccess={() => {
+                clearCart();
+                if (user?.is_active) {
+                  router.replace('/placed_order');
+                } else {
+                  logout();
+                }
+              }}
+            />
+          )}
         </div>
-        <CheckoutForm 
-          cartItems={items}
-          totalAmount={totalAmount}
-          user={user}
-          onSuccess={() => {
-            clearCart();
-            router.replace('/shop');
-          }}
-        />
-      </div> */}
+      </div>
     </>
   );
 };
 
 export default CheckoutPage;
-
-

@@ -11,8 +11,10 @@ import serverCallFuction from '@/lib/constantFunction';
 import { User } from '@/lib/auth';
 import Link from 'next/link';
 import { ChevronLeftIcon, TrashBinIcon } from '@/icons';
+import { usePreloader } from '@/context/PreloaderContext';
 
 const KYCPage = () => {
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false)
   const [formData, setFormData] = useState<Partial<User>>({});
   const [tempUser, setTempUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
@@ -39,8 +41,46 @@ const KYCPage = () => {
   }).current;
   const xhrRef = useRef<XMLHttpRequest | null>(null);
   const router = useRouter();
-  const { updateUserProfile, user } = useAuth();
+  const { updateUserProfile, user, logout } = useAuth();
   const [isPending, startTransition] = useTransition();
+  const { showLoader, hideLoader } = usePreloader()
+
+
+  // fetched kyc status
+  useEffect(() => {
+    const fetchKYCStatus = async (userId: number) => {
+      try {
+        showLoader()
+        const res = await serverCallFuction('GET', `api/users/kyc-status?id=${userId}`);
+        if (res.status && res.data) {
+          const { status, uploaded_files } = res.data;
+          if (status == "under_review") {
+            setAlreadySubmitted(true)
+            // updateUserProfile({ is_kyc_completed: true } as Partial<User>);
+            // localStorage.removeItem('temp_user');
+            // router.push('/');
+          } else if (status === "approved") {
+            updateUserProfile({ kyc_status: true } as Partial<User>)
+            setAlreadySubmitted(false)
+            logout()
+            router.push('/');
+          } else {
+            setAlreadySubmitted(false)
+          }
+        }
+      } catch (err) {
+
+        console.error('Error fetching KYC status:', err);
+      } finally {
+        hideLoader()
+      }
+    };
+    if (user) {
+      fetchKYCStatus(user.id);
+    }
+  }, [router, user]);
+
+
 
   // Load temp_user on mount
   useEffect(() => {
@@ -83,75 +123,84 @@ const KYCPage = () => {
 
   const uploadDocuments = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tempUser) return;
+    try {
+      if (!tempUser) return;
 
-    const uploadedCount = Object.values(files).filter(Boolean).length;
-    if (uploadedCount < 4) {
-      setError(`Please upload at least 4 documents (got ${uploadedCount}/5)`);
-      return;
-    }
+      setLoading(true);
 
-    setError('');
-    setUploadStatus('uploading');
-    setUploadProgress(0);
+      const uploadedCount = Object.values(files).filter(Boolean).length;
+      if (uploadedCount < 4) {
 
-    const formDataToSend = new FormData();
-    formDataToSend.append('id', tempUser.id.toString());
-
-    if (files.pan) formDataToSend.append('PAN', files.pan);
-    if (files.aadhaarFront) formDataToSend.append('Aadhaar_Front', files.aadhaarFront);
-    if (files.aadhaarBack) formDataToSend.append('Aadhaar_Back', files.aadhaarBack);
-    if (files.bankPassbook) formDataToSend.append('passbook', files.bankPassbook);
-    if (files.profileImage) formDataToSend.append('profile', files.profileImage);
-
-    const xhr = new XMLHttpRequest();
-    xhrRef.current = xhr;
-
-    xhr.upload.addEventListener('progress', (event) => {
-      if (event.lengthComputable) {
-        const progress = Math.round((event.loaded / event.total!) * 100);
-        setUploadProgress(progress);
+        setError(`Please upload at least 4 documents (got ${uploadedCount}/5)`);
+        return;
       }
-    });
 
-    xhr.addEventListener('load', () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const res = JSON.parse(xhr.responseText);
-          if (!res.status) {
-            setError(res.message || res.error || 'Upload failed');
+      setError('');
+      setUploadStatus('uploading');
+      setUploadProgress(0);
+
+      const formDataToSend = new FormData();
+      formDataToSend.append('id', tempUser.id.toString());
+
+      if (files.pan) formDataToSend.append('PAN', files.pan);
+      if (files.aadhaarFront) formDataToSend.append('Aadhaar_Front', files.aadhaarFront);
+      if (files.aadhaarBack) formDataToSend.append('Aadhaar_Back', files.aadhaarBack);
+      if (files.bankPassbook) formDataToSend.append('passbook', files.bankPassbook);
+      if (files.profileImage) formDataToSend.append('profile', files.profileImage);
+
+      const xhr = new XMLHttpRequest();
+      xhrRef.current = xhr;
+
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total!) * 100);
+          setUploadProgress(progress);
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const res = JSON.parse(xhr.responseText);
+            if (!res.status) {
+              setError(res.message || res.error || 'Upload failed');
+              setUploadStatus('error');
+              return;
+            }
+            setUploadedFiles(res.files || []);
+            setUploadStatus('complete');
+            setStep('submit');
+          } catch (err) {
+            setError('Invalid response from server');
             setUploadStatus('error');
-            return;
           }
-          setUploadedFiles(res.files || []);
-          setUploadStatus('complete');
-          setStep('submit');
-        } catch (err) {
-          setError('Invalid response from server');
+        } else {
+          setError(`Upload failed: ${xhr.status} ${xhr.statusText}`);
           setUploadStatus('error');
         }
-      } else {
-        setError(`Upload failed: ${xhr.status} ${xhr.statusText}`);
+        xhrRef.current = null;
+      });
+
+      xhr.addEventListener('error', () => {
+        setError('Network error during upload');
         setUploadStatus('error');
-      }
-      xhrRef.current = null;
-    });
+        xhrRef.current = null;
+      });
 
-    xhr.addEventListener('error', () => {
-      setError('Network error during upload');
-      setUploadStatus('error');
-      xhrRef.current = null;
-    });
+      xhr.addEventListener('abort', () => {
+        setUploadStatus('idle');
+        xhrRef.current = null;
+      });
 
-    xhr.addEventListener('abort', () => {
-      setUploadStatus('idle');
-      xhrRef.current = null;
-    });
+      xhr.open('POST', `${process.env.NEXT_PUBLIC_API_URL}/api/users/kyc/upload`);
+      // xhr.open('POST', 'https://fsbackend.gtsol.in/api/users/kyc/upload');
 
-    xhr.open('POST', `${process.env.NEXT_PUBLIC_API_URL}/api/users/kyc/upload`);
-    // xhr.open('POST', 'https://fsbackend.gtsol.in/api/users/kyc/upload');
-
-    xhr.send(formDataToSend);
+      xhr.send(formDataToSend);
+    } catch (err: unknown) {
+      console.error('Upload error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const submitKYC = async (e: React.FormEvent) => {
@@ -179,7 +228,7 @@ const KYCPage = () => {
         console.error('KYC submit error:', err);
         setError('Network error. Please try again.');
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     });
   };
@@ -189,6 +238,32 @@ const KYCPage = () => {
   if (!tempUser) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
+
+  console.log("alread - ", alreadySubmitted);
+
+  if (alreadySubmitted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 text-center">
+          <div className="w-16 h-16 bg-amber-50 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg className="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">KYC Under Review</h2>
+          <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6">
+            Your KYC application request has already been submitted. Please wait patiently while our compliance team verifies your documents.
+          </p>
+          <div className="space-y-3">
+            <Link href="#" onClick={logout} className="block w-full text-center px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-xl text-sm transition-colors shadow-sm">
+              Go to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -337,7 +412,7 @@ const KYCPage = () => {
               size="md"
               disabled={loading || isPending}
             >
-              {loading || isPending ? 'Submitting KYC Request...' : 'Submit KYC for Verification'}
+              {loading || isPending ? 'Submitting...' : 'Submit KYC for Verification'}
             </Button> :
               <Button
                 type="submit"

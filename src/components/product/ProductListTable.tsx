@@ -56,7 +56,14 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete,
         {products.map((product, index) => {
 
           const tax_data = product.tax_data
+
           let total_price = parseFloat(product.base_price);
+          console.log("Discounted price - ", product.discounted_price);
+
+          if (product.discounted_price > 0) {
+            total_price = parseFloat(product.discounted_price);
+          }
+
           let tax_amount = 0;
           if (tax_data) {
             tax_amount = (total_price * Number(tax_data.percentage)) / 100
@@ -81,10 +88,13 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete,
             <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{product.name}</TableCell>
             <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
               <div>
-                <div className='font-bold'>₹{product.base_price}</div>
-                {product.discounted_price && product.discounted_price > 0 && (
-                  <div className="text-sm text-muted-foreground line-through ">₹{product.discounted_price}</div>
-                )}
+
+                {product.discounted_price && product.discounted_price > 0 ? (
+                  <>
+                    <div className='font-bold'>₹{product.discounted_price}</div>
+                    <div className="text-sm text-muted-foreground line-through ">MRP : ₹{product.base_price}</div>
+                  </>
+                ) : <div className='font-bold'>₹{product.base_price}</div>}
 
                 {product.tax_data && <>
                   <div className="text-sm text-muted-foreground ">{product.tax_data.name} ({product.tax_data.percentage}%) - ₹{tax_amount} </div>

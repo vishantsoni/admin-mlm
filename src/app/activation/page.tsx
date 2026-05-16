@@ -3,6 +3,7 @@ import React from 'react'
 import Button from '@/components/ui/button/Button';
 import { Check, Rocket, ShoppingCart, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const page = () => {
     const router = useRouter()
@@ -103,14 +104,16 @@ const page = () => {
                             Start Purchasing Now
                         </Button>
 
-                        <Button
-                            variant="outline"
-                            size="lg"
-                            className="px-10 h-14 rounded-2xl border-2 border-gray-200 dark:border-gray-700 font-bold hover:bg-gray-100 dark:hover:bg-gray-800"
-                            onClick={() => window.location.href = '/support'}
-                        >
-                            Talk to Consultant
-                        </Button>
+                        <Link href={"https://feelsafeco.in/contact-us"} target='_blank'>
+                            <Button
+                                variant="outline"
+                                size={"lg"}
+                                className="px-10 h-14 rounded-2xl border-2 border-gray-200 dark:border-gray-700 font-bold hover:bg-gray-100 dark:hover:bg-gray-800"
+                            // onClick={() => window.location.href = '/support'}
+                            >
+                                Talk to Consultant
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </div>

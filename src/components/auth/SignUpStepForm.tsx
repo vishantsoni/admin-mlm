@@ -292,7 +292,9 @@ export default function SignUpStepForm() {
         }
     };
 
-    console.log("errors - ", fieldErrors);
+    // console.log("errors - ", fieldErrors);
+    console.log("form data - ", formData);
+
 
 
     const handleFieldChange = (field: string, value: any) => {
@@ -326,6 +328,17 @@ export default function SignUpStepForm() {
         });
         // }
     };
+
+    const getMaxDOB = () => {
+        const today = new Date();
+        const year = today.getFullYear() - 21; // Aaj ke saal se 21 saal minus kiya
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Months 0-11 hote hain, isliye +1
+        const day = String(today.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`; // Format: YYYY-MM-DD
+    };
+
+    const maxDate = getMaxDOB();
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md">
             <h2 className="text-2xl font-bold mb-2 text-center text-gray-800 dark:text-white">SAKHI DISTRIBUTOR APPLICATION</h2>
@@ -382,12 +395,49 @@ export default function SignUpStepForm() {
                             <div>
                                 <Label>Aadhaar No* </Label>
                                 <Input
-                                    defaultValue={formData.aadhaarNo} placeholder="12-digit Number" onChange={(e) => setFormData({ ...formData, aadhaarNo: e.target.value })}
+                                    value={formData.aadhaarNo}
+                                    placeholder="12-digit Number"
+                                    // onChange={(e) => setFormData({ ...formData, aadhaarNo: e.target.value })}
+                                    onChange={(e) => {
+                                        // Step 1: Remove all non-digits immediately
+                                        const val = e.target.value.replace(/\D/g, "");
+
+                                        // Step 2: Validate Indian starting digit (6-9)
+                                        if (val === "" || /^[0-9]/.test(val)) {
+                                            handleFieldChange('aadhaarNo', val);
+                                        }
+                                    }}
                                     maxLength={12} />
                             </div>
                             <div>
                                 <Label>PAN No* </Label>
-                                <Input defaultValue={formData.panNo} placeholder="Permanent Account Number" onChange={(e) => setFormData({ ...formData, panNo: e.target.value })}
+                                <Input value={formData.panNo}
+                                    placeholder="Permanent Account Number"
+                                    // onChange={(e) => setFormData({ ...formData, panNo: e.target.value })}
+                                    onChange={(e) => {
+                                        let value = e.target.value.toUpperCase();
+
+                                        // 1. Pehle 5 characters sirf A-Z ho sakte hain
+                                        if (value.length <= 5) {
+                                            value = value.replace(/[^A-Z]/g, '');
+                                        }
+                                        // 2. Next 4 characters (6th se 9th) sirf 0-9 ho sakte hain
+                                        else if (value.length <= 9) {
+                                            const firstPart = value.slice(0, 5);
+                                            const secondPart = value.slice(5).replace(/[^0-9]/g, '');
+                                            value = firstPart + secondPart;
+                                        }
+                                        // 3. Last character (10th) sirf A-Z ho sakta hai
+                                        else if (value.length === 10) {
+                                            const firstPart = value.slice(0, 5);
+                                            const secondPart = value.slice(5, 9);
+                                            const lastPart = value.slice(9).replace(/[^A-Z]/g, '');
+                                            value = firstPart + secondPart + lastPart;
+                                        }
+
+                                        // State update tabhi karein jab rules match ho rahe hon
+                                        setFormData({ ...formData, panNo: value });
+                                    }}
                                     error={!!fieldErrors.panNo}
                                     hint={fieldErrors.panNo}
                                     maxLength={10}
@@ -395,7 +445,18 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Date of Birth* </Label>
-                                <Input type="date" defaultValue={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                                {/* <Input
+                                    type="date"
+                                    value={formData.dob}
+                                    onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                                    error={!!fieldErrors.dob}
+                                    hint={fieldErrors.dob}
+                                /> */}
+                                <Input
+                                    type="date"
+                                    defaultValue={formData.dob}
+                                    max={maxDate} // Yeh calendar me 21 saal se kam ki dates ko block kar dega
+                                    onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                                     error={!!fieldErrors.dob}
                                     hint={fieldErrors.dob}
                                 />
@@ -603,9 +664,32 @@ export default function SignUpStepForm() {
                             <div>
                                 <Label>IFSC Code* </Label>
                                 <Input placeholder='Enter IFSC code'
-                                    defaultValue={formData.ifscCode}
+                                    value={formData.ifscCode}
                                     // onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })} 
-                                    onChange={(e) => handleFieldChange('ifscCode', e.target.value)}
+                                    // onChange={(e) => handleFieldChange('ifscCode', e.target.value)}
+                                    onChange={(e) => {
+                                        let value = e.target.value.toUpperCase();
+
+                                        // 1. Pehle 4 characters sirf Letters (A-Z) ho sakte hain
+                                        if (value.length <= 4) {
+                                            value = value.replace(/[^A-Z]/g, '');
+                                        }
+                                        // 2. 5th character hamesha '0' (Zero) hi hona chahiye
+                                        else if (value.length === 5) {
+                                            const firstPart = value.slice(0, 4);
+                                            const fifthChar = value.charAt(4) === '0' ? '0' : ''; // Agar 0 ke alawa kuch dabaya toh discard ho jayega
+                                            value = firstPart + fifthChar;
+                                        }
+                                        // 3. Agle 6 characters (6th se 11th) Alphanumeric (A-Z ya 0-9) ho sakte hain
+                                        else if (value.length <= 11) {
+                                            const firstFive = value.slice(0, 5);
+                                            const lastPart = value.slice(5).replace(/[^A-Z0-9]/g, '');
+                                            value = firstFive + lastPart;
+                                        }
+
+                                        // Aapka custom handler function jo aap call kar rahe the
+                                        handleFieldChange('ifscCode', value);
+                                    }}
                                     error={!!fieldErrors.ifscCode}
                                     hint={fieldErrors.ifscCode}
                                 />
@@ -680,9 +764,11 @@ export default function SignUpStepForm() {
                                 </div>
                                 <div>
                                     <Label>Nominee Aadhaar*</Label>
-                                    <Input placeholder="Nominee Aadhaar" value={formData.nomineeAadhaar}
+                                    <Input
+                                        placeholder="Nominee Aadhaar"
+                                        value={formData.nomineeAadhaar}
+                                        inputMode="numeric"
                                         onChange={(e) => {
-
                                             const val = e.target.value.replace(/\D/g, "");
 
                                             // 3. Update state for ANY numeric string (including empty)

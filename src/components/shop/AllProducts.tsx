@@ -161,11 +161,11 @@ const AllProducts = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 lg:p-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 lg:p-8 mb-20 md:mb-4">
             {/* Header Area */}
 
 
-            
+
 
 
 
@@ -373,7 +373,7 @@ const AllProducts = () => {
                         <div className="flex items-center gap-3">
                             <Button
                                 variant="transaparent"
-                                
+
                                 className="px-8 h-12 rounded-xl font-bold flex items-center gap-2 group transition-all hover:shadow-lg hover:shadow-brand-500/25"
                                 onClick={() => window.location.href = '/cart'} // Or use router.push('/cart')
                                 disabled={cartTotal < 100000}

@@ -71,6 +71,7 @@ export const rolePermissions: Record<string, string[]> = {
     'my-profile',
     'analytics',
     'members',
+    'e-users',
     'network-tree',
     'kyc-requests',
     'products',

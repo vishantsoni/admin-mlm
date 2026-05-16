@@ -49,6 +49,12 @@ const allNavItems: NavItem[] = [
     path: "/members",
   },
   {
+    icon: <UserCircleIcon />,
+    name: "All E Users",
+    permission: "e-users",
+    path: "/e-users",
+  },
+  {
     icon: <IdCardIcon />,
     name: "ID Card",
     permission: "id-card",
