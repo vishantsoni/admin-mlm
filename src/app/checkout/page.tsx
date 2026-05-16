@@ -23,9 +23,11 @@ const CheckoutPage = () => {
 
   // 1. Get the shipping charge and safely force convert it to a real number
   const shippingCharges = useMemo(() => {
-    const charge = getSettingByKey("shipping_charge").charge;
+    const settingObj = getSettingByKey("shipping_charge");
+    const charge = settingObj?.charge;
     const parsedCharge = Number(charge);
     return isNaN(parsedCharge) ? 0 : parsedCharge;
+
   }, [getSettingByKey, settings]);
 
   // 2. Compute the combined final total amount (Cart Items Total + Shipping Charge)
