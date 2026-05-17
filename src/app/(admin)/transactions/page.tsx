@@ -35,9 +35,9 @@ const TransactionsPage = () => {
   const [loading, setLoading] = useState(true);
 
   const [walletStats, setWalletStats] = useState<{
-    total_amount: string;
-    pending_amount: string;
-    available_balance: string;
+    total_amount_uv: string;
+    pending_amount_uv: string;
+    available_balance_uv: string;
   } | null>(null);
   const [error, setError] = useState<string>('');
 
@@ -168,7 +168,7 @@ const TransactionsPage = () => {
                   <div>
                     <span className="text-sm text-gray-500 dark:text-gray-400">Total Balance</span>
                     <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white">
-                      {formattedAmount(Number(walletStats?.total_amount))}
+                      {formattedAmount(Number(walletStats?.total_amount_uv))}
                     </h4>
                   </div>
                   <Badge color="success">+2.4%</Badge>
@@ -183,7 +183,7 @@ const TransactionsPage = () => {
                   <div>
                     <span className="text-sm text-gray-500 dark:text-gray-400">Pending Balance</span>
                     <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white">
-                      {formattedAmount(Number(walletStats?.pending_amount))}
+                      {formattedAmount(Number(walletStats?.pending_amount_uv))}
                     </h4>
                   </div>
                   <Badge color="warning">+2.4%</Badge>
@@ -198,7 +198,7 @@ const TransactionsPage = () => {
                   <div>
                     <span className="text-sm text-gray-500 dark:text-gray-400">Available Balance</span>
                     <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white">
-                      {formattedAmount(Number(walletStats?.available_balance))}
+                      {formattedAmount(Number(walletStats?.available_balance_uv))}
                     </h4>
                   </div>
                   <Badge color="success">+2.4%</Badge>

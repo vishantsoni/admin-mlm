@@ -83,6 +83,14 @@ const OrderPage = () => {
 
   const totalPages = Math.ceil(total / limit);
 
+  const getBadgeTitleColor = (status: string) => {
+    switch (status) {
+      case "User -> Adm.": return "success";
+      case "User -> Dis.": return "primary";
+      case "Dis. -> Adm.": return "warning";
+    }
+  }
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -150,7 +158,7 @@ const OrderPage = () => {
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Order ID</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Products</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">User</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Date</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Distributor</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Total</TableCell>
 
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
@@ -159,12 +167,27 @@ const OrderPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {orders.map((order, index) => (
-                  <TableRow key={index}>
+                {orders.map((order, index) => {
+
+                  let badgeTitle = ""
+
+                  if (order.user_type?.toLowerCase() === "user") {
+
+                    if (order?.order_for?.startsWith('distributor')) {
+                      badgeTitle = "User -> Dis."
+                    } else {
+                      badgeTitle = "User -> Adm."
+                    }
+                  } else {
+                    badgeTitle = "Dis. -> Adm."
+                  }
+
+
+                  return <TableRow key={index}>
 
                     <TableCell className="px-6 py-4 font-bold grid">#{order.order_id}
-                      <Badge variant='solid' size='sm' className="w-30">{order.user_type}</Badge>
-
+                      <Badge variant='solid' size='sm' color={getBadgeTitleColor(badgeTitle)} className="w-30">{badgeTitle}</Badge>
+                      Date : {date_formate(order.created_at)}
                     </TableCell>
                     <TableCell className="px-6 py-4 font-bold">{order.products?.length}</TableCell>
                     <TableCell className="px-6 py-4">
@@ -176,7 +199,12 @@ const OrderPage = () => {
                         Ph. : <strong>{order.user_phone}</strong>
                       </div>
                     </TableCell>
-                    <TableCell className="px-6 py-4">{date_formate(order.created_at)}</TableCell>
+                    <TableCell className="px-6 py-4">
+                      {order.distributor_id !== null && order.user_type.toLowerCase() === "user" ? <div className=''>
+                        <div>{order?.distributor?.name || "-"}</div>
+                        <div>{order?.distributor?.phone}</div>
+                      </div> : "-"}
+                    </TableCell>
                     <TableCell className="px-6 py-4">
                       <div className='flex justify-between'>
                         <span>Subtotal:</span>
@@ -208,7 +236,7 @@ const OrderPage = () => {
                       }}>View</Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                })}
               </TableBody>
             </Table>
           </div>

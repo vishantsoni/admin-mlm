@@ -128,12 +128,26 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
   };
 
   const handleAddAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setAddAddressForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    const { name, value, type, checked, id } = e.target;
+
+
+    if (name === "state") {
+      const data = JSON.parse(value)
+      setAddAddressForm(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : data.name,
+        stateId: data.id
+      }));
+    } else {
+      setAddAddressForm(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      }));
+    }
   };
+
+  // console.log("data - ", addAddressForm);
+
 
   const handleAddNewAddress = async () => {
     // Basic validation
@@ -198,7 +212,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
   useEffect(() => {
     if (addAddressForm.state) {
-      const stateId = parseInt(addAddressForm.state);
+      const stateId = parseInt(addAddressForm.stateId);
       fetchCities(stateId);
     }
   }, [addAddressForm.state]);
@@ -560,7 +574,10 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           {loadingStates ? (
                             <option disabled>Loading...</option>
                           ) : states.map((state: States) => (
-                            <option key={state.id} value={state.id.toString()}>
+                            <option key={state.id}
+                              // value={state.name.toString()} 
+                              value={JSON.stringify({ id: state.id, name: state.name })}
+                              id={state.id.toString()}>
                               {state.name}
                             </option>
                           ))}
@@ -581,7 +598,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           {loadingCities ? (
                             <option disabled>Loading...</option>
                           ) : cities.map((city: States) => (
-                            <option key={city.id} value={city.id.toString()}>
+                            <option key={city.id} value={city.name.toString()}>
                               {city.name}
                             </option>
                           ))}

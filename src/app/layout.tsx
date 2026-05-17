@@ -8,6 +8,7 @@ import { Metadata } from 'next';
 import { SettingProvider } from '@/context/SettingContext';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { PreloaderProvider } from '@/context/PreloaderContext';
+import { WalletProvider } from '@/context/WalletContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -32,9 +33,11 @@ export default function RootLayout({
           <PreloaderProvider>
             <AuthProvider>
               <SettingProvider>
-                <NotificationProvider>
-                  <SidebarProvider>{children}</SidebarProvider>
-                </NotificationProvider>
+                <WalletProvider>
+                  <NotificationProvider>
+                    <SidebarProvider>{children}</SidebarProvider>
+                  </NotificationProvider>
+                </WalletProvider>
               </SettingProvider>
             </AuthProvider>
           </PreloaderProvider>

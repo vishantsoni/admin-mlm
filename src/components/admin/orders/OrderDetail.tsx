@@ -326,7 +326,20 @@ const OrderDetail = () => {
 
 
 
-                        <Button className="w-full">
+                        <Button className="w-full" onClick={async () => {
+                            const res = await serverCallFuction('POST', 'api/invoice/generate', { orderId: orderId })
+                            if (res.success && res.url) {
+                                // Dynamic invisible link create karke safe handling ke liye target="_blank" par navigate karein
+                                const newTab = window.open(res.url, '_blank', 'noopener,noreferrer');
+                                if (!newTab) {
+                                    // Agar browser ne popup blocker ki wajah se block kiya ho, toh direct location open karein
+                                    window.location.href = res.url;
+                                }
+                            } else {
+                                alert(res.message || "Failed to generate invoice");
+                            }
+
+                        }}>
                             <Printer className="h-4 w-4 mr-2" />
                             Print Invoice
                         </Button>

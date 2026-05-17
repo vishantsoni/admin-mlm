@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import serverCallFunction from '@/lib/constantFunction';
+import { useAuth } from '@/context/AuthContext';
 
 type EcomUser = {
     id: number | string;
@@ -45,11 +46,17 @@ export default function E_UsersCompo() {
     const [error, setError] = useState<string | null>(null);
     const [users, setUsers] = useState<EcomUser[]>([]);
 
+    const { user } = useAuth();
+
     const fetchUsers = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            const res = await serverCallFunction<EcomUsersResponse>('GET', 'api/ecom/super/ecom-users');
+
+            const url = `api/ecom/${user?.role_id ? 'super' : user?.role.toLocaleLowerCase() === "super admin" ? 'super' : 'distributor'}/ecom-users`;
+
+
+            const res = await serverCallFunction<EcomUsersResponse>('GET', url);
 
             // serverCallFunction returns either T or {status:false,...}
             const ok = res?.status !== false && res?.success !== false;

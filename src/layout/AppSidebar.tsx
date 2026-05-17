@@ -180,6 +180,12 @@ const allNavItems: NavItem[] = [
   },
   {
     icon: <ListIcon />,
+    name: "Withdrawal Requests",
+    permission: "withdrawal-requests",
+    path: "/withdrawal-requests",
+  },
+  {
+    icon: <ListIcon />,
     name: "Withdrawals",
     permission: "withdrawals",
     path: "/withdrawals",

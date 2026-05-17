@@ -273,24 +273,29 @@ const CouponsPage: React.FC = () => {
         <Table>
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Code</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Type</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Amount</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Min Order</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Usage Limit</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Products</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Valid From</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Expires</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Status</TableCell>
-              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Code</TableCell>
+              {/* <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Type</TableCell> */}
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Amount</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Min Order</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Usage Limit</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Products</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Valid From</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Expires</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
+              <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Actions</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {coupons.map((coupon) => (
               <TableRow key={coupon.id}>
                 <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-bold">{coupon.code}</TableCell>
-                <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{coupon.discount_type}</TableCell>
-                <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">₹{coupon.discount_amount}</TableCell>
+                {/* <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{coupon.discount_type}</TableCell> */}
+                <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 ">
+                  <Badge color={coupon.discount_type === "percentage" ? 'success' : 'error'} className='font-bold'>{
+                    coupon.discount_type === "percentage" ? coupon.discount_amount + "%" : "₹" + coupon.discount_amount
+                  }</Badge>
+
+                </TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">₹{coupon.min_order_amount || 0}</TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{coupon.usage_limit || 'Unlimited'}</TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{coupon.product_names?.join(", ") || 'All'}</TableCell>

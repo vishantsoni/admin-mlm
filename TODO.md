@@ -1,11 +1,9 @@
-# TODO - e-users page
+# TODO
 
-- [ ] Implement `E_UsersCompo` UI:
-  - [ ] Fetch all ecom-users via GET `api/ecom/super/ecom-users`
-  - [ ] Render table of users
-  - [ ] Add status update per user via PATCH `api/ecom/super/ecom-users/:id/status`
-  - [ ] Use payload `{ status }`
-  - [ ] Add loading/error states + refresh after update
+- [x] Update `AddTransactionModal` to use `POST /api/transactions/add-transaction`.
+- [x] Add `deduction_from` input (total_amount | company_fund) to modal UI.
+- [x] Update request payload type to include `deduction_from` and optional `status`.
+- [x] Fix validation to allow empty `remarks` per backend spec.
+- [ ] Quick TS/lint check and manual test for both deduction modes.
 
-- [ ] Run lint/build to ensure TS/React correctness
 
