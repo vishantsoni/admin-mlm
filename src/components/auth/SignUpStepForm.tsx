@@ -195,7 +195,29 @@ export default function SignUpStepForm() {
             if (!phoneRegex.test(formData.phone)) newErrors.phone = "Enter valid 10-digit phone number";
             if (!phoneRegex.test(formData.whatsappNo)) newErrors.whatsappNo = "Enter valid 10-digit WhatsApp number";
             if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email address";
-            if (!formData.dob) newErrors.dob = "Date of Birth is required";
+            if (!formData.dob) {
+                newErrors.dob = "Date of Birth is required";
+            } else {
+                const selectedDate = new Date(formData.dob);
+                const today = new Date();
+
+                // Calculate exact age
+                let age = today.getFullYear() - selectedDate.getFullYear();
+                const monthDiff = today.getMonth() - selectedDate.getMonth();
+                const dayDiff = today.getDate() - selectedDate.getDate();
+
+                if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+                    age--;
+                }
+
+                if (isNaN(selectedDate.getTime())) {
+                    newErrors.dob = "Please enter a valid Date of Birth";
+                } else if (age < 21) {
+                    newErrors.dob = "You must be at least 21 years old to register";
+                } else if (selectedDate.getFullYear() < 1900) {
+                    newErrors.dob = "Please enter a realistic year";
+                }
+            }
             if (!formData.city) newErrors.city = "Please select your city";
             if (formData.pin.length !== 6) newErrors.pin = "PIN code must be 6 digits";
         }
