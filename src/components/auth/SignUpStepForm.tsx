@@ -185,12 +185,18 @@ export default function SignUpStepForm() {
     const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
     const isStepValid = () => {
         const newErrors: Record<string, string> = {};
-        // const aadhaarRegex = /^[2-9]{1}[0-9]{11}$/;
+        const aadhaarRegex = /^\d{12}$/; // Strictly 12 digits
 
         if (step === 1) {
             if (formData.referralCode.trim().length < 1) newErrors.referralCode = "Please enter Referral Code";
             if (formData.referrerName.trim().length < 1) newErrors.referralCode = "Please enter valid Referral Code";
             if (formData.fullName.trim().length <= 2) newErrors.fullName = "Name must be at least 3 characters";
+            // --- Aadhaar Validation Step 1 ---
+            if (!formData.aadhaarNo) {
+                newErrors.aadhaarNo = "Aadhaar Number is required";
+            } else if (!aadhaarRegex.test(formData.aadhaarNo)) {
+                newErrors.aadhaarNo = "Aadhaar must be exactly 12 digits";
+            }
             if (!panRegex.test(formData.panNo.toUpperCase())) newErrors.panNo = "Invalid PAN format (e.g. ABCDE1234F)";
             if (!phoneRegex.test(formData.phone)) newErrors.phone = "Enter valid 10-digit phone number";
             if (!phoneRegex.test(formData.whatsappNo)) newErrors.whatsappNo = "Enter valid 10-digit WhatsApp number";
@@ -429,7 +435,10 @@ export default function SignUpStepForm() {
                                             handleFieldChange('aadhaarNo', val);
                                         }
                                     }}
-                                    maxLength={12} />
+                                    maxLength={12}
+                                    error={!!fieldErrors.aadhaarNo}
+                                    hint={fieldErrors.aadhaarNo}
+                                />
                             </div>
                             <div>
                                 <Label>PAN No* </Label>

@@ -92,9 +92,9 @@ const KycRequestsPage = () => {
   };
 
 
-  const handleApproved = async (item: KycRequest, status:string) => {
-    
-    if(item.pending_docs !== "0"){
+  const handleApproved = async (item: KycRequest, status: string) => {
+
+    if (item.pending_docs !== "0") {
       alert('Please review all pending documents before approving the request.');
       return;
     }
@@ -208,7 +208,7 @@ const KycRequestsPage = () => {
                         />
                         <div>
                           <div className="font-medium">{request.full_name}</div>
-                          <div className="text-sm text-gray-500">{request.username}</div>
+                          {/* <div className="text-sm text-gray-500">{request.username}</div> */}
                         </div>
                       </div>
                     </TableCell>
