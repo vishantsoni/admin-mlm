@@ -59,6 +59,7 @@ const AddProductPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    short_description: '',
     price: '',
     discounted_price: '',
     cat_id: '',
@@ -237,6 +238,7 @@ const AddProductPage = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
       formDataToSend.append('description', formData.description || '');
+      formDataToSend.append('short_desc', formData.short_description || '');
       formDataToSend.append('price', formData.price || '0');
       formDataToSend.append('discounted_price', formData.discounted_price || '0');
       if (formData.cat_id) formDataToSend.append('cat_id', formData.cat_id);
@@ -261,6 +263,7 @@ const AddProductPage = () => {
         setFormData({
           name: '',
           description: '',
+          short_description: '',
           price: '',
           discounted_price: '',
           cat_id: '',
@@ -362,11 +365,21 @@ const AddProductPage = () => {
         <div>
           <Label htmlFor="description">Description</Label>
           <TextArea
-            name="description"
             placeholder="Enter product description"
             value={formData.description}
             onChange={(value) => {
               setFormData({ ...formData, description: value })
+            }}
+            rows={4}
+          />
+        </div>
+        <div>
+          <Label htmlFor="description">Short Description</Label>
+          <TextArea
+            placeholder="Enter product short description"
+            value={formData.short_description}
+            onChange={(value) => {
+              setFormData({ ...formData, short_description: value })
             }}
             rows={4}
           />
