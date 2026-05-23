@@ -132,6 +132,7 @@ export const rolePermissions: Record<string, string[]> = {
     'referral',    
     'profile',
     'id-card',
+    'welcome-letter',
     'wallet',
     'withdrawals',
     'network-tree',

@@ -23,7 +23,7 @@ import {
   UserCircleIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
-import { IdCardIcon, Users } from "lucide-react";
+import { IdCardIcon, ShieldCheck, Users } from "lucide-react";
 
 
 type NavItem = {
@@ -60,6 +60,13 @@ const allNavItems: NavItem[] = [
     permission: "id-card",
     path: "/id-card",
   },
+  {
+    icon: <ShieldCheck />,
+    name: "Welcome Letter",
+    permission: "welcome-letter",
+    path: "/welcome-letter",
+  },
+
   {
     icon: <BoxCubeIcon />,
     name: "Network Tree",
