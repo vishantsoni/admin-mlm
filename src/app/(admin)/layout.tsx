@@ -9,6 +9,7 @@ import AppSidebar from '@/layout/AppSidebar';
 import Backdrop from '@/layout/Backdrop';
 import React from 'react';
 import AppBottomBar from '@/layout/AppBottomBar';
+import ChatBot from '@/components/chatbot/ChatBot';
 
 
 export default function AdminLayout({
@@ -57,6 +58,7 @@ export default function AdminLayout({
         <AppHeader />
         <div className=" mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
         <AppBottomBar />
+        <ChatBot />
       </div>
     </div>
   );
