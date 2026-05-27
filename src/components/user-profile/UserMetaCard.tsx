@@ -147,16 +147,16 @@ export default function UserMetaCard() {
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
                 {user.full_name || user.username}
               </h4>
-              <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+              {/* <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                 Username : {user.username}
-              </p>
+              </p> */}
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                   {user.role} - Level {user.businessLevel || 0}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user.city}, {user.state}
+                  {user.city_name}, {user.state_name}
                 </p>
               </div>
             </div>
@@ -171,14 +171,14 @@ export default function UserMetaCard() {
               </Button>
             </div>
           </div>
-          <Button
+          {/* <Button
             onClick={openModal}
             size="sm"
             variant="outline"
             startIcon={<PencilIcon />}
           >
             <span style={{ textWrap: 'nowrap' }}>Edit Profile</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 

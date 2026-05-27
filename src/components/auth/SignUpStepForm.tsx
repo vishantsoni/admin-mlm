@@ -7,10 +7,12 @@ import Button from '@/components/ui/button/Button';
 import Checkbox from '@/components/form/input/Checkbox';
 import serverCallFuction from '@/lib/constantFunction';
 import { States } from '@/types/static-content';
+import { useSetting } from '@/context/SettingContext';
+import Link from 'next/link';
 
 export default function SignUpStepForm() {
     const [step, setStep] = useState(1);
-    // const [error, setError] = useState('');
+    const [error, setError] = useState('');
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -106,6 +108,11 @@ export default function SignUpStepForm() {
                 const data = res.user;
                 setFormData(prev => ({ ...prev, referrer_id: data.id, referrerName: data.name }));
                 setFieldErrors(prev => { const n = { ...prev }; delete n.referralCode; return n; });
+                if (res.position === "Both legs are already filled") {
+                    setError(res.position);
+                } else {
+                    setError("")
+                }
             } else {
                 setFieldErrors({ referralCode: 'Invalid referral code' });
             }
@@ -367,10 +374,19 @@ export default function SignUpStepForm() {
     };
 
     const maxDate = getMaxDOB();
+    const { settings, getSettingByKey } = useSetting()
+
+    const contact_data = getSettingByKey("contact_us")
+
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md">
             <h2 className="text-2xl font-bold mb-2 text-center text-gray-800 dark:text-white">SAKHI DISTRIBUTOR APPLICATION</h2>
-            <p className="text-center text-sm text-gray-500 mb-6">(Independent Representative Agreement) </p>
+            <p className="text-center text-sm text-gray-500 ">(Independent Representative Agreement) </p>
+            <div className='mb-6 bg-brand-200 px-3 py-1 rounded-xl flex justify-between'>
+                <Link href={`tel:${contact_data?.phone}`}>
+                    <span>{contact_data?.phone}</span></Link>
+                <Link href={`mailto:${contact_data?.email_1}`}><span>{contact_data?.email_1}</span></Link>
+            </div>
 
             {/* Progress Indicator */}
             <div className="flex justify-between mb-8">
@@ -378,6 +394,12 @@ export default function SignUpStepForm() {
                     <div key={i} className={`w-1/4 h-2 rounded-full mx-1 ${step >= i ? 'bg-brand-500' : 'bg-gray-200'}`} />
                 ))}
             </div>
+
+            {error &&
+                <div className='mb-6 bg-error-500 px-3 py-1 rounded-xl flex justify-between'>
+                    <span className='text-white'>{error}</span>
+                </div>
+            }
 
             <form onSubmit={handleSubmit}>
                 {/* STEP 1: ALL APPLICANT DETAILS 6] */}
@@ -414,8 +436,17 @@ export default function SignUpStepForm() {
                             </div>
                             <div className="md:col-span-2">
                                 <Label>Full Name* </Label>
-                                <Input defaultValue={formData.fullName} placeholder="Legal Name"
-                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                <Input
+                                    value={formData.fullName}
+                                    placeholder="Legal Name"
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        // Allows only letters (both uppercase and lowercase) and spaces
+                                        if (value === "" || /^[a-zA-Z\s]+$/.test(value)) {
+                                            // setAddressFormData({ ...addressFormData, full_name: value });
+                                            setFormData({ ...formData, fullName: value })
+                                        }
+                                    }}
                                     error={!!fieldErrors.fullName}
                                     hint={fieldErrors.fullName}
                                 />
@@ -652,7 +683,9 @@ export default function SignUpStepForm() {
                             </div>
 
                         </div>
-                        <Button onClick={handleNext} className="w-full mt-4">Next: Bank Details</Button>
+                        {!error &&
+                            <Button onClick={handleNext} className="w-full mt-4">Next: Bank Details</Button>
+                        }
                     </div>
                 )}
 
@@ -662,12 +695,28 @@ export default function SignUpStepForm() {
                         <h3 className="font-semibold text-lg border-b pb-2">2. Bank Account Details (KYC)</h3>
                         <p className="text-xs text-brand-600 mb-4 font-medium">Mandatory for Commission Payouts </p>
                         <Label>Account Holder Name* </Label>
-                        <Input placeholder="Account Holder Name*" defaultValue={formData.accountHolderName}
+                        {/* <Input placeholder="Account Holder Name*" defaultValue={formData.accountHolderName}
                             // onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })}
                             onChange={(e) => handleFieldChange('accountHolderName', e.target.value)}
                             error={!!fieldErrors.accountHolderName}
                             hint={fieldErrors.accountHolderName}
+                        /> */}
+
+                        <Input
+                            value={formData.accountHolderName}
+                            placeholder="Account Holder Name"
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Allows only letters (both uppercase and lowercase) and spaces
+                                if (value === "" || /^[a-zA-Z\s]+$/.test(value)) {
+                                    // setAddressFormData({ ...addressFormData, full_name: value });
+                                    setFormData({ ...formData, accountHolderName: value })
+                                }
+                            }}
+                            error={!!fieldErrors.accountHolderName}
+                            hint={fieldErrors.accountHolderName}
                         />
+
                         <Label>Account Number* </Label>
                         <Input
                             placeholder='Enter Account Number'
@@ -748,7 +797,24 @@ export default function SignUpStepForm() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <Label>Nominee Name*</Label>
-                                    <Input placeholder="Nominee Name" defaultValue={formData.nomineeName} onChange={(e) => setFormData({ ...formData, nomineeName: e.target.value })} />
+
+
+                                    <Input
+                                        value={formData.nomineeName}
+                                        placeholder="Nominee Name"
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            // Allows only letters (both uppercase and lowercase) and spaces
+                                            if (value === "" || /^[a-zA-Z\s]+$/.test(value)) {
+                                                // setAddressFormData({ ...addressFormData, full_name: value });
+                                                setFormData({ ...formData, nomineeName: value })
+                                            }
+                                        }}
+                                        error={!!fieldErrors.nomineeName}
+                                        hint={fieldErrors.nomineeName}
+                                    />
+
+
                                 </div>
                                 <div>
                                     <Label>Nominee Relationship*</Label>
@@ -851,12 +917,12 @@ export default function SignUpStepForm() {
                             onScroll={handleScroll}
                             className="mt-2 p-4 bg-gray-50 dark:bg-gray-800 rounded text-[12px] leading-relaxed border dark:border-gray-700 h-64 overflow-y-auto no-scrollbar border-gray-300"
                         >
-                            <div className="space-y-4">
+                            <div className="space-y-4 text-gray-700 dark:text-gray-300">
                                 {/* I. LEGAL STATUS & COMPLIANCE */}
                                 <div>
-                                    <p className="font-bold underline uppercase">I. Legal Status & Compliance</p>
-                                    <p>1. <b>Independent Status:</b> I acknowledge that I am an Independent Representative (IR) of Feel Safe Co. I am not an employee, agent, or legal representative of the company. I am solely responsible for filing my own income tax and statutory obligations.</p>
-                                    <p>2. <b>Compliance with Consumer Protection Rules:</b> I acknowledge that Feel Safe Co. strictly adheres to the "Consumer Protection (Direct Selling) Rules, 2021" issued by the Government of India. I commit to conducting my business in full compliance with these regulations.</p>
+                                    <p className="font-bold underline uppercase text-gray-700 dark:text-gray-300">I. Legal Status & Compliance</p>
+                                    <p>1. <b>Independent Status:</b> I acknowledge that I am an Independent Representative (IR) of Feel Safe Pvt. Ltd. I am not an employee, agent, or legal representative of the company. I am solely responsible for filing my own income tax and statutory obligations.</p>
+                                    <p>2. <b>Compliance with Consumer Protection Rules:</b> I acknowledge that Feel Safe Pvt. Ltd. strictly adheres to the "Consumer Protection (Direct Selling) Rules, 2021" issued by the Government of India. I commit to conducting my business in full compliance with these regulations.</p>
                                     <p>3. <b>No Investment Policy:</b> I confirm that there is no joining fee to partner with the company. Any payment made by me is strictly for the purchase of products under the brand name FEEL & SAFE.</p>
                                     <p>4. <b>Statutory Obligations:</b> I agree to fulfill all statutory requirements, including ethical marketing and tax compliance. Any breach of government guidelines will result in immediate termination.</p>
                                 </div>
@@ -898,28 +964,33 @@ export default function SignUpStepForm() {
                                     <p>21. <b>Risk Mitigation:</b> I am advised to keep family or team leaders informed of my real-time location during field work.</p>
                                     <p>22. <b>Non-Compulsion:</b> The company does not mandate working in conditions that compromise my safety. I am authorized to stop work and report any threats to authorities and the company.</p>
                                     <p>23. <b>Indemnity:</b> I hold myself personally liable for any legal consequences or losses incurred by the company due to my misconduct.</p>
+                                    <p>24. <b>Field Safety & Medical Liability:</b> I acknowledge that my field activities are voluntary and performed at my own risk. In the event of any accident, injury, or health-related emergency during field work, the company shall not be legally or financially liable for any medical expenses, compensation, or treatment. Any financial assistance provided by the company will be at its sole discretion and cannot be claimed as a legal right.</p>
+                                    <p>25. <b>Third-Party Liability:</b> If a distributor misbehaves, engages in a dispute, or damages any third-party property during field work, the distributor shall be solely liable. The company will not be a party to any such legal proceedings.</p>
+                                    <p>26. <b>No Employer-Employee Relationship:</b> The relationship is strictly on a Principal-to-Principal basis. The distributor is not entitled to any employee benefits like PF, ESI, or bonuses.</p>
                                 </div>
 
                                 {/* VI. ADMINISTRATIVE RIGHTS */}
                                 <div>
                                     <p className="font-bold underline uppercase text-gray-700 dark:text-gray-300">VI. Administrative Rights</p>
-                                    <p>24. <b>Modification Rights:</b> The company reserves the right to change the business plan, prices, or commission structure at any time via official communication.</p>
-                                    <p>25. <b>Digital Consent:</b> I consent to receive business updates and payout alerts via WhatsApp, SMS, and Email.</p>
-                                    <p>26. <b>Zero Tolerance for Poaching:</b> Enticing or recruiting Feel Safe Co. distributors into other businesses will lead to immediate legal action.</p>
-                                    <p>27. <b>Force Majeure & Liability:</b> The company is not liable for delays caused by natural disasters or government restrictions. Total liability is limited to the price of products purchased.</p>
-                                    <p>28. <b>Survival Clause:</b> Confidentiality and non-compete obligations survive even after the termination of this agreement.</p>
-                                    <p>29. <b>Referral Integrity:</b> I confirm that I am joining under the aforementioned Referrer. I understand that the Referral Code cannot be changed once the application is processed.</p>
+                                    <p>27. <b>Modification Rights:</b> The company reserves the right to change the business plan, prices, or commission structure at any time via official communication.</p>
+                                    <p>28. <b>Digital Consent:</b> I consent to receive business updates and payout alerts via WhatsApp, SMS, and Email.</p>
+                                    <p>29. <b>Zero Tolerance for Poaching:</b> Enticing or recruiting Feel Safe Pvt. Ltd. distributors into other businesses will lead to immediate legal action.</p>
+                                    <p>30. <b>Force Majeure & Liability:</b> The company is not liable for delays caused by natural disasters or government restrictions. Total liability is limited to the price of products purchased.</p>
+                                    <p>31. <b>Survival Clause:</b> Confidentiality and non-compete obligations survive even after the termination of this agreement.</p>
+                                    <p>32. <b>Referral Integrity:</b> I confirm that I am joining under the aforementioned Referrer. I understand that the Referral Code cannot be changed once the application is processed. Any dispute regarding the referral link will be settled by the company management, and their decision shall be final.</p>
+                                    <p>33. <b>Violation of Rules & Suspension:</b> The company reserves the right to suspend or terminate the distributorship of any individual found violating the company's rules, terms, or ethical guidelines without prior notice.</p>
+                                    <p>34. <b>Jurisdiction:</b> I agree that in case of any legal dispute or disagreement, the matter shall be subject to the exclusive jurisdiction of the courts in New Delhi only, where the Company’s Registered Office is situated.</p>
                                 </div>
 
                                 {/* VII. BUSINESS ENTRY & STOCK */}
                                 <div>
                                     <p className="font-bold underline uppercase text-gray-700 dark:text-gray-300">VII. Business Entry & Stock</p>
-                                    <p>30. <b>Business Level Selection:</b> I acknowledge that I have been informed about the different operational levels of the company.</p>
-                                    <p>31. <b>Level 1:</b> Basic Sakhi (Initial start – Minimum order ₹2,000).</p>
-                                    <p>32. <b>Level 2:</b> Professional Sakhi (Small business stock – ₹25,000).</p>
-                                    <p>33. <b>Level 3:</b> Master Sakhi / Distributor (Large-scale/Stockist – ₹1,00,000).</p>
-                                    <p>34. <b>Voluntary Choice:</b> I confirm that the selection of the above level is entirely my own decision. The company has not imposed any mandatory targets or pressure to choose a higher level.</p>
-                                    <p>35. <b>Upgradation:</b> I understand that I have the right to upgrade my level in the future based on my performance and financial capacity.</p>
+                                    <p>35. <b>Business Level Selection:</b> I acknowledge that I have been informed about the different operational levels of the company, and I have voluntarily chosen one of the operational structures based on my business goals.</p>
+                                    <p>36. <b>Level 1:</b> Basic Sakhi (Initial start – Minimum order ₹2,000).</p>
+                                    <p>37. <b>Level 2:</b> Professional Sakhi (Small business stock – ₹25,000).</p>
+                                    <p>38. <b>Level 3:</b> Master Sakhi / Distributor (Large-scale/Stockist – ₹1,00,000).</p>
+                                    <p>39. <b>Voluntary Choice:</b> I confirm that the selection of the above level is entirely my own decision. The company has not imposed any mandatory targets or pressure to choose a higher level.</p>
+                                    <p>40. <b>Upgradation:</b> I understand that I have the right to upgrade my level in the future based on my performance and financial capacity.</p>
                                 </div>
                             </div>
                         </div>

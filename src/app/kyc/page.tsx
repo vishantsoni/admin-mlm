@@ -76,7 +76,8 @@ const KYCPage = () => {
       }
     };
     if (user) {
-      fetchKYCStatus(user.id);
+      fetchKYCStatus(Number(user.id));
+
     }
   }, [router, user]);
 
@@ -170,6 +171,8 @@ const KYCPage = () => {
             setUploadedFiles(res.files || []);
             setUploadStatus('complete');
             setStep('submit');
+            setLoading(false);
+
           } catch (err) {
             setError('Invalid response from server');
             setUploadStatus('error');
@@ -199,8 +202,9 @@ const KYCPage = () => {
     } catch (err: unknown) {
       console.error('Upload error:', err);
     } finally {
-      setLoading(false);
+      // do not override loading state here; wait for xhr events
     }
+
   };
 
   const submitKYC = async (e: React.FormEvent) => {
@@ -228,8 +232,9 @@ const KYCPage = () => {
         console.error('KYC submit error:', err);
         setError('Network error. Please try again.');
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
+
     });
   };
 
@@ -342,6 +347,7 @@ const KYCPage = () => {
 
             {step === 'upload' ?
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 {[
                   { key: 'aadhaarFront' as const, label: 'Aadhaar Front Side', required: true },
                   { key: 'aadhaarBack' as const, label: 'Aadhaar Back Side', required: true },
@@ -360,12 +366,14 @@ const KYCPage = () => {
                           const file = e.target.files?.[0];
                           if (file) {
                             const sizeKB = (file.size / 1024).toFixed(0);
-                            if (file.size < 50 * 1024 || file.size > 5 * 1024 * 1024) {
-                              setError(`File size must be 50KB - 5MB. Current: ${sizeKB}KB`);
+                            if (file.size < 200 * 1024 || file.size > 1 * 1024 * 1024) {
+                              setError(`File size must be 200KB - 1MB. Current: ${sizeKB}KB`);
                               return;
                             }
+
                             handleFileChange(key, file);
                           }
+
                         }}
                         className="hidden"
                         required={required}
@@ -382,7 +390,7 @@ const KYCPage = () => {
                     {files[key] && (
                       <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border">
                         <img
-                          src={URL.createObjectURL(files[key]!)}
+                          src={files[key] ? URL.createObjectURL(files[key]) : ''}
                           alt={label}
                           className="w-16 h-16 object-cover rounded border"
                         />
@@ -430,4 +438,5 @@ const KYCPage = () => {
 };
 
 export default KYCPage;
+
 

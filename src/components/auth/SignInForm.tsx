@@ -68,9 +68,7 @@ export default function SignInForm() {
         login({ token: res.token!, user: res.user as User });
 
         // router.replace('/');
-        setTimeout(() => {
-          router.replace('/');
-        }, 100);
+
 
       } catch (err) {
         console.log("err in login - ", err);
@@ -78,6 +76,9 @@ export default function SignInForm() {
         setError('Network error. Try again.');
       } finally {
         setLoading(false);
+        setTimeout(() => {
+          router.replace('/');
+        }, 100);
       }
     });
   };
@@ -115,7 +116,7 @@ export default function SignInForm() {
               Sign In
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              Enter your phone number and password to sign in!
             </p>
           </div>
           <div>

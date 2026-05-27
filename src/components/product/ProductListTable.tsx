@@ -112,7 +112,7 @@ const ProductListTable: React.FC<ProductListTableProps> = ({ products, onDelete,
             </TableCell>
             <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
               <div className="flex gap-2">
-                <Link href={`https://feel-safe-mlm-website.vercel.app/products/${product?.slug}`} target='_blank' className="p-2 hover:bg-gray-100 rounded">
+                <Link href={`https://feelsafeco.in/products/${product?.slug}`} target='_blank' className="p-2 hover:bg-gray-100 rounded">
                   <Eye className="h-4 w-4" />
                 </Link>
                 {hasPermission('products/edit') &&

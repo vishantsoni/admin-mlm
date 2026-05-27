@@ -88,7 +88,7 @@ export const Modal: React.FC<ModalProps> = ({
             </svg>
           </button>
         )}
-        <div className="h-[75vh] md:h-auto overflow-y-auto">{children}</div>
+        <div className="h-[75vh]  overflow-y-auto rounded-3xl">{children}</div>
       </div>
     </div>
   );

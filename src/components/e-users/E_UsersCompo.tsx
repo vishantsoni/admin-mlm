@@ -151,7 +151,7 @@ export default function E_UsersCompo() {
                             <th className="px-4 py-3">Email</th>
                             <th className="px-4 py-3">Phone</th>
                             <th className="px-4 py-3">Status</th>
-                            <th className="px-4 py-3">Action</th>
+                            {/* <th className="px-4 py-3">Action</th> */}
                         </tr>
                     </thead>
                     <tbody>
@@ -182,24 +182,7 @@ export default function E_UsersCompo() {
                                             {status ? 'Active' : 'Block | Pending'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-sm">
-                                        <select
-                                            className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                                            value={typeof status === 'string' ? status : String(status)}
-                                            disabled={isUpdating}
-                                            onChange={(e) => onUpdateStatus(id, e.target.value)}
-                                        >
-                                            {statusOptions.map((s) => (
-                                                <option key={s} value={s}>
-                                                    {s}
-                                                </option>
-                                            ))}
-                                            {/* Ensure current status always appears */}
-                                            {status !== 'unknown' && !statusOptions.includes(status) ? (
-                                                <option value={status}>{status}</option>
-                                            ) : null}
-                                        </select>
-                                    </td>
+
                                 </tr>
                             );
                         })}

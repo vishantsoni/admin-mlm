@@ -154,6 +154,8 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
     if (!addAddressForm.full_name || !addAddressForm.phone || addAddressForm.phone.length !== 10 ||
       !addAddressForm.address_line1 || !addAddressForm.city || !addAddressForm.state || !addAddressForm.pincode) {
       alert('Please fill all required fields: name, phone (10 digits), address, city, state, pincode');
+      console.log("data  - ", addAddressForm);
+
       return;
     }
     if (!/^\d{10}$/.test(addAddressForm.phone)) {
@@ -511,13 +513,25 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="full_name">Full Name <span className="text-red-500">*</span></Label>
-                      <Input
+                      {/* <Input
                         id="full_name"
                         name="full_name"
                         defaultValue={addAddressForm.full_name}
                         onChange={handleAddAddressChange}
                         required
                         placeholder='Enter full name'
+                      /> */}
+                      <Input
+                        value={addAddressForm.full_name}
+                        placeholder="Full Name"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allows only letters (both uppercase and lowercase) and spaces
+                          if (value === "" || /^[a-zA-Z\s]+$/.test(value)) {
+                            setAddAddressForm({ ...addAddressForm, full_name: value });
+                            // handleAddAddressChange(e)
+                          }
+                        }}
                       />
                     </div>
 
@@ -565,7 +579,22 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           id="state"
                           name="state"
                           value={addAddressForm.state}
-                          onChange={handleAddAddressChange}
+                          // onChange={handleAddAddressChange}
+                          onChange={(e) => {
+
+                            const selectedIndex = e.target.selectedIndex;
+                            const selectedOption = e.target.options[selectedIndex];
+
+                            const stateId = Number(selectedOption.getAttribute('data-id'));
+                            // console.log("data 0- ", stateId);
+
+                            const stateName = e.target.value
+                            setAddAddressForm(prev => ({
+                              ...prev,
+                              state: stateName,
+                              stateId: stateId
+                            }));
+                          }}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-800 dark:border-gray-700"
                           disabled={loadingStates}
                           required
@@ -575,9 +604,9 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                             <option disabled>Loading...</option>
                           ) : states.map((state: States) => (
                             <option key={state.id}
-                              // value={state.name.toString()} 
-                              value={JSON.stringify({ id: state.id, name: state.name })}
-                              id={state.id.toString()}>
+                              value={state.name.toString()}
+                              // value={JSON.stringify({ id: state.id, name: state.name })}
+                              data-id={state.id.toString()}  >
                               {state.name}
                             </option>
                           ))}

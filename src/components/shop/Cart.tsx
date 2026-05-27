@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/hooks/useCart';
-import { BackendCartItem } from '@/types/cart';
+import { AddToCartPayload, BackendCartItem } from '@/types/cart';
 import { formattedAmount, formattedAmountCommas, getCurrencyIcon } from '@/lib/constantFunction';
 import { ShoppingCart, Trash2, Minus, Plus, ArrowRight, X } from 'lucide-react';
 import Button from '@/components/ui/button/Button';
@@ -10,8 +10,74 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Badge from '../ui/badge/Badge';
 
+// A lightweight sub-component for the quantity input to manage its own debounced state easily
+const QuantiyInput = ({ item, updateQuantity, setLocalLoading }) => {
+  const [inputValue, setInputValue] = useState(item.quantity || 1);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Keep input in sync if quantity changes via Plus/Minus buttons
+  useEffect(() => {
+    setInputValue(item.quantity);
+  }, [item.quantity]);
+
+  const triggerUpdate = async (val: number) => {
+    if (isNaN(val) || val < 1) return;
+    if (val === item.quantity) return; // Skip if value hasn't actually changed
+
+    setLocalLoading(prev => ({ ...prev, [String(item.id)]: true }));
+    await updateQuantity(item.id, val);
+    setLocalLoading(prev => ({ ...prev, [String(item.id)]: false }));
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valueStr = e.target.value;
+    const parsedInt = parseInt(valueStr, 10);
+
+    setInputValue(valueStr === "" ? "" : parsedInt);
+
+    if (!isNaN(parsedInt) && parsedInt >= 1) {
+      // Clear the previous timer if user keeps typing
+      if (timerRef.current) clearTimeout(timerRef.current);
+
+      // Wait 600ms after the last keystroke before hitting the API
+      timerRef.current = setTimeout(() => {
+        triggerUpdate(parsedInt);
+      }, 600);
+    }
+  };
+
+  const handleBlur = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    // Fallback if field is left empty or invalid
+    if (inputValue === "" || isNaN(Number(inputValue)) || Number(inputValue) < 1) {
+      setInputValue(item.quantity);
+    } else {
+      triggerUpdate(Number(inputValue));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur(); // Triggers handleBlur immediately
+    }
+  };
+
+  return (
+    <input
+      type="number"
+      min="1"
+      value={inputValue}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      className="flex-1 w-full bg-transparent text-center text-sm font-bold text-gray-800 dark:text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+    />
+  );
+};
+
 const Cart = () => {
-  const { items, totalItems, totalAmount, loading, updateQuantity, removeItem, clearCart } = useCart();
+  const { items, totalItems, totalAmount, loading, updateQuantity, removeItem, clearCart, addToCart } = useCart();
   const [localLoading, setLocalLoading] = useState<{ [key: string]: boolean }>({});
 
   const currency = getCurrencyIcon('INR');
@@ -27,7 +93,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex  justify-between items-center">
+        <div className="mb-8 flex justify-between items-center">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-3 bg-brand-500/10 dark:bg-brand-500/20 rounded-xl">
               <ShoppingCart className="w-8 h-8 text-brand-500" />
@@ -39,7 +105,7 @@ const Cart = () => {
               </p>
             </div>
           </div>
-          <div className="p-3 bg-brand-500/10 dark:bg-brand-500/20 rounded-xl" onClick={() => {
+          <div className="p-3 bg-brand-500/10 dark:bg-brand-500/20 rounded-xl cursor-pointer" onClick={() => {
             const confirmed = confirm("Are you sure you want to clear the cart?");
             if (confirmed) {
               clearCart();
@@ -70,7 +136,6 @@ const Cart = () => {
                       <th className="px-6 py-5 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Price</th>
                       <th className="px-6 py-5 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Quantity</th>
                       <th className="px-6 py-5 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Total</th>
-                      {/* <th className="px-6 py-5 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">Action</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -90,9 +155,13 @@ const Cart = () => {
                               <h4 className="font-semibold text-gray-800 dark:text-white line-clamp-1 max-w-xs">
                                 {item.product?.name || item.product_name || ''}
                               </h4>
-                              {item.is_variation_null == false ? <div className='flex gap-2'>{item.variant_details.attributes.map((attr, index) => {
-                                return <Badge key={index}>{attr.attribute_name} - {attr.value}</Badge>
-                              })}</div> : ""}
+                              {item.is_variation_null === false ? (
+                                <div className='flex gap-2 mt-1'>
+                                  {item.variant_details?.attributes?.map((attr, idx) => (
+                                    <Badge key={idx}>{attr.attribute_name} - {attr.value}</Badge>
+                                  ))}
+                                </div>
+                              ) : ""}
                               {item.variant && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   SKU: {item.variant.sku}
@@ -115,18 +184,15 @@ const Cart = () => {
                                 if (confirm('Remove this item?')) {
                                   await removeItem(item.id);
                                 }
-
                               }}
-
                             >
                               <Trash2 size={16} color='red' />
-
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={async () => {
-                                if (item.quantity < 1) {
+                                if (item.quantity <= 1) {
                                   if (confirm('Remove this item?')) {
                                     await removeItem(item.id);
                                   }
@@ -138,11 +204,15 @@ const Cart = () => {
                               }}
                               disabled={localLoading[String(item.id)] || item.quantity <= 1}
                             >
-                              {item.quantity < 1 ? <Trash2 size={16} /> :
-                                <Minus size={16} />}
+                              {item.quantity <= 1 ? <Trash2 size={16} /> : <Minus size={16} />}
                             </Button>
-                            <span className="w-12 text-center font-semibold text-lg text-gray-800 dark:text-white">
-                              {item.quantity}
+                            <span className="w-12 text-center font-semibold text-lg text-gray-800 dark:text-white flex items-center justify-center">
+                              {/* Swapped input with isolated self-debouncing element */}
+                              <QuantiyInput
+                                item={item}
+                                updateQuantity={updateQuantity}
+                                setLocalLoading={setLocalLoading}
+                              />
                             </span>
                             <Button
                               variant="outline"
@@ -163,20 +233,6 @@ const Cart = () => {
                             {currency}{formattedAmount(item.subtotal || (item.quantity * item.price))}
                           </span>
                         </td>
-                        {/* <td className="px-6 py-6">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={async () => {
-                              if (confirm('Remove this item?')) {
-                                await removeItem(item.id);
-                              }
-                            }}
-                            className="text-error-500 hover:text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10"
-                          >
-                            <Trash2 size={18} />
-                          </Button>
-                        </td> */}
                       </tr>
                     ))}
                   </tbody>

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useRef } from "react";
 
 interface InputProps {
   type?: "text" | "number" | "email" | "password" | "date" | "time" | string;
@@ -42,10 +42,30 @@ const Input: FC<InputProps> = ({
   required = false,
   inputMode = "text"
 }) => {
-  // Determine input styles based on state (disabled, success, error)
+  // 1. Create a reference to the native input element
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 2. Helper function to programmatically trigger the browser picker
+  const handleOpenPicker = () => {
+    if (type === "date" && inputRef.current && typeof inputRef.current.showPicker === "function") {
+      try {
+        inputRef.current.showPicker();
+      } catch (err) {
+        console.error("Browser does not support showPicker()", err);
+      }
+    }
+  };
+
+  // 3. Handle Keyboard Accessibility (Space or Enter key)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (type === "date" && (e.key === " " || e.key === "Enter")) {
+      e.preventDefault(); // Stop page scrolling on Space press
+      handleOpenPicker();
+    }
+  };
+
   let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${className}`;
 
-  // Add styles for the different states
   if (disabled) {
     inputClasses += ` text-gray-500 border-gray-300 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
   } else if (error) {
@@ -56,9 +76,15 @@ const Input: FC<InputProps> = ({
     inputClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
   }
 
+  // Extra utility class for date inputs to look clickable
+  if (type === "date") {
+    inputClasses += ` cursor-pointer`;
+  }
+
   return (
     <div className="relative">
       <input
+        ref={inputRef} // Connect the reference here
         type={type}
         id={id}
         name={name}
@@ -66,6 +92,8 @@ const Input: FC<InputProps> = ({
         value={value}
         defaultValue={defaultValue}
         onChange={onChange}
+        onClick={handleOpenPicker} // Trigger on left-click anywhere inside the element
+        onKeyDown={handleKeyDown}  // Trigger on Space or Enter press
         min={min}
         max={max}
         maxLength={maxLength}
