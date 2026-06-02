@@ -21,9 +21,10 @@ export function TicketForm({ onSubmit, loading = false }: TicketFormProps) {
         name: user?.full_name || '',
         email: user?.email || '',
         phone: user?.phone || '',
+        attachment: undefined as File | undefined,
         subject: '',
         message: '',
-        user_id: user?.id || '',
+        user_id: user?.id ? Number(user.id) : undefined,
         user_type: 'DISTRIBUTOR' as const,
     });
 
@@ -31,7 +32,16 @@ export function TicketForm({ onSubmit, loading = false }: TicketFormProps) {
         e.preventDefault();
         try {
             await onSubmit(formData);
-            setFormData({ name: '', email: '', phone: '', subject: '', message: '', user_type: 'DISTRIBUTOR' });
+            setFormData({
+                name: user?.full_name || '',
+                email: user?.email || '',
+                phone: user?.phone || '',
+                attachment: undefined,
+                subject: '',
+                message: '',
+                user_id: user?.id ? Number(user.id) : undefined,
+                user_type: 'DISTRIBUTOR' as const,
+            });
         } catch (err) {
             console.error('Submit error', err);
         }
@@ -89,12 +99,19 @@ export function TicketForm({ onSubmit, loading = false }: TicketFormProps) {
                     <div>
                         <Label htmlFor="message">Message</Label>
                         <TextArea
-                            id="message"
                             rows={5}
                             value={formData.message}
                             onChange={(value) => setFormData({ ...formData, message: value })}
-                            required
                         />
+                    </div>
+                    <div>
+                        <Label htmlFor="attachment">Attachment</Label>
+                        <Input
+                            type="file"
+                            id="attachment"
+                            onChange={(e) => setFormData({ ...formData, attachment: e.target.files?.[0] })}
+                        />
+
                     </div>
                     <Button type="submit" disabled={loading} className="w-full">
                         {loading ? 'Submitting...' : 'Raise Ticket'}

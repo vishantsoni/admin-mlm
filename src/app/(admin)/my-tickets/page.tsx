@@ -37,7 +37,21 @@ export default function MyTicketsPage() {
     }, []);
 
     const handleRaiseTicket = async (data) => {
-        await raiseTicket(data);
+
+        const formData = new FormData();
+        formData.append('name', data.name);
+        formData.append('email', data.email);
+        formData.append('phone', data.phone);
+        formData.append('subject', data.subject);
+        formData.append('message', data.message);
+        formData.append('user_id', String(data.user_id));
+        formData.append('user_type', "DISTRIBUTOR");
+        if (data.attachment) {
+            formData.append('attachment', data.attachment);
+        }
+
+
+        await raiseTicket(formData);
         loadTickets();
         setShowForm(false);
     };
@@ -87,9 +101,9 @@ export default function MyTicketsPage() {
                                     <TicketDetail
                                         ticket={ticketDetail}
                                         onClose={() => setTicketDetail(null)}
-                                        onReply={async (message) => {
+                                        onReply={async (formData) => {
                                             // Get caseId from ticketDetail.case_id
-                                            await replyToTicket(ticketDetail.case_id, { message });
+                                            await replyToTicket(ticketDetail.case_id, formData);
                                             // Reload detail
                                             const res = await getTicket(ticketDetail.case_id);
                                             setTicketDetail(res.ticket);

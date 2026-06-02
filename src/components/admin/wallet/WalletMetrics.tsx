@@ -54,7 +54,7 @@ const WalletMetrics = ({ cols = 2 }) => {
                         <span className="text-sm text-gray-500 dark:text-gray-400">Pending Commissions (30-day hold)</span>
                         <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white">{formattedAmount(walletData?.pending_balance)}</h4>
                     </div>
-                    <Badge color="warning">25/30 days</Badge>
+                    <Badge color="warning">{walletData?.pending_balance == 0 ? 0 : 30} days</Badge>
                 </div>
             </div>
 

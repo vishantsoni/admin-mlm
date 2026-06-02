@@ -25,8 +25,10 @@ export function useSupportTickets() {
     }
   }, []);
 
-  const raiseTicket = useCallback(async (payload: RaiseTicketPayload) => {
-    return execute(() => serverCallFuction( 'POST', 'api/support/raise-ticket', payload));
+  const raiseTicket = useCallback(async (formData: FormData) => {
+    return execute(() => serverCallFuction( 'POST', 
+      'api/support/raise-ticket', 
+      formData));
   }, [execute]);
 
   const getMyTickets = useCallback(async () => {
@@ -38,7 +40,7 @@ export function useSupportTickets() {
     return execute<TicketResponse>(() => serverCallFuction<TicketResponse>('GET', `api/support/${caseId}`));
   }, [execute]);
 
-  const replyToTicket = useCallback(async (caseId: string, payload: ReplyPayload) => {
+  const replyToTicket = useCallback(async (caseId: string, payload: FormData | ReplyPayload): Promise<ReplyResponse> => {
     return execute<ReplyResponse>(() => serverCallFuction<ReplyResponse>('POST', `api/support/${caseId}/reply`, payload));
   }, [execute]);
 

@@ -21,9 +21,10 @@ interface OrderTableProps {
     apiEndpoint: string;
     title: string;
     description: string;
+    role: string;
 }
 
-const OrderTable = ({ apiEndpoint, title, description }: OrderTableProps) => {
+const OrderTable = ({ apiEndpoint, title, description, role = "distributor" }: OrderTableProps) => {
     const router = useRouter();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(false);
@@ -167,11 +168,28 @@ const OrderTable = ({ apiEndpoint, title, description }: OrderTableProps) => {
                                                 {order.payment_status.toUpperCase()}
                                             </Badge>
                                         </TableCell>
+
                                         <TableCell className="px-6 py-4">
-                                            <Button variant="outline" size="sm" onClick={() => {
-                                                router.push(`/orders/${order.order_id}`)
-                                            }}>View</Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    // role-based navigation: super_admin / distributor / staff
+                                                    const basePath =
+                                                        role === 'super_admin'
+                                                            ? '/orders'
+                                                            : role === 'distributor'
+                                                                ? '/placed_order'
+                                                                : '/staff';
+
+                                                    router.push(`${basePath}/${order.order_id}`);
+                                                }}
+                                            >
+                                                View
+                                            </Button>
                                         </TableCell>
+
+
                                     </TableRow>
                                 ))}
                             </TableBody>

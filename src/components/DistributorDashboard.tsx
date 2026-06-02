@@ -154,7 +154,7 @@ export const DistributorDashboard = ({ data, loading }: DistributorDashboardProp
                         </div>
                     </div>
                     <button
-                        onClick={() => router.push('/orders')}
+                        onClick={() => router.push('/placed_order')}
                         className="mt-4 w-full rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600"
                     >
                         View Orders
@@ -190,7 +190,7 @@ export const DistributorDashboard = ({ data, loading }: DistributorDashboardProp
                         </div>
                     </div>
                     <button
-                        onClick={() => router.push('/transactions')}
+                        onClick={() => router.push('/wallet')}
                         className="mt-4 w-full rounded-lg bg-brand-500 px-4 py-2 text-white hover:bg-brand-600"
                     >
                         View Transactions

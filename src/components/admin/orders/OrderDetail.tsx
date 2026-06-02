@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import serverCallFuction, { date_formate, formattedAmount, formattedAmountCommas } from '@/lib/constantFunction';
 import { Order } from '@/types/orders';
@@ -42,6 +42,13 @@ const OrderDetail = () => {
     const [adminRemarks, setAdminRemarks] = useState('');
     const [refundAmount, setRefundAmount] = useState<string>('');
 
+
+
+    // Inside your OrderDetail component:
+    const invoiceLinkRef = useRef<HTMLAnchorElement | null>(null);
+    const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+
+
     const isSuperAdmin = useMemo(() => {
         return Boolean(
             hasPermission?.('orders') &&
@@ -67,7 +74,7 @@ const OrderDetail = () => {
             console.error('Error fetching order:', err);
             setError('Failed to load order');
         } finally {
-            setLoading(false);
+            loading && setLoading(false);
         }
     };
 
@@ -134,6 +141,7 @@ const OrderDetail = () => {
             setError('Failed to update status');
         } finally {
             setUpdatingStatus(false);
+            setLoading(false);
         }
     };
 
@@ -410,8 +418,71 @@ const OrderDetail = () => {
                 </div>
             )}
 
+            {/* Distributor: Request return when order is delivered (and no return exists yet) */}
+            {(() => {
+                const updatedAt = order.updated_at ? new Date(order.updated_at) : null;
+                const now = new Date();
+                const isWithin30Days = updatedAt ? now.getTime() - updatedAt.getTime() <= 30 * 24 * 60 * 60 * 1000 : false;
+
+                if (!activeReturn && order.order_status === 'delivered' && !isSuperAdmin && isWithin30Days) {
+                    return (
+                        <Card className="border-yellow-200 bg-yellow-50">
+                            <CardContent className="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                <div>
+                                    <div className="font-semibold text-yellow-900">Return available</div>
+                                    <div className="text-sm text-muted-foreground">
+                                        Place a return request for this delivered order.
+                                    </div>
+                                </div>
+                                <Button
+                                    variant="primary"
+                                    disabled={actionLoading}
+                                    onClick={async () => {
+                                        try {
+                                            setActionLoading(true);
+                                            setActionError('');
+                                            const res = await serverCallFuction('POST', `api/orders/${orderId}/returns/request`, {
+                                                requested_at: new Date().toISOString()
+                                            });
+                                            if ((res as any)?.status === false) {
+                                                setActionError((res as any)?.message || 'Failed to request return');
+                                                return;
+                                            }
+                                            await fetchOrder();
+                                        } catch (e) {
+                                            console.error(e);
+                                            setActionError('Failed to request return');
+                                        } finally {
+                                            setActionLoading(false);
+                                        }
+                                    }}
+                                >
+                                    {actionLoading ? 'Requesting...' : 'Request Return'}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    );
+                }
+
+                if (!activeReturn && order.order_status === 'delivered' && !isSuperAdmin && !isWithin30Days) {
+                    return (
+                        <Card className="border-yellow-200 bg-yellow-50">
+                            <CardContent className="py-4">
+                                <div className="font-semibold text-yellow-900">Return not available</div>
+                                <div className="text-sm text-muted-foreground mt-1">
+                                    Return can be requested only within 30 days from the order’s last update.
+                                </div>
+                            </CardContent>
+                        </Card>
+                    );
+                }
+
+                return null;
+            })()}
+
             {/* Modal Handler Form */}
             <Modal
+
                 className="max-w-xl"
                 isOpen={showReturnModal}
                 onClose={closeReturnModal}
@@ -607,19 +678,44 @@ const OrderDetail = () => {
 
                         <Button
                             className="w-full"
+                            disabled={isGeneratingInvoice}
                             onClick={async () => {
-                                const res = await serverCallFuction('POST', 'api/invoice/generate', { orderId: orderId });
-                                if ((res as any).success && (res as any).url) {
-                                    const newTab = window.open((res as any).url, '_blank', 'noopener,noreferrer');
-                                    if (!newTab) window.location.href = (res as any).url;
-                                } else {
-                                    alert((res as any).message || 'Failed to generate invoice');
+                                try {
+                                    setIsGeneratingInvoice(true);
+                                    const res = await serverCallFuction('POST', 'api/invoice/generate', { orderId: orderId });
+
+                                    if ((res as any).success && (res as any).url) {
+                                        if (invoiceLinkRef.current) {
+                                            // 1. Assign the URL to our hidden native anchor tag
+                                            invoiceLinkRef.current.href = (res as any).url;
+                                            // 2. Trigger a native click which browsers don't block
+                                            invoiceLinkRef.current.click();
+                                        }
+                                    } else {
+                                        alert((res as any).message || 'Failed to generate invoice');
+                                    }
+                                } catch (error) {
+                                    console.error('Invoice error:', error);
+                                    alert('An unexpected network error occurred while generating the invoice.');
+                                } finally {
+                                    setIsGeneratingInvoice(false);
                                 }
                             }}
                         >
                             <Printer className="h-4 w-4 mr-2" />
-                            Print Invoice
+                            {isGeneratingInvoice ? 'Generating Invoice...' : 'Print Invoice'}
                         </Button>
+
+                        {/* Hidden anchor tag placed safely outside layout visually */}
+                        <a
+                            ref={invoiceLinkRef}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hidden"
+                            aria-hidden="true"
+                        />
+
+
                     </CardContent>
                 </Card>
             </div>

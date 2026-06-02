@@ -136,9 +136,9 @@ export default function SupportPage() {
                                     <TicketDetail
                                         ticket={ticketDetail}
                                         onClose={() => setTicketDetail(null)}
-                                        onReply={async (message) => {
+                                        onReply={async (formData) => {
                                             // Get caseId from ticketDetail.case_id
-                                            await replyToTicket(ticketDetail.case_id, { message });
+                                            await replyToTicket(ticketDetail.case_id, formData);
                                             // Reload detail
                                             const res = await getTicket(ticketDetail.case_id);
                                             setTicketDetail(res.ticket);

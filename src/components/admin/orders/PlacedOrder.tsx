@@ -8,6 +8,7 @@ const PlacedOrder = () => {
             apiEndpoint="api/orders/placed"
             title="Placed Orders"
             description="Manage placed orders to company."
+            role="distributor"
         />
     )
 }

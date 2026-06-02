@@ -83,11 +83,12 @@ export default function SignUpStepForm() {
         localStorage.setItem('sakhi_registration_draft', JSON.stringify(initialFormData));
 
         let initialStep = 1;
-        if (savedStepStr && !isNaN(parseInt(savedStepStr))) {
-            initialStep = Math.max(1, Math.min(4, parseInt(savedStepStr, 10)));
+        if (savedStepStr && !isNaN(parseInt(savedStepStr, 10))) {
+            initialStep = Math.max(1, Math.min(5, parseInt(savedStepStr, 10)));
         }
         setStep(initialStep);
     }, []); // Empty deps - only on mount
+
 
     // 2. Save to localStorage on formData/step changes (debounced effect)
     useEffect(() => {
@@ -195,19 +196,27 @@ export default function SignUpStepForm() {
         const aadhaarRegex = /^\d{12}$/; // Strictly 12 digits
 
         if (step === 1) {
+            // Referral-only validation
             if (formData.referralCode.trim().length < 1) newErrors.referralCode = "Please enter Referral Code";
             if (formData.referrerName.trim().length < 1) newErrors.referralCode = "Please enter valid Referral Code";
+        }
+
+        // Step 2: Applicant details validation
+        if (step === 2) {
             if (formData.fullName.trim().length <= 2) newErrors.fullName = "Name must be at least 3 characters";
-            // --- Aadhaar Validation Step 1 ---
+
+            // --- Aadhaar Validation ---
             if (!formData.aadhaarNo) {
                 newErrors.aadhaarNo = "Aadhaar Number is required";
             } else if (!aadhaarRegex.test(formData.aadhaarNo)) {
                 newErrors.aadhaarNo = "Aadhaar must be exactly 12 digits";
             }
+
             if (!panRegex.test(formData.panNo.toUpperCase())) newErrors.panNo = "Invalid PAN format (e.g. ABCDE1234F)";
             if (!phoneRegex.test(formData.phone)) newErrors.phone = "Enter valid 10-digit phone number";
             if (!phoneRegex.test(formData.whatsappNo)) newErrors.whatsappNo = "Enter valid 10-digit WhatsApp number";
             if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email address";
+
             if (!formData.dob) {
                 newErrors.dob = "Date of Birth is required";
             } else {
@@ -231,15 +240,18 @@ export default function SignUpStepForm() {
                     newErrors.dob = "Please enter a realistic year";
                 }
             }
+
             if (!formData.city) newErrors.city = "Please select your city";
             if (formData.pin.length !== 6) newErrors.pin = "PIN code must be 6 digits";
         }
 
-        if (step === 2) {
+        // Step 3: Bank details validation
+        if (step === 3) {
             if (!formData.accountHolderName) newErrors.accountHolderName = "Name is required";
             if (formData.accountNo.length < 9) newErrors.accountNo = "Account number is too short";
             if (!ifscRegex.test(formData.ifscCode.toUpperCase())) newErrors.ifscCode = "Invalid IFSC code";
         }
+
         // if (step === 3) {
         //     if (!ifscRegex.test(formData.nomineeName.toUpperCase())) newErrors.nom = "Invalid IFSC code";
         //     return formData.nomineeName && formData.nomineeRelationship;
@@ -306,7 +318,7 @@ export default function SignUpStepForm() {
                 router.push('/signin');
             } else {
                 const errorData = response;
-                setError(`Submission failed: ${errorData.message || 'Unknown error'}`);
+                alert(`Submission failed: ${errorData.message || 'Unknown error'}`);
             }
 
             // if (response.ok) {
@@ -379,12 +391,12 @@ export default function SignUpStepForm() {
     const contact_data = getSettingByKey("contact_us")
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md">
+        <div className="max-w-3xl md:min-w-3xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md">
             <h2 className="text-2xl font-bold mb-2 text-center text-gray-800 dark:text-white">SAKHI DISTRIBUTOR APPLICATION</h2>
             <p className="text-center text-sm text-gray-500 ">(Independent Representative Agreement) </p>
             <div className='mb-6 bg-brand-200 px-3 py-1 rounded-xl flex justify-between'>
                 <Link href={`tel:${contact_data?.phone}`}>
-                    <span>{contact_data?.phone}</span></Link>
+                    <span>24X7 : +91 {contact_data?.phone}</span></Link>
                 <Link href={`mailto:${contact_data?.email_1}`}><span>{contact_data?.email_1}</span></Link>
             </div>
 
@@ -402,38 +414,58 @@ export default function SignUpStepForm() {
             }
 
             <form onSubmit={handleSubmit}>
-                {/* STEP 1: ALL APPLICANT DETAILS 6] */}
+                {/* STEP 1: Referral Code Only */}
                 {step === 1 && (
                     <div className="space-y-4">
-                        <h3 className="font-semibold text-lg border-b pb-2">1. Applicant Details</h3>
+                        <h3 className="font-semibold text-lg border-b pb-2">1. Referral Code</h3>
+
+                        <div>
+                            <Label>
+                                Referral Code / ID
+                                {formData.referralCode && searchParams?.get("ref") === formData.referralCode
+                                    ? " (Auto-filled from link)"
+                                    : ""}
+                            </Label>
+                            <Input
+                                placeholder="Referral Code / ID"
+                                defaultValue={formData.referralCode || ""}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, referralCode: e.target.value });
+                                }}
+                                className={searchParams?.get("ref") === formData.referralCode ? "ring-2 ring-brand-200 bg-brand-50" : ""}
+                                disabled={searchParams?.get("ref") === formData.referralCode}
+                                error={!!fieldErrors.referralCode}
+                                hint={fieldErrors.referralCode}
+                            />
+
+                            {formData.referrerName && (
+                                <p className="text-xs text-brand-600 mt-2 font-medium">
+                                    Referrer: {formData.referrerName}
+                                </p>
+                            )}
+
+                            {searchParams?.get("ref") === formData.referralCode && formData.referralCode && !formData.referrerName && (
+                                <p className="text-xs text-gray-500 mt-2 font-medium">Loading referrer...</p>
+                            )}
+
+                            {searchParams?.get("ref") === formData.referralCode && formData.referralCode && (
+                                <p className="text-xs text-brand-600 mt-1 font-medium">Referral code &#39;{formData.referralCode}&#39; loaded from share link!</p>
+                            )}
+                        </div>
+
+                        {!error && (
+                            <Button onClick={handleNext} className="w-full mt-4">
+                                Next: Applicant Details
+                            </Button>
+                        )}
+                    </div>
+                )}
+
+                {/* STEP 2: ALL APPLICANT DETAILS */}
+                {step === 2 && (
+                    <div className="space-y-4">
+                        <h3 className="font-semibold text-lg border-b pb-2">2. Applicant Details</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* <h3 className="font-semibold text-lg border-b pb-2">3. Referral & Nominee Details</h3> */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 md:col-span-2">
-                                <div>
-                                    <Label>Referral Code / ID{formData.referralCode && searchParams?.get("ref") === formData.referralCode ? " (Auto-filled from link)" : ""}</Label>
-                                    <Input
-                                        placeholder="Referral Code / ID"
-                                        defaultValue={formData.referralCode || ""}
-                                        onChange={(e) => {
-                                            setFormData({ ...formData, referralCode: e.target.value })
-                                        }
-                                        }
-                                        className={searchParams?.get("ref") === formData.referralCode ? "ring-2 ring-brand-200 bg-brand-50" : ""}
-                                        disabled={searchParams?.get("ref") === formData.referralCode}
-                                        error={!!fieldErrors.referralCode}
-                                        hint={fieldErrors.referralCode}
-                                    />
-                                    {searchParams?.get("ref") === formData.referralCode && (
-                                        <p className="text-xs text-brand-600 mt-1 font-medium"> Referral code &#39;{formData.referralCode}&#39; loaded from share link!</p>
-                                    )}
-                                </div>
-                                <div>
-                                    <Label>Referral Name</Label>
-                                    <Input
-                                        placeholder="Referrer Name" defaultValue={formData.referrerName} onChange={(e) => setFormData({ ...formData, referrerName: e.target.value })}
-                                        disabled={searchParams?.get("ref") === formData.referralCode} />
-                                </div>
-                            </div>
                             <div className="md:col-span-2">
                                 <Label>Full Name* </Label>
                                 <Input
@@ -443,8 +475,7 @@ export default function SignUpStepForm() {
                                         const value = e.target.value;
                                         // Allows only letters (both uppercase and lowercase) and spaces
                                         if (value === "" || /^[a-zA-Z\s]+$/.test(value)) {
-                                            // setAddressFormData({ ...addressFormData, full_name: value });
-                                            setFormData({ ...formData, fullName: value })
+                                            setFormData({ ...formData, fullName: value });
                                         }
                                     }}
                                     error={!!fieldErrors.fullName}
@@ -456,12 +487,8 @@ export default function SignUpStepForm() {
                                 <Input
                                     value={formData.aadhaarNo}
                                     placeholder="12-digit Number"
-                                    // onChange={(e) => setFormData({ ...formData, aadhaarNo: e.target.value })}
                                     onChange={(e) => {
-                                        // Step 1: Remove all non-digits immediately
                                         const val = e.target.value.replace(/\D/g, "");
-
-                                        // Step 2: Validate Indian starting digit (6-9)
                                         if (val === "" || /^[0-9]/.test(val)) {
                                             handleFieldChange('aadhaarNo', val);
                                         }
@@ -473,31 +500,23 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>PAN No* </Label>
-                                <Input value={formData.panNo}
+                                <Input
+                                    value={formData.panNo}
                                     placeholder="Permanent Account Number"
-                                    // onChange={(e) => setFormData({ ...formData, panNo: e.target.value })}
                                     onChange={(e) => {
                                         let value = e.target.value.toUpperCase();
-
-                                        // 1. Pehle 5 characters sirf A-Z ho sakte hain
                                         if (value.length <= 5) {
                                             value = value.replace(/[^A-Z]/g, '');
-                                        }
-                                        // 2. Next 4 characters (6th se 9th) sirf 0-9 ho sakte hain
-                                        else if (value.length <= 9) {
+                                        } else if (value.length <= 9) {
                                             const firstPart = value.slice(0, 5);
                                             const secondPart = value.slice(5).replace(/[^0-9]/g, '');
                                             value = firstPart + secondPart;
-                                        }
-                                        // 3. Last character (10th) sirf A-Z ho sakta hai
-                                        else if (value.length === 10) {
+                                        } else if (value.length === 10) {
                                             const firstPart = value.slice(0, 5);
                                             const secondPart = value.slice(5, 9);
                                             const lastPart = value.slice(9).replace(/[^A-Z]/g, '');
                                             value = firstPart + secondPart + lastPart;
                                         }
-
-                                        // State update tabhi karein jab rules match ho rahe hon
                                         setFormData({ ...formData, panNo: value });
                                     }}
                                     error={!!fieldErrors.panNo}
@@ -507,17 +526,10 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Date of Birth* </Label>
-                                {/* <Input
-                                    type="date"
-                                    value={formData.dob}
-                                    onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                                    error={!!fieldErrors.dob}
-                                    hint={fieldErrors.dob}
-                                /> */}
                                 <Input
                                     type="date"
                                     defaultValue={formData.dob}
-                                    max={maxDate} // Yeh calendar me 21 saal se kam ki dates ko block kar dega
+                                    max={maxDate}
                                     onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                                     error={!!fieldErrors.dob}
                                     hint={fieldErrors.dob}
@@ -539,19 +551,15 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Phone* </Label>
-                                <Input placeholder='Enter Phone no.'
+                                <Input
+                                    placeholder='Enter Phone no.'
                                     value={formData.phone || ""}
-
                                     onChange={(e) => {
-                                        // Step 1: Remove all non-digits immediately
                                         const val = e.target.value.replace(/\D/g, "");
-
-                                        // Step 2: Validate Indian starting digit (6-9)
                                         if (val === "" || /^[6-9]/.test(val)) {
                                             handleFieldChange('phone', val);
                                         }
                                     }}
-                                    // Step 3: Show number pad on mobile
                                     inputMode="numeric"
                                     maxLength={10}
                                     error={!!fieldErrors.phone}
@@ -560,24 +568,23 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Password* </Label>
-                                <Input placeholder='Enter Password'
-                                    defaultValue={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                                <Input
+                                    placeholder='Enter Password'
+                                    defaultValue={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                />
                             </div>
                             <div>
                                 <Label>WhatsApp No* </Label>
-                                <Input value={formData.whatsappNo || ""} placeholder="For updates"
-                                    // onChange={(e) => setFormData({ ...formData, whatsappNo: e.target.value })}
+                                <Input
+                                    value={formData.whatsappNo || ""}
+                                    placeholder="For updates"
                                     onChange={(e) => {
-
                                         const val = e.target.value.replace(/\D/g, "");
-
-                                        // Step 2: Validate Indian starting digit (6-9)
                                         if (val === "" || /^[6-9]/.test(val)) {
-                                            // handleFieldChange('phone', val);
-                                            handleFieldChange('whatsappNo', val)
+                                            handleFieldChange('whatsappNo', val);
                                         }
-                                    }
-                                    }
+                                    }}
                                     error={!!fieldErrors.whatsappNo}
                                     hint={fieldErrors.whatsappNo}
                                     inputMode='numeric'
@@ -586,9 +593,10 @@ export default function SignUpStepForm() {
                             </div>
                             <div>
                                 <Label>Email* </Label>
-                                <Input type="email" defaultValue={formData.email}
+                                <Input
+                                    type="email"
+                                    defaultValue={formData.email}
                                     placeholder="example@mail.com"
-                                    //   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     onChange={(e) => handleFieldChange('email', e.target.value)}
                                     error={!!fieldErrors.email}
                                     hint={fieldErrors.email}
@@ -597,7 +605,11 @@ export default function SignUpStepForm() {
                             </div>
                             <div className="md:col-span-2">
                                 <Label>Full Address* </Label>
-                                <Input defaultValue={formData.address} placeholder="House No, Street, Landmark" onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+                                <Input
+                                    defaultValue={formData.address}
+                                    placeholder="House No, Street, Landmark"
+                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                />
                             </div>
                             <div className="grid grid-cols-3 gap-2 md:col-span-2">
                                 <div>
@@ -611,69 +623,49 @@ export default function SignUpStepForm() {
                                         <option value="">Select State</option>
                                         {isLoadingStates ? (
                                             <option disabled>Loading states...</option>
-                                        ) : states.map((state) => (
-                                            <option key={state.id} value={state.id}>
-                                                {state.name}
-                                            </option>
-                                        ))}
+                                        ) : (
+                                            states.map((state) => (
+                                                <option key={state.id} value={state.id}>
+                                                    {state.name}
+                                                </option>
+                                            ))
+                                        )}
                                     </select>
-
-                                    {/* Display Error Hint */}
-
                                 </div>
                                 <div>
                                     <Label>City* </Label>
                                     <select
                                         className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
                                         value={formData.city}
-                                        // onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                                         onChange={(e) => handleFieldChange('city', e.target.value)}
                                         disabled={isLoadingCities || !formData.state}
                                     >
                                         <option value="">Select City</option>
                                         {isLoadingCities ? (
                                             <option disabled>Loading cities...</option>
-                                        ) : cities.map((city) => (
-                                            <option key={city.id} value={city.id}>
-                                                {city.name}
-                                            </option>
-                                        ))}
+                                        ) : (
+                                            cities.map((city) => (
+                                                <option key={city.id} value={city.id}>
+                                                    {city.name}
+                                                </option>
+                                            ))
+                                        )}
                                     </select>
-
-                                    {/* Display Error Hint */}
                                     {fieldErrors.city && (
-                                        <p className="mt-1.5 text-xs text-error-500 font-medium">
-                                            {fieldErrors.city}
-                                        </p>
+                                        <p className="mt-1.5 text-xs text-error-500 font-medium">{fieldErrors.city}</p>
                                     )}
                                 </div>
-
                                 <div>
                                     <Label>PIN* </Label>
                                     <Input
                                         placeholder='Enter PIN'
                                         value={formData.pin || ""}
-                                        //  onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
                                         onChange={(e) => {
-                                            // const val = e.target.value.replace(/\D/g, "");
-
-                                            // // Step 2: Validate Indian starting digit (6-9)
-                                            // if (val === "" || /^[0-9]/.test(val)) {
-                                            //     // handleFieldChange('phone', val);
-                                            //     handleFieldChange('pin', e.target.value)
-                                            // }
-
                                             const val = e.target.value.replace(/\D/g, "");
-
-                                            // Step 2: Validate Indian starting digit (6-9)
-
-
                                             if (val === "" || /^[0-9]/.test(val)) {
-                                                // handleFieldChange('phone', val);                                    
                                                 handleFieldChange('pin', val);
                                             }
-                                        }
-                                        }
+                                        }}
                                         inputMode='numeric'
                                         maxLength={6}
                                         error={!!fieldErrors.pin}
@@ -681,16 +673,22 @@ export default function SignUpStepForm() {
                                     />
                                 </div>
                             </div>
-
                         </div>
-                        {!error &&
-                            <Button onClick={handleNext} className="w-full mt-4">Next: Bank Details</Button>
-                        }
+
+                        <div className="flex gap-4 pt-4">
+                            <Button variant="outline" onClick={prevStep} className="w-full">Back</Button>
+                            {!error && (
+                                <Button onClick={handleNext} className="w-full">Next: Bank Details</Button>
+                            )}
+                        </div>
+
+
                     </div>
                 )}
 
+
                 {/* STEP 2: BANK DETAILS 8] */}
-                {step === 2 && (
+                {step === 3 && (
                     <div className="space-y-4">
                         <h3 className="font-semibold text-lg border-b pb-2">2. Bank Account Details (KYC)</h3>
                         <p className="text-xs text-brand-600 mb-4 font-medium">Mandatory for Commission Payouts </p>
@@ -789,7 +787,7 @@ export default function SignUpStepForm() {
                 )}
 
                 {/* STEP 3: REFERRAL & NOMINEE 3, 26] */}
-                {step === 3 && (
+                {step === 4 && (
                     <div className="space-y-4">
 
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
@@ -891,7 +889,7 @@ export default function SignUpStepForm() {
                 )}
 
                 {/* STEP 4: BUSINESS LEVEL & AGREEMENT 5] */}
-                {step === 4 && (
+                {step === 5 && (
                     <div className="space-y-4">
                         <h3 className="font-semibold text-lg border-b pb-2">4. Business Entry & Selection</h3>
 
