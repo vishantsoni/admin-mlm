@@ -1,8 +1,8 @@
-# TODO - Fix reply flow of ticket - attach file flow
+# TODO - GST/TDS Date Range
 
-- [x] Inspect current reply payload/attachment handling between `TicketDetail` -> page -> `useSupportTickets.replyToTicket`.
-- [x] Implement fix: ensure attachment selected in `TicketDetail` is included in `onReply` call payload and handled by pages and `useSupportTickets`.
-- [x] Update props/types to match real payload (use `FormData`).
-- [x] Ensure admin and my-tickets pages both pass correct payload to `replyToTicket`.
-- [ ] Run TypeScript/Next build or lint to confirm no type errors.
+- [x] Update `src/app/(admin)/gst-tds/page.tsx` to add From/To date inputs for GST tab.
+- [x] Append `from` and `to` as query params to `api/reports/gst` when fetching.
+- [x] Add an Apply button (and/or auto-fetch) to refetch report after date selection.
+- [ ] Keep TDS tab unchanged (coming soon).
+
 

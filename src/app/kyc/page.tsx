@@ -196,12 +196,16 @@ const KYCPage = () => {
       });
 
       xhr.open('POST', `${process.env.NEXT_PUBLIC_API_URL}/api/users/kyc/upload`);
-      // xhr.open('POST', 'https://fsbackend.gtsol.in/api/users/kyc/upload');
+      // xhr.open('POST', 'https://backend.feelsafeco.in/api/users/kyc/upload');
 
       xhr.send(formDataToSend);
     } catch (err: unknown) {
       console.error('Upload error:', err);
     } finally {
+      setLoading(false);
+      // startTransition(() => {
+      //   setLoading(false);
+      // });
       // do not override loading state here; wait for xhr events
     }
 

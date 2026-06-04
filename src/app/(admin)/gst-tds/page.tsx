@@ -45,29 +45,44 @@ const GstTdsPage = () => {
     const [error, setError] = useState("");
     const [activeTab, setActiveTab] = useState<"gst" | "tds">("gst");
 
-    useEffect(() => {
-        const fetchGSTReport = async () => {
-            try {
-                setLoading(true);
-                const res = (await serverCallFuction(
-                    "GET",
-                    "api/reports/gst"
-                )) as GSTReportResponse;
+    const [fromDate, setFromDate] = useState<string>("");
+    const [toDate, setToDate] = useState<string>("");
 
-                if (res && res.success === true && res.data) {
-                    setReportData(res.data);
-                } else {
-                    setError("Failed to fetch GST report");
-                }
-            } catch (err) {
-                setError("Error fetching GST report");
-            } finally {
-                setLoading(false);
+    const fetchGSTReport = async (from?: string, to?: string) => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const params = new URLSearchParams();
+            if (from) params.append("from", from);
+            if (to) params.append("to", to);
+
+            const endpoint = params.toString()
+                ? `api/reports/gst?${params.toString()}`
+                : "api/reports/gst";
+
+            const res = (await serverCallFuction(
+                "GET",
+                endpoint
+            )) as GSTReportResponse;
+
+            if (res && res.success === true && res.data) {
+                setReportData(res.data);
+            } else {
+                setError("Failed to fetch GST report");
             }
-        };
+        } catch (err) {
+            setError("Error fetching GST report");
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchGSTReport();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
 
     // Monthly Trend Chart Options
     const getChartOptions = (): ApexOptions => ({
@@ -170,10 +185,15 @@ const GstTdsPage = () => {
 
     const handleDownloadGstExcel = async () => {
         try {
-            // अपनी API का URL (with dates)
-            const url = `https://backend.feelsafeco.in/api/reports/gst-excel`;
+            const params = new URLSearchParams();
+            if (fromDate) params.append("from", fromDate);
+            if (toDate) params.append("to", toDate);
+
+            const qs = params.toString();
+            const url = `https://backend.feelsafeco.in/api/reports/gst-excel${qs ? `?${qs}` : ""}`;
 
             const response = await fetch(url, { method: 'GET' });
+
             if (!response.ok) throw new Error('Download failed');
 
             const blob = await response.blob();
@@ -240,8 +260,59 @@ const GstTdsPage = () => {
             {/* GST Section */}
             {activeTab === "gst" && (
                 <div className="space-y-6">
+                    {/* Date Range Filter */}
+                    <Card className="border-gray-200 dark:border-white/[0.05]">
+                        <CardContent className="p-5">
+                            <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                        From
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={fromDate}
+                                        onChange={(e) => setFromDate(e.target.value)}
+                                        className="mt-1 px-3 py-2 border border-gray-200 dark:border-white/[0.12] rounded-lg bg-white dark:bg-black/20 text-gray-900 dark:text-white"
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                        To
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={toDate}
+                                        onChange={(e) => setToDate(e.target.value)}
+                                        className="mt-1 px-3 py-2 border border-gray-200 dark:border-white/[0.12] rounded-lg bg-white dark:bg-black/20 text-gray-900 dark:text-white"
+                                    />
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <Button
+                                        onClick={() => fetchGSTReport(fromDate || undefined, toDate || undefined)}
+                                        variant="primary"
+                                    >
+                                        Apply
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            setFromDate("");
+                                            setToDate("");
+                                            fetchGSTReport();
+                                        }}
+                                        variant="outline"
+                                    >
+                                        Reset
+                                    </Button>
+
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     {reportData ? (
                         <>
+
                             {/* Summary Cards */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                                 <Card className="border-gray-200 dark:border-white/[0.05]">

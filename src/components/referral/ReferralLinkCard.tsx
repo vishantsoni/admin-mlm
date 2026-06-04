@@ -21,7 +21,7 @@ const ReferralLinkCard = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const qrLink = `${process.env.API_URL || 'https://fsbackend.gtsol.in'}/uploads/qrcodes/${user?.referral_code}.png`
+  const qrLink = `${process.env.NEXT_PUBLIC_API_URL || 'https://fsbackend.gtsol.in'}/uploads/qrcodes/${user?.referral_code}.png`
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] md:p-8">

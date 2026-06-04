@@ -74,7 +74,7 @@ const OrderDetail = () => {
             console.error('Error fetching order:', err);
             setError('Failed to load order');
         } finally {
-            loading && setLoading(false);
+            setLoading(false);
         }
     };
 
@@ -312,11 +312,11 @@ const OrderDetail = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="solid" color={getStatusColor(order.order_status)} className="text-sm">
-                        {order.order_status.toUpperCase()}
+                    <Badge variant="solid" color={getStatusColor(order?.order_status)} className="text-sm">
+                        {order?.order_status.toUpperCase()}
                     </Badge>
-                    <Badge variant="solid" color={getStatusColor(order.payment_status)} className="text-sm">
-                        {order.payment_status.toUpperCase()}
+                    <Badge variant="solid" color={getStatusColor(order?.payment_status)} className="text-sm">
+                        {order?.payment_status.toUpperCase()}
                     </Badge>
                 </div>
             </div>
@@ -438,10 +438,12 @@ const OrderDetail = () => {
                                     variant="primary"
                                     disabled={actionLoading}
                                     onClick={async () => {
+                                        const confirmed = window.confirm("Are you sure you want to request a return for this order?");
+                                        if (!confirmed) return; // Exit if they click Cance
                                         try {
                                             setActionLoading(true);
                                             setActionError('');
-                                            const res = await serverCallFuction('POST', `api/orders/${orderId}/returns/request`, {
+                                            const res = await serverCallFuction('POST', `api/orders/return/${order.id}/request`, {
                                                 requested_at: new Date().toISOString()
                                             });
                                             if ((res as any)?.status === false) {

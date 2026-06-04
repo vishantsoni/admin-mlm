@@ -262,7 +262,8 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
 
 
-  const placePurchaseOrder = async (razorpayOrderId: string, paymentMethod = 'razorpay') => {
+
+  const placePurchaseOrder = async (razorpayPaymentId: string, razorpayOrderId: string, razorpaySignature: string, paymentMethod = 'razorpay') => {
     try {
 
       showLoader("Almost done! Loading...")
@@ -277,6 +278,9 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
         items,
         shipping_address: selectedAddress,
         payment_method: paymentMethod,
+        razorpay_payment_id: razorpayPaymentId,
+        razorpay_order_id: razorpayOrderId,
+        razorpay_signature: razorpaySignature,
       });
       if (res.success) {
         // Clear cart
@@ -334,7 +338,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
-            await placePurchaseOrder(response.razorpay_order_id, 'razorpay');
+            await placePurchaseOrder(response.razorpay_payment_id, response.razorpay_order_id, response.razorpay_signature, 'razorpay');
           } catch (err) {
             alert(`Payment failed: ${(err as Error).message}`);
             router.push('/cart');

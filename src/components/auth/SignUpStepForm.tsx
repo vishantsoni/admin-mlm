@@ -402,7 +402,7 @@ export default function SignUpStepForm() {
 
             {/* Progress Indicator */}
             <div className="flex justify-between mb-8">
-                {[1, 2, 3, 4].map((i) => (
+                {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className={`w-1/4 h-2 rounded-full mx-1 ${step >= i ? 'bg-brand-500' : 'bg-gray-200'}`} />
                 ))}
             </div>
