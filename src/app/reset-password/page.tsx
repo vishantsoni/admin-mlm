@@ -23,28 +23,28 @@ const ResetPasswordPage = () => {
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [identifierType, setIdentifierType] = useState<'phone' | 'email' | null>(null);
 
- const phoneRegex = /^[6-9]\d{9}$/;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[6-9]\d{9}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const validateIdentifier = () => {
-  if (!identifier.trim()) return 'Please enter phone or email';
-  
-  if (phoneRegex.test(identifier)) {
-    return null; // valid phone
-  }
-  
-  if (emailRegex.test(identifier)) {
-    return null; // valid email
-  }
-  
-  return 'Enter valid phone (10 digits starting 6-9) or email';
-};
+  const validateIdentifier = () => {
+    if (!identifier.trim()) return 'Please enter phone or email';
+
+    if (phoneRegex.test(identifier)) {
+      return null; // valid phone
+    }
+
+    if (emailRegex.test(identifier)) {
+      return null; // valid email
+    }
+
+    return 'Enter valid phone (10 digits starting 6-9) or email';
+  };
 
   const validateOtp = () => {
     // Corrected regex: /\d{6}/
     if (otp.length !== 6 || !/^\d{6}$/.test(otp)) return 'Enter 6-digit OTP';
     return null;
-};
+  };
 
   const validatePasswords = () => {
     if (newPassword.length < 8) return 'Password must be at least 8 characters';
@@ -163,12 +163,47 @@ const validateIdentifier = () => {
                 <div className="space-y-6">
                   <div>
                     <Label>Phone or Email <span className="text-error-500">*</span></Label>
-                    <Input
+                    {/* <Input
                       placeholder="9999999999 or user@example.com"
                       defaultValue={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
                       type="text"
+                    /> */}
+
+                    <Input
+                      placeholder="Enter Phone no. or Email"
+                      value={identifier || ""} // Aap state key badal kar 'identifier' rakh sakte hain
+                      onChange={(e) => {
+                        let val = e.target.value;
+
+                        // 1. Agar user number enter kar raha hai (starts with a digit)
+                        if (/^\d/.test(val)) {
+                          // Sirf numbers allow karo aur non-digits hatao
+                          val = val.replace(/\D/g, "");
+
+                          // Indian standard: Pehla digit sirf 6, 7, 8, ya 9 hona chahiye, aur length max 10
+                          if (val !== "" && !/^[6-9]/.test(val)) {
+                            return; // Agar 6-9 se start nahi ho raha toh update mat karo
+                          }
+                          if (val.length > 10) {
+                            val = val.slice(0, 10); // Max 10 digits restriction
+                          }
+                        }
+                        // 2. Agar user email ya alphabets likh raha hai
+                        else {
+                          // Email me spaces nahi hote, toh spaces prevent kar sakte hain (optional)
+                          val = val.trim();
+                        }
+
+                        // Apne global state handler ko call karein
+                        setIdentifier(val);
+                      }}
+                      // Note: inputMode="numeric" mat rakhna, warna text type karte waqt dikkat hogi
+                      type="text"
+                    // error={!!fieldErrors.identifier}
+                    // hint={fieldErrors.identifier}
                     />
+
                   </div>
                   <Button onClick={handleSendOtp} className="w-full" disabled={loading}>
                     {loading ? 'Sending...' : 'Send OTP'}
