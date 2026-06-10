@@ -11,14 +11,18 @@ import Image from 'next/image';
 import Badge from '../ui/badge/Badge';
 
 // A lightweight sub-component for the quantity input to manage its own debounced state easily
-const QuantiyInput = ({ item, updateQuantity, setLocalLoading }) => {
+type QuantiyInputProps = {
+  item: any;
+  updateQuantity: (itemId: string | number, qty: number) => Promise<any>;
+  setLocalLoading: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
+};
+
+const QuantiyInput: React.FC<QuantiyInputProps> = ({ item, updateQuantity, setLocalLoading }) => {
   const [inputValue, setInputValue] = useState(item.quantity || 1);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Keep input in sync if quantity changes via Plus/Minus buttons
-  useEffect(() => {
-    setInputValue(item.quantity);
-  }, [item.quantity]);
+  // (No useEffect needed; input is initialized from item.quantity and updated via onChange/onBlur.)
 
   const triggerUpdate = async (val: number) => {
     if (isNaN(val) || val < 1) return;
@@ -78,6 +82,8 @@ const QuantiyInput = ({ item, updateQuantity, setLocalLoading }) => {
 
 const Cart = () => {
   const { items, totalItems, totalAmount, loading, updateQuantity, removeItem, clearCart, addToCart } = useCart();
+  const MIN_LIMIT_ORDER_TOTAL = 100000; // 1 Lakh (INR)
+  const isBelowMinLimit = Number(totalAmount) < MIN_LIMIT_ORDER_TOTAL;
   const [localLoading, setLocalLoading] = useState<{ [key: string]: boolean }>({});
 
   const currency = getCurrencyIcon('INR');
@@ -157,7 +163,7 @@ const Cart = () => {
                               </h4>
                               {item.is_variation_null === false ? (
                                 <div className='flex gap-2 mt-1'>
-                                  {item.variant_details?.attributes?.map((attr, idx) => (
+                                  {item.variant_details?.attributes?.map((attr: any, idx: number) => (
                                     <Badge key={idx}>{attr.attribute_name} - {attr.value}</Badge>
                                   ))}
                                 </div>
@@ -244,7 +250,14 @@ const Cart = () => {
               <div className="lg:order-2">
                 <Link
                   href="/checkout"
-                  className="w-full block bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 px-8 rounded-2xl text-lg text-center shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3"
+                  aria-disabled={isBelowMinLimit}
+                  onClick={(e) => {
+                    if (isBelowMinLimit) {
+                      e.preventDefault();
+                      alert('Minimum order total is 1 Lakh INR.');
+                    }
+                  }}
+                  className={`w-full block bg-brand-500 text-white font-bold py-4 px-8 rounded-2xl text-lg text-center shadow-xl transition-all flex items-center justify-center gap-3 ${isBelowMinLimit ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-brand-600 hover:shadow-2xl'}`}
                 >
                   Proceed to Checkout <ArrowRight size={20} />
                 </Link>
@@ -276,7 +289,7 @@ const Cart = () => {
           </>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

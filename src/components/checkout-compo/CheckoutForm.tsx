@@ -40,6 +40,8 @@ declare global {
 }
 
 const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, user, onSuccess, shippingCharges }) => {
+  const MIN_LIMIT_ORDER_TOTAL = 100000; // 1 Lakh (INR)
+  const isBelowMinLimit = Number(totalAmount) < MIN_LIMIT_ORDER_TOTAL;
   const [formData, setFormData] = useState({
     full_name: user.full_name || user.username || '',
     email: user.email || '',
@@ -300,6 +302,10 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isBelowMinLimit) {
+      alert('Minimum order total is 1 Lakh INR.');
+      return;
+    }
     if (!formData.full_name || !formData.phone || formData.phone.length !== 10) {
       alert('Please fill valid name and 10-digit phone');
       return;
@@ -498,7 +504,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                 </div>
               </div>
 
-              <Button className="w-full" disabled={loading || loadingAddresses || !selectedShippingId} onClick={handlePayment}>
+              <Button className="w-full" disabled={loading || loadingAddresses || !selectedShippingId || isBelowMinLimit} onClick={() => { }} >
                 {loading ? 'Processing...' : `Pay ${currency}${formattedAmountCommas(totalAmount)} with Razorpay`}
               </Button>
 
