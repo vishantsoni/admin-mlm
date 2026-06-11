@@ -141,10 +141,25 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
         stateId: data.id
       }));
     } else {
+
+
+      let finalValue = type === 'checkbox' ? checked : value;
+
+      if (name === "phone" && typeof finalValue === "string") {
+        // 2. Strip out any non-numeric characters immediately
+        finalValue = finalValue.replace(/\D/g, '');
+      }
+
       setAddAddressForm(prev => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value,
+        [name]: finalValue,
       }));
+
+
+      // setAddAddressForm(prev => ({
+      //   ...prev,
+      //   [name]: type === 'checkbox' ? checked : value,
+      // }));
     }
   };
 
@@ -504,7 +519,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                 </div>
               </div>
 
-              <Button className="w-full" disabled={loading || loadingAddresses || !selectedShippingId || isBelowMinLimit} onClick={() => { }} >
+              <Button className="w-full" disabled={loading || loadingAddresses || !selectedShippingId || isBelowMinLimit} onClick={handlePayment} >
                 {loading ? 'Processing...' : `Pay ${currency}${formattedAmountCommas(totalAmount)} with Razorpay`}
               </Button>
 
@@ -547,7 +562,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
                     <div>
                       <Label htmlFor="phone">Phone <span className="text-red-500">*</span></Label>
-                      <Input
+                      {/* <Input
                         id="phone"
                         name="phone"
                         type="tel"
@@ -556,6 +571,23 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         maxLength={10}
                         required
                         placeholder='Enter phone number'
+                      /> */}
+
+                      <Input
+                        id="phone"
+                        name="phone"
+                        value={addAddressForm.phone}
+                        type="tel"
+                        placeholder="Enter phone number"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const val = value.replace(/\D/g, ''); // Sirf numbers bachenge
+
+                          // State mein humesha 'val' save karo, 'value' nahi!
+                          setAddAddressForm({ ...addAddressForm, phone: val });
+                        }}
+                        maxLength={10}
+                        required
                       />
                     </div>
 

@@ -370,8 +370,8 @@ const KYCPage = () => {
                           const file = e.target.files?.[0];
                           if (file) {
                             const sizeKB = (file.size / 1024).toFixed(0);
-                            if (file.size < 200 * 1024 || file.size > 1 * 1024 * 1024) {
-                              setError(`File size must be 200KB - 1MB. Current: ${sizeKB}KB`);
+                            if (file.size < 100 * 1024 || file.size > 500 * 1024) {
+                              setError(`File size must be 100KB - 500KB. Current: ${sizeKB}KB`);
                               return;
                             }
 

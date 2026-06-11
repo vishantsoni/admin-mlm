@@ -23,7 +23,7 @@ import { date_formate } from '@/lib/constantFunction';
 
 const DISPLAY_TYPES = [
   { value: 'BAR', label: 'Bar' },
-  { value: 'POPUP', label: 'Popup' }  
+  { value: 'POPUP', label: 'Popup' }
 ];
 
 const TARGET_ROLES = [
@@ -32,11 +32,12 @@ const TARGET_ROLES = [
   { value: 'distributor', label: 'Distributor' },
   { value: 'staff', label: 'Staff' },
   { value: 'member', label: 'Member' },
+  { value: 'website', label: 'Website' },
 ];
 
 const PRIORITIES = [
   { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
+  { value: 'normal', label: 'Normal' },
   { value: 'high', label: 'High' },
 ];
 
@@ -123,7 +124,7 @@ const NotificationsTable = () => {
     switch (priority?.toLowerCase()) {
       case 'high':
         return 'error';
-      case 'medium':
+      case 'normal':
         return 'warning';
       case 'low':
         return 'success';
