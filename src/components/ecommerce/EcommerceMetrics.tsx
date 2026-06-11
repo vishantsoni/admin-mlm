@@ -141,10 +141,10 @@ export const EcommerceMetrics = ({ data, loading }: EcommerceMetricsProps) => {
               {formattedAmount(data?.orders?.total_distributor_revenue ?? 0)}
             </h4>
           </div>
-          <Badge color="success">
-            {data?.orders?.total_distributor_orders ?? 0} - orders
-          </Badge>
         </div>
+        <Badge color="success">
+          {data?.orders?.total_distributor_orders ?? 0} - orders
+        </Badge>
       </div>
 
 
@@ -244,10 +244,10 @@ export const EcommerceMetrics = ({ data, loading }: EcommerceMetricsProps) => {
               {formattedAmount(data?.orders?.total_ecom_revenue ?? 0)}
             </h4>
           </div>
-          <Badge color="success">
-            {data?.orders?.total_ecom_orders ?? 0} - orders
-          </Badge>
         </div>
+        <Badge color="success">
+          {data?.orders?.total_ecom_orders ?? 0} - orders
+        </Badge>
       </div>
 
       {/* Pending ordes */}
@@ -257,7 +257,7 @@ export const EcommerceMetrics = ({ data, loading }: EcommerceMetricsProps) => {
         </div>
         <div className="flex items-end justify-between mt-5">
           <span className="text-sm text-warning-500 dark:text-warning-400">
-            Pending Order
+            All Pending Order
           </span>
         </div>
         <div className="flex items-end justify-between mt-2">
@@ -267,10 +267,10 @@ export const EcommerceMetrics = ({ data, loading }: EcommerceMetricsProps) => {
               {data?.orders?.pending_orders ?? 0}
             </h4>
           </div>
-          <Badge color="success">
-            {data?.orders?.delivered_orders ?? 0} - delivered
-          </Badge>
         </div>
+        <Badge color="success">
+          {data?.orders?.delivered_orders ?? 0} - delivered
+        </Badge>
       </div>
 
 
