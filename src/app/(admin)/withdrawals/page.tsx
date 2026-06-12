@@ -283,7 +283,7 @@ export default function WithdrawalsPage() {
           </div>
 
 
-          <WithdrawalForm />
+          <WithdrawalForm close={() => setIsCreateOpen(false)} />
 
         </div>
       </Modal>

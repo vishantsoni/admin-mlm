@@ -6,7 +6,7 @@ import { useSetting } from "@/context/SettingContext";
 import { useWallet } from "@/context/WalletContext";
 import serverCallFuction, { formattedAmountCommas } from "@/lib/constantFunction";
 
-const WithdrawalForm = () => {
+const WithdrawalForm = ({ close: any }) => {
   const { user } = useAuth();
   const { walletData } = useWallet();
   const [uvAmount, setUvAmount] = useState<number>(0);
@@ -78,6 +78,7 @@ const WithdrawalForm = () => {
 
       if (res.success) {
         alert(res.message)
+        close();
       } else {
         setError(res.message || res.error)
       }

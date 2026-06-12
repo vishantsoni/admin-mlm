@@ -252,6 +252,26 @@ export default function SignUpStepForm() {
             if (!ifscRegex.test(formData.ifscCode.toUpperCase())) newErrors.ifscCode = "Invalid IFSC code";
         }
 
+        // NOTE: UI nominee step is `step === 4`.
+        // Enforce nomineeAadhaar for that step.
+        if (step === 4) {
+            if (!formData.nomineeName.trim()) {
+                newErrors.nomineeName = "Nominee Name is required";
+            }
+            if (!formData.nomineeRelationship) {
+                newErrors.nomineeRelationship = "Nominee Relationship is required";
+            }
+            if (!formData.nomineeAge) {
+                newErrors.nomineeAge = "Nominee Age is required";
+            }
+            if (!formData.nomineeAadhaar) {
+                newErrors.nomineeAadhaar = "Nominee Aadhaar Number is required";
+            } else if (!aadhaarRegex.test(formData.nomineeAadhaar)) {
+                newErrors.nomineeAadhaar = "Nominee Aadhaar must be exactly 12 digits";
+            }
+        }
+
+
         // if (step === 3) {
         //     if (!ifscRegex.test(formData.nomineeName.toUpperCase())) newErrors.nom = "Invalid IFSC code";
         //     return formData.nomineeName && formData.nomineeRelationship;
@@ -344,7 +364,7 @@ export default function SignUpStepForm() {
 
 
 
-    const handleFieldChange = (field: string, value: any) => {
+    const handleFieldChange = (field: string, value: unknown) => {
         // 1. ALWAYS update the data first so the user can see what they are typing
 
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -678,7 +698,9 @@ export default function SignUpStepForm() {
                         <div className="flex gap-4 pt-4">
                             <Button variant="outline" onClick={prevStep} className="w-full">Back</Button>
                             {!error && (
-                                <Button onClick={handleNext} className="w-full">Next: Bank Details</Button>
+                                <Button onClick={handleNext} className="w-full" type="button">
+                                    Next: Bank Details
+                                </Button>
                             )}
                         </div>
 
@@ -868,8 +890,6 @@ export default function SignUpStepForm() {
 
                                             // 3. Update state for ANY numeric string (including empty)
                                             if (val === "" || /^[0-9]/.test(val)) {
-                                                console.log("true match - ", formData.nomineeAge);
-
                                                 handleFieldChange('nomineeAadhaar', val);
                                             }
 
@@ -877,6 +897,8 @@ export default function SignUpStepForm() {
                                             // setFormData({ ...formData, nomineeAadhaar: e.target.value })
                                         }}
                                         maxLength={12}
+                                        error={!!fieldErrors.nomineeAadhaar}
+                                        hint={fieldErrors.nomineeAadhaar}
                                     />
                                 </div>
                             </div>
