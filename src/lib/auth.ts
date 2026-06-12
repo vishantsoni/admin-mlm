@@ -85,6 +85,7 @@ export const rolePermissions: Record<string, string[]> = {
     'attributes',
     'coupons',    
     'orders',
+    'sample_request',
     'commissions',
     'commissions/add',
     'level-capping',

@@ -1,13 +1,14 @@
 "use client";
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import AppHeader from '@/layout/AppHeader';
+
 import CheckoutForm from '../../components/checkout-compo/CheckoutForm';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import { useSetting } from '@/context/SettingContext';
+import AppHeaderLogout from '@/layout/AppHeaderLogout';
 
 declare global {
   interface Window {
@@ -47,7 +48,7 @@ const CheckoutPage = () => {
   if (totalItems === 0 || !user) {
     return (
       <div className="container mx-auto p-6 max-w-2xl text-center py-20">
-        <AppHeader />
+        <AppHeaderLogout />
         <h2 className="text-2xl font-bold mb-4">No items in cart</h2>
         <p className="text-muted-foreground mb-8">Your cart is empty. Add some products first.</p>
         <Link
@@ -62,7 +63,7 @@ const CheckoutPage = () => {
 
   return (
     <>
-      <AppHeader />
+      <AppHeaderLogout />
       <div className="bg-gray-50 dark:bg-gray-900 p-4 lg:p-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">

@@ -108,11 +108,11 @@ const StateCityPage = () => {
 
   const handleDelete = async () => {
     if (!currentItem) return;
-    const endpoint = activeTab === 'states' ? 
-    `api/static/admin/states/${currentItem.id}` : 
-    `api/static/admin/cities/${currentItem.id}`;
+    const endpoint = activeTab === 'states' ?
+      `api/static/admin/states/${currentItem.id}` :
+      `api/static/admin/cities/${currentItem.id}`;
     const res = await serverCallFuction('DELETE', endpoint);
-    
+
     console.log("delete endpoints - ", endpoint);
     if (res && res.status !== false) {
       setShowDeleteModal(false);
@@ -135,8 +135,8 @@ const StateCityPage = () => {
 
   const openDelete = (item: State | City) => {
     setCurrentItem(item);
-    const confirm = window.confirm("are you sure you want to delete "+item.name);
-    if(confirm){
+    const confirm = window.confirm("are you sure you want to delete " + item.name);
+    if (confirm) {
       handleDelete();
     }
     // setShowDeleteModal(true);
@@ -205,11 +205,11 @@ const StateCityPage = () => {
                               <PencilIcon />
                             </Badge>
                           </button>
-                          <button onClick={() => openDelete(state)}>
+                          {/* <button onClick={() => openDelete(state)}>
                             <Badge size="sm" color='error'>
                               <TrashBinIcon />
                             </Badge>
-                          </button>
+                          </button> */}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -255,13 +255,13 @@ const StateCityPage = () => {
                     <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Created</TableCell>
                     <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Actions</TableCell>
                   </TableRow>
-                </TableHeader> 
+                </TableHeader>
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {cities.map((city, index) => {
                     const stateName = states.find(s => s.id === city.state_id)?.name || 'Unknown';
                     return (
                       <TableRow key={city.id}>
-                        <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{index+ 1}</TableCell>
+                        <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{index + 1}</TableCell>
                         <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{stateName}</TableCell>
                         <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{city.name}</TableCell>
                         <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
@@ -275,9 +275,9 @@ const StateCityPage = () => {
                             <Badge variant='solid' size='sm' onClick={() => openEdit(city)}>
                               <PencilIcon />
                             </Badge>
-                            <Badge variant='solid' color='error' size='sm'  onClick={() => openEdit(city)}>
-                              <TrashBinIcon  />
-                            </Badge>
+                            {/* <Badge variant='solid' color='error' size='sm' onClick={() => openEdit(city)}>
+                              <TrashBinIcon />
+                            </Badge> */}
                             {/* <Button variant="outline" size="sm" onClick={() => openEdit(city)}>
                               <PencilIcon />
                             </Button>
@@ -350,16 +350,16 @@ const StateCityPage = () => {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <Button 
-                onClick={ handleCreate}
-                
+              <Button
+                onClick={handleCreate}
+
               >
                 Create
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
-                   setShowAddModal(false)                  
+                  setShowAddModal(false)
                 }}
               >
                 Cancel
@@ -370,65 +370,65 @@ const StateCityPage = () => {
       )}
 
       {showEditModal && currentItem && (
-        <Modal 
-         onClose={() => { setShowEditModal(false); setCurrentItem(null); }} 
-         
-         isOpen={showEditModal}
-         className='max-w-lg mx-auto'
-         >
+        <Modal
+          onClose={() => { setShowEditModal(false); setCurrentItem(null); }}
+
+          isOpen={showEditModal}
+          className='max-w-lg mx-auto'
+        >
           <div className="p-6">
             <h2 className="text-lg font-bold mb-6">
               Edit
             </h2>
-          {/* Same form as add, prefilled */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Name *</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full p-2 border rounded dark:bg-gray-800"
-                required
-              />
-            </div>
-            {'state_id' in currentItem && (
+            {/* Same form as add, prefilled */}
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">State</label>
+                <label className="block text-sm font-medium mb-1">Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full p-2 border rounded dark:bg-gray-800"
+                  required
+                />
+              </div>
+              {'state_id' in currentItem && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">State</label>
+                  <select
+                    value={formData.state_id || ''}
+                    onChange={(e) => setFormData({ ...formData, state_id: parseInt(e.target.value) })}
+                    className="w-full p-2 border rounded dark:bg-gray-800"
+                  >
+                    <option value="">Select State</option>
+                    {states.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
                 <select
-                  value={formData.state_id || ''}
-                  onChange={(e) => setFormData({ ...formData, state_id: parseInt(e.target.value) })}
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
                   className="w-full p-2 border rounded dark:bg-gray-800"
                 >
-                  <option value="">Select State</option>
-                  {states.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
                 </select>
               </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
-                className="w-full p-2 border rounded dark:bg-gray-800"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
             </div>
-          </div>
-          <div className="flex gap-3 mt-6">
-              <Button 
-                onClick={handleUpdate}                
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={handleUpdate}
               >
                 Update
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
-                  setShowEditModal(false);                                    
+                  setShowEditModal(false);
                 }}
               >
                 Cancel
@@ -439,7 +439,7 @@ const StateCityPage = () => {
         </Modal>
       )}
 
-      
+
     </div>
   );
 };

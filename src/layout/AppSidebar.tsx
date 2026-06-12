@@ -23,7 +23,7 @@ import {
   UserCircleIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
-import { IdCardIcon, ShieldCheck, Users } from "lucide-react";
+import { GitPullRequestIcon, IdCardIcon, ShieldCheck, Users } from "lucide-react";
 
 
 type NavItem = {
@@ -115,6 +115,12 @@ const allNavItems: NavItem[] = [
     name: "Orders",
     permission: "orders",
     path: "/orders",
+  },
+  {
+    icon: <GitPullRequestIcon />,
+    name: "Sample Requests",
+    permission: "sample_request",
+    path: "/sample_request",
   },
   {
     icon: <TableIcon />,

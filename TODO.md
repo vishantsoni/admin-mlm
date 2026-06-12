@@ -1,8 +1,9 @@
-# TODO - GST/TDS Date Range
-
-- [x] Update `src/app/(admin)/gst-tds/page.tsx` to add From/To date inputs for GST tab.
-- [x] Append `from` and `to` as query params to `api/reports/gst` when fetching.
-- [x] Add an Apply button (and/or auto-fetch) to refetch report after date selection.
-- [ ] Keep TDS tab unchanged (coming soon).
-
+- [ ] Implement modal-based Return Reason flow in OrderDetail.tsx
+  - [ ] Add modal state + returnReason state
+  - [ ] Replace distributor button submit logic to open modal
+  - [ ] Add Modal UI with required reason input
+  - [ ] Submit POST api/orders/return/{order.id}/request with requested_at + reason
+  - [ ] Validate reason not empty; set actionError
+  - [ ] Refresh order and close modal on success
+  - [ ] Verify no TS/ESLint errors
 

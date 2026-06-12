@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import { Eye, ShoppingCart, Filter, ChevronDown, Zap, Check, Rocket } from "lucide-react";
+import { Eye, ShoppingCart, Filter, ChevronDown, Zap, Check, Rocket, ArrowBigLeft } from "lucide-react";
 import Badge from "@/components/ui/badge/Badge";
 import Button from "@/components/ui/button/Button";
 import serverCallFuction, { formattedAmount, getCurrencyIcon } from "@/lib/constantFunction";
 import { useCart, AddToCartPayload } from "@/hooks/useCart";
+import { useRouter } from "next/navigation";
 
 // --- Types & Interfaces ---
 interface VariantType {
@@ -33,7 +34,9 @@ interface ProductPro {
 }
 
 const AllProducts = () => {
+
     // const { addToCart, loading: cartLoading } = useCart();
+    const navigation = useRouter();
     const { addToCart, loading: cartLoading, items: cartItems, totalAmount: cartTotal } = useCart();
     const [products, setProducts] = useState<ProductPro[]>([]);
     const loading = cartLoading;
@@ -171,9 +174,20 @@ const AllProducts = () => {
 
 
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Our Products</h1>
-                    <p className="text-sm text-gray-500">Select size and color to view specific pricing</p>
+                <div className="flex items-center gap-4">
+                    <button
+                        className="items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
+                        onClick={() => {
+                            navigation.back()
+                        }}
+                        aria-label="Back"
+                    >
+                        <ArrowBigLeft />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Our Products</h1>
+                        <p className="text-sm text-gray-500">Select size and color to view specific pricing</p>
+                    </div>
                 </div>
             </div>
 

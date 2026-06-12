@@ -237,34 +237,29 @@ const ResetPasswordPage = () => {
                     <Label>New Password <span className="text-error-500">*</span></Label>
                     <div className="relative">
                       <Input
-                        type={showNewPass ? 'text' : 'password'}
+                        type={'password'}
                         placeholder="At least 8 characters"
                         defaultValue={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                       />
-                      <span
-                        className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-                        onClick={() => setShowNewPass(!showNewPass)}
-                      >
-                        {showNewPass ? <EyeIcon className="w-5 h-5" /> : <EyeCloseIcon className="w-5 h-5" />}
-                      </span>
+
                     </div>
                   </div>
                   <div>
                     <Label>Confirm Password <span className="text-error-500">*</span></Label>
                     <div className="relative">
                       <Input
-                        type={showConfirmPass ? 'text' : 'password'}
+                        type={'password'}
                         placeholder="Confirm your new password"
                         defaultValue={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                       />
-                      <span
+                      {/* <span
                         className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                         onClick={() => setShowConfirmPass(!showConfirmPass)}
                       >
                         {showConfirmPass ? <EyeIcon className="w-5 h-5" /> : <EyeCloseIcon className="w-5 h-5" />}
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   <div className="flex gap-3">

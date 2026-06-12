@@ -1,12 +1,12 @@
 import AllProducts from '@/components/shop/AllProducts'
-import AppHeader from '@/layout/AppHeader'
+import AppHeaderLogout from '@/layout/AppHeaderLogout'
 import React from 'react'
 
 const page = () => {
   return (
     <>
-    <AppHeader/>
-    <AllProducts />
+      <AppHeaderLogout />
+      <AllProducts />
     </>
   )
 }

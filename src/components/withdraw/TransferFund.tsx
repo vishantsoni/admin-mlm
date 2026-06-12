@@ -124,7 +124,7 @@ const TransferFund = () => {
 
     setIsSubmitting(true);
     try {
-      const res = await serverCallFuction("POST", `api/transfers/transfer`, {
+      const res = await serverCallFuction("POST", `api/transactions/transfer`, {
         toUserId,
         amount, // INR amount
         remarks,

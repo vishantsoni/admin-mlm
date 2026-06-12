@@ -13,7 +13,7 @@ import { User } from '@/lib/auth';
 import Badge from '../ui/badge/Badge';
 import { validatePhone } from '@/lib/validation'
 export default function SignInForm() {
-  const [showPassword, setShowPassword] = useState(false);
+
   const [isChecked, setIsChecked] = useState(false);
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -68,7 +68,9 @@ export default function SignInForm() {
         login({ token: res.token!, user: res.user as User });
 
         // router.replace('/');
-
+        setTimeout(() => {
+          router.replace('/');
+        }, 100);
 
       } catch (err) {
         console.log("err in login - ", err);
@@ -76,9 +78,7 @@ export default function SignInForm() {
         setError('Network error. Try again.');
       } finally {
         setLoading(false);
-        setTimeout(() => {
-          router.replace('/');
-        }, 100);
+
       }
     });
   };
@@ -154,20 +154,11 @@ export default function SignInForm() {
                     <Input
                       defaultValue={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      type={showPassword ? 'text' : 'password'}
+                      type={'password'}
                       placeholder="password"
                     // required
                     />
-                    <span
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                    >
-                      {showPassword ? (
-                        <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
-                      ) : (
-                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
-                      )}
-                    </span>
+
                   </div>
                 </div>
 

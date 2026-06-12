@@ -8,11 +8,12 @@ import { useAuth } from '@/context/AuthContext';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import Button from '@/components/ui/button/Button';
 import Badge from '@/components/ui/badge/Badge';
-import { Loader2, ArrowLeft, Printer, Save, CheckCircle2, PackageCheck, Wallet } from 'lucide-react';
+import { Loader2, ArrowLeft, Printer, Save, CheckCircle2, PackageCheck, Wallet, Download } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card/Card';
 import Image from 'next/image';
 import Input from '@/components/form/input/InputField';
 import { Modal } from '@/components/ui/modal';
+import TextArea from '@/components/form/input/TextArea';
 
 const ORDER_STATUSES = ['pending', 'accepted', 'packed', 'dispatched', 'delivered', 'cancelled'] as const;
 type OrderStatus = typeof ORDER_STATUSES[number];
@@ -36,11 +37,16 @@ const OrderDetail = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState<string>('');
 
-    // Return-request modal state
+    // Return-request modal state (Super Admin approve/reject)
     const [showReturnModal, setShowReturnModal] = useState(false);
     const [returnAction, setReturnAction] = useState<'approve' | 'reject' | null>(null);
     const [adminRemarks, setAdminRemarks] = useState('');
     const [refundAmount, setRefundAmount] = useState<string>('');
+
+    // Distributor: Return request reason modal
+    const [showRequestReturnModal, setShowRequestReturnModal] = useState(false);
+    const [returnReason, setReturnReason] = useState('');
+
 
 
 
@@ -130,7 +136,8 @@ const OrderDetail = () => {
             };
 
             const res = await serverCallFuction('PUT', `api/orders/${orderId}/status`, payload);
-            if ((res as any)?.status !== false) {
+            if ((res as { status?: boolean }).status !== false) {
+
                 setRemarks('');
                 await fetchOrder();
             } else {
@@ -439,24 +446,11 @@ const OrderDetail = () => {
                                     disabled={actionLoading}
                                     onClick={async () => {
                                         const confirmed = window.confirm("Are you sure you want to request a return for this order?");
-                                        if (!confirmed) return; // Exit if they click Cance
-                                        try {
-                                            setActionLoading(true);
-                                            setActionError('');
-                                            const res = await serverCallFuction('POST', `api/orders/return/${order.id}/request`, {
-                                                requested_at: new Date().toISOString()
-                                            });
-                                            if ((res as any)?.status === false) {
-                                                setActionError((res as any)?.message || 'Failed to request return');
-                                                return;
-                                            }
-                                            await fetchOrder();
-                                        } catch (e) {
-                                            console.error(e);
-                                            setActionError('Failed to request return');
-                                        } finally {
-                                            setActionLoading(false);
-                                        }
+                                        if (!confirmed) return;
+
+                                        setActionError('');
+                                        setReturnReason('');
+                                        setShowRequestReturnModal(true);
                                     }}
                                 >
                                     {actionLoading ? 'Requesting...' : 'Request Return'}
@@ -482,9 +476,127 @@ const OrderDetail = () => {
                 return null;
             })()}
 
-            {/* Modal Handler Form */}
+            {/* Modal Handler Form (Distributor: Return Reason) */}
             <Modal
+                className="max-w-xl"
+                isOpen={showRequestReturnModal}
+                onClose={() => {
+                    if (actionLoading) return;
+                    setShowRequestReturnModal(false);
+                    setReturnReason('');
+                    setActionError('');
+                }}
+                aria-modal="true"
+            >
+                <div className="p-5">
+                    <h2 className="text-lg font-semibold">Request Return</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Enter the reason for requesting this return.
+                    </p>
 
+                    <div className="my-6 ">
+                        <div className="flex items-center justify-between p-2 border border-warning-200 bg-warning-50 dark:bg-warning-200 rounded-lg">
+                            <div className="flex items-center gap-3">
+                                {/* <Badge color="warning" variant="solid">Action Required</Badge> */}
+                                <p className="text-sm text-warning-800 font-medium">
+                                    Please fill out the attached form and email it to admin@feelsafeco.in.
+                                </p>
+                            </div>
+                            <Badge
+                                color="success"
+                                variant="solid"
+                                className="cursor-pointer hover:bg-success-100 p-1 rounded"
+                                onClick={() => {
+                                    window.open(`${process.env.NEXT_PUBLIC_API_URL}/uploads/docs/RETURN-FORM.pdf`, '_blank');
+                                }}
+                            >
+                                <Download size={14} />
+                            </Badge>
+                        </div>
+                    </div>
+
+
+
+
+                    <div className="mt-4 flex flex-col gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium">Return Reason *</label>
+                            <TextArea
+                                placeholder="E.g., Wrong item received / Product damaged"
+                                value={returnReason}
+                                rows={10}
+                                onChange={(value) => setReturnReason(value)}
+                            ></TextArea>
+                            {/* <Input
+                                placeholder="E.g., Wrong item received / Product damaged"
+                                value={returnReason}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReturnReason(e.target.value)}
+                            /> */}
+                        </div>
+
+
+
+                        <div className="flex gap-2 pt-2">
+                            <Button
+                                className="flex-1"
+                                variant="primary"
+                                disabled={actionLoading}
+                                onClick={async () => {
+                                    if (!orderId) return;
+                                    if (!returnReason.trim()) {
+                                        setActionError('Return reason is required');
+                                        return;
+                                    }
+
+                                    try {
+                                        setActionLoading(true);
+                                        setActionError('');
+
+                                        const res = await serverCallFuction('POST', `api/orders/return/${order.id}/request`, {
+                                            requested_at: new Date().toISOString(),
+                                            reason: returnReason.trim()
+                                        });
+
+                                        if ((res as { status?: boolean })?.status === false) {
+                                            setActionError((res as { message?: string })?.message || 'Failed to request return');
+                                            return;
+                                        }
+
+
+                                        setShowRequestReturnModal(false);
+                                        setReturnReason('');
+                                        await fetchOrder();
+                                    } catch (e) {
+                                        console.error(e);
+                                        setActionError('Failed to request return');
+                                    } finally {
+                                        setActionLoading(false);
+                                    }
+                                }}
+                                startIcon={<Save className="h-4 w-4" />}
+                            >
+                                {actionLoading ? 'Requesting...' : 'Submit Request'}
+                            </Button>
+                            <Button
+                                className="flex-1"
+                                variant="outline"
+                                disabled={actionLoading}
+                                onClick={() => {
+                                    if (actionLoading) return;
+                                    setShowRequestReturnModal(false);
+                                    setReturnReason('');
+                                    setActionError('');
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Modal Handler Form (Super Admin approve/reject) */}
+            <Modal
                 className="max-w-xl"
                 isOpen={showReturnModal}
                 onClose={closeReturnModal}
@@ -510,7 +622,7 @@ const OrderDetail = () => {
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-medium">Refund Target Value (Optional)</label>
                                 <Input
-                                    placeholder={`Defaults to complete order total: ₹${order.total_amount}`}
+                                    placeholder={`Defaults to complete order total: ₹${order?.total_amount ?? 0}`}
                                     value={refundAmount}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRefundAmount(e.target.value)}
                                 />
@@ -534,6 +646,7 @@ const OrderDetail = () => {
                     </div>
                 </div>
             </Modal>
+
 
             {/* Information Layout Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

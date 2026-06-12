@@ -1,4 +1,5 @@
-import React, { FC, useRef } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import React, { FC, useRef, useState } from "react";
 
 interface InputProps {
   type?: "text" | "number" | "email" | "password" | "date" | "time" | string;
@@ -44,7 +45,7 @@ const Input: FC<InputProps> = ({
 }) => {
   // 1. Create a reference to the native input element
   const inputRef = useRef<HTMLInputElement>(null);
-
+  const [showPassword, setShowPassword] = useState(false);
   // 2. Helper function to programmatically trigger the browser picker
   const handleOpenPicker = () => {
     if (type === "date" && inputRef.current && typeof inputRef.current.showPicker === "function") {
@@ -66,6 +67,12 @@ const Input: FC<InputProps> = ({
 
   let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${className}`;
 
+
+  // 2. Add extra padding on the right side if it's a password field so text doesn't overlap the icon
+  if (type === "password") {
+    inputClasses += ` pr-11`;
+  }
+
   if (disabled) {
     inputClasses += ` text-gray-500 border-gray-300 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
   } else if (error) {
@@ -81,11 +88,13 @@ const Input: FC<InputProps> = ({
     inputClasses += ` cursor-pointer`;
   }
 
+  const dynamicType = type === "password" && showPassword ? "text" : type;
+
   return (
     <div className="relative">
       <input
         ref={inputRef} // Connect the reference here
-        type={type}
+        type={dynamicType}
         id={id}
         name={name}
         placeholder={placeholder}
@@ -103,6 +112,24 @@ const Input: FC<InputProps> = ({
         required={required}
         inputMode={inputMode || 'text'}
       />
+
+
+      {/* 4. Render the eye toggle icon if the original type is password */}
+      {type === "password" && !disabled && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white/70 focus:outline-hidden"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          {showPassword ? (
+            <EyeOff className="h-5 w-5" />
+          ) : (
+            <Eye className="h-5 w-5" />
+          )}
+        </button>
+      )}
+
 
       {/* Optional Hint Text */}
       {hint && (

@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 
-import serverCallFuction, { formattedAmount, date_formate, getCurrencyIcon } from "@/lib/constantFunction";
+import serverCallFuction, { formattedAmount, date_formate, getCurrencyIcon, downloadFile } from "@/lib/constantFunction";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card/Card";
 import {
     Table,
@@ -15,6 +16,8 @@ import {
 } from "@/components/ui/table";
 import Badge from "@/components/ui/badge/Badge";
 import { GSTReportResponse, GSTReportData } from "@/types/gst-report";
+import { TdsReportResponse, TdsReportData } from "@/types/tds-report";
+
 import {
     ShoppingCart,
     IndianRupee,
@@ -33,6 +36,7 @@ import {
     Download,
 } from "lucide-react";
 import Button from "@/components/ui/button/Button";
+import TdsReportSection from "./TdsReportSection";
 
 // Dynamically import ReactApexChart to avoid SSR issues
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -809,27 +813,15 @@ const GstTdsPage = () => {
 
             {/* TDS Section */}
             {activeTab === "tds" && (
-                <div className="space-y-6">
-                    <Card className="border-gray-200 dark:border-white/[0.05]">
-                        <CardContent className="p-8">
-                            <div className="flex flex-col items-center justify-center text-center space-y-4">
-                                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full">
-                                    <CalendarClock className="w-10 h-10 text-gray-400" />
-                                </div>
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                    TDS Module
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400 max-w-md">
-                                    The TDS (Tax Deducted at Source) reporting module is under development. Check back soon for updates.
-                                </p>
-                                <Badge color="warning" size="sm">
-                                    Coming Soon
-                                </Badge>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                <TdsReportSection
+                    fromDate={fromDate}
+                    toDate={toDate}
+                    setFromDate={setFromDate}
+                    setToDate={setToDate}
+                    currency={currency}
+                />
             )}
+
         </div>
     );
 };

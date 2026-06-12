@@ -152,7 +152,10 @@ const StaffTable = () => {
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                 {staffs.map((staffItem) => (
                   <TableRow key={staffItem.id}>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-medium">{staffItem.full_name}</TableCell>
+                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-medium">
+                      <div>{staffItem.full_name}</div>
+                      <Badge size='sm'>{staffItem.is_active === true ? 'Active' : 'Block'}</Badge>
+                    </TableCell>
                     <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{staffItem.email}</TableCell>
                     <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{staffItem.phone}</TableCell>
                     <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{staffItem.designation}</TableCell>
@@ -274,6 +277,7 @@ const StaffTable = () => {
                 <Input
                   id="hire_date"
                   type="date"
+                  min={new Date().toISOString().split('T')[0]}
                   defaultValue={formData.hire_date}
                   onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
                 />
