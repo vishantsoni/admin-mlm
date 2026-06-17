@@ -319,6 +319,14 @@ const allNavItems: NavItem[] = [
     permission: "notifications",
     path: '/notifications',
   },
+  // Policies (super admin CRUD, distributor view/download)
+  {
+    icon: <FileIcon />,
+    name: "Policies",
+    permission: "policies",
+    path: "/policies",
+  },
+
 
 
   {

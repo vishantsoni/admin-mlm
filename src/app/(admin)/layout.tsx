@@ -57,6 +57,7 @@ export default function AdminLayout({
       <div className={`flex-1 main-body transition-all duration-300 ease-in-out min-h-screen ${mainContentMargin}`}>
         <AppHeader />
         <div className=" mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+
         <AppBottomBar />
         <ChatBot />
       </div>

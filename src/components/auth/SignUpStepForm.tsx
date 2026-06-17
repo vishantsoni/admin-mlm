@@ -1021,7 +1021,7 @@ export default function SignUpStepForm() {
                                 onChange={(val) => setFormData({ ...formData, agreedToTerms: val })}
                             />
                             <p className="text-xs text-gray-700 dark:text-gray-300">
-                                I certify that I have chosen my business level based on my own financial capacity and have read and understood all 35 clauses mentioned above[cite: 110, 111].
+                                I certify that I have chosen my business level based on my own financial capacity and have read and understood all 40 clauses mentioned above[cite: 110, 111].
                             </p>
                         </div>
 

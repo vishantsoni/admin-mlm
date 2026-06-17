@@ -68,7 +68,13 @@ export interface User {
 export const rolePermissions: Record<string, string[]> = {
   'super admin': [
     'dashboard',
+    'policies',
+    'policies:add',
+    'policies:edit',
+    'policies:delete',
+    'policies:download',
     'my-profile',
+
     'analytics',
     'members',
     'e-users',
@@ -131,6 +137,9 @@ export const rolePermissions: Record<string, string[]> = {
   ],
   'distributor': [
     'dashboard',
+    'policies',
+    'policies:download',
+
     'referral',    
     'profile',
     'id-card',

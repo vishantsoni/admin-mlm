@@ -5,7 +5,7 @@ export interface TdsSummary {
 
 export interface TdsTransaction {
   transaction_id: string | number;
-  date: string;
+  created_at: string;
   user_id: string | number;
   amount: string;
   category: string;

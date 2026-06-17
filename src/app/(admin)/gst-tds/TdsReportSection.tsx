@@ -12,9 +12,10 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, Download, File } from "lucide-react";
 
 import serverCallFuction, { formattedAmount, downloadFile } from "@/lib/constantFunction";
+
 
 import { TdsReportData, TdsReportResponse } from "@/types/tds-report";
 
@@ -262,6 +263,9 @@ const TdsReportSection = ({
                                             <TableCell className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
                                                 Remarks
                                             </TableCell>
+                                            <TableCell className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
+                                                Action
+                                            </TableCell>
                                         </TableRow>
                                     </TableHeader>
 
@@ -290,6 +294,64 @@ const TdsReportSection = ({
                                                     <TableCell className="px-4 py-3">
                                                         {tx.remarks}
                                                     </TableCell>
+                                                    <TableCell className="px-4 py-3">
+                                                        <Badge
+                                                            onClick={async () => {
+                                                                try {
+                                                                    const remarks = tx.remarks ?? "";
+                                                                    const parts = remarks.split("_");
+                                                                    const cycleKey = parts[1] ?? "";
+
+                                                                    if (!cycleKey) {
+                                                                        alert("Invalid cycle key");
+                                                                        return;
+                                                                    }
+
+                                                                    const endpoint = "api/reports/commission-tds/bill-pdf";
+                                                                    const response = await serverCallFuction("POST", endpoint, {
+                                                                        cycleKey,
+                                                                        force: true,
+                                                                    });
+
+
+                                                                    if (response.success) {
+                                                                        const downloadUrl = response.url;
+
+                                                                        const link = document.createElement('a');
+                                                                        link.href = downloadUrl;
+                                                                        link.target = "_blank";
+                                                                        link.download = `Commission_BILL_TDS_${new Date().toLocaleDateString()}.pdf`;
+                                                                        document.body.appendChild(link);
+                                                                        link.click();
+
+                                                                        // सफाई (Cleanup)
+                                                                        link.remove();
+                                                                        window.URL.revokeObjectURL(downloadUrl);
+
+                                                                    }
+
+                                                                    // if (response instanceof Blob) {
+                                                                    //     const downloadUrl = window.URL.createObjectURL(response);
+                                                                    //     const link = document.createElement("a");
+                                                                    //     link.href = downloadUrl;
+                                                                    //     link.download = `TDS_Bill_${cycleKey}.pdf`;
+                                                                    //     document.body.appendChild(link);
+                                                                    //     link.click();
+                                                                    //     link.remove();
+                                                                    //     window.URL.revokeObjectURL(downloadUrl);
+                                                                    // } else {
+                                                                    //     alert("Bill pdf download failed");
+                                                                    // }
+                                                                } catch (e) {
+                                                                    const message = e instanceof Error ? e.message : "Bill pdf download failed";
+                                                                    alert(message);
+                                                                }
+                                                            }}
+                                                        >
+                                                            <File />
+                                                        </Badge>
+                                                    </TableCell>
+
                                                 </TableRow>
                                             ))
                                         ) : (
