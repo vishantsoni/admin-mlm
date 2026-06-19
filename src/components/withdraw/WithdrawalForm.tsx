@@ -147,6 +147,7 @@ const WithdrawalForm = ({ close: any }) => {
               placeholder="Enter UV amount"
               className={`w-full pl-4 pr-12 py-3 bg-gray-50 dark:bg-gray-800 border ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:ring-brand-500'} rounded-xl outline-none transition-all`}
               required
+              autoComplete="off"
             />
             <span className="absolute right-4 top-3.5 text-gray-400 font-medium">UV</span>
           </div>

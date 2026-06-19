@@ -69,7 +69,8 @@ export default function SignInForm() {
 
         // router.replace('/');
         setTimeout(() => {
-          router.replace('/');
+          // router.replace('/');
+          window.location.replace('/');
         }, 100);
 
       } catch (err) {

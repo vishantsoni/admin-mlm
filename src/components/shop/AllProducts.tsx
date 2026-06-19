@@ -176,7 +176,7 @@ const AllProducts = () => {
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <button
-                        className="items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
+                        className="items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-1 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
                         onClick={() => {
                             navigation.back()
                         }}

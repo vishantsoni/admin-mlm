@@ -219,10 +219,10 @@ const allNavItems: NavItem[] = [
         name: "Sales Report",
         path: '/reports/sales',
       },
-      {
-        name: "Commission Report",
-        path: '/reports/commissions',
-      },
+      // {
+      //   name: "Commission Report",
+      //   path: '/reports/commissions',
+      // },
       // {
       //   name: "Profit/ Loss",
       //   path: '/reports/profit-loss',
