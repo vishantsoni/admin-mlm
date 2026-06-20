@@ -1,9 +1,9 @@
-- [ ] Implement modal-based Return Reason flow in OrderDetail.tsx
-  - [ ] Add modal state + returnReason state
-  - [ ] Replace distributor button submit logic to open modal
-  - [ ] Add Modal UI with required reason input
-  - [ ] Submit POST api/orders/return/{order.id}/request with requested_at + reason
-  - [ ] Validate reason not empty; set actionError
-  - [ ] Refresh order and close modal on success
-  - [ ] Verify no TS/ESLint errors
+# TODO
+
+## Task: Add page navigation buttons on OrderPage
+
+- [ ] Inspect `OrderPage.tsx` to identify where navigation UI should be placed.
+- [ ] Implement “Previous / Next” navigation buttons for moving between pages (based on existing `page`, `totalPages`).
+- [ ] Ensure buttons are disabled appropriately and layout matches existing design.
+- [ ] Run typecheck/lint (or dev build) to confirm no TS/ESLint errors.
 

@@ -220,13 +220,14 @@ export default function AddTransactionModal({
                     {/* Amount Input Block */}
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Amount (UV)
+                            Amount In Rupees
                         </label>
                         <Input
                             placeholder="0.00"
                             value={amount}
                             onChange={handleAmountChange}
                         />
+                        <Badge className='hint-text'>Wallet credits and debits automatically convert to UV.</Badge>
                     </div>
 
                     {/* Category Selector Block */}

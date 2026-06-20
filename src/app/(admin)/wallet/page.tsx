@@ -33,7 +33,7 @@ const WalletPage = () => {
           <QuickShortcuts />
         </div>
         <div className="lg:col-span-7">
-          <WalletMetrics />
+          <WalletMetrics cols={3} />
         </div>
       </div>
 

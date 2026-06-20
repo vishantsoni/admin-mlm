@@ -264,12 +264,12 @@ export const EcommerceMetrics = ({ data, loading }: EcommerceMetricsProps) => {
           <div>
 
             <h4 className="mt-2 font-bold text-warning-800 text-title-sm dark:text-white/90">
-              {data?.orders?.pending_orders ?? 0}
+              {data?.orders?.pending_ecom_order ?? 0}
             </h4>
           </div>
         </div>
         <Badge color="success">
-          {data?.orders?.delivered_orders ?? 0} - delivered
+          {data?.orders?.ecom_delivered_orders ?? 0} - delivered
         </Badge>
       </div>
 

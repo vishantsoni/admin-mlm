@@ -2,18 +2,13 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useSetting } from "@/context/SettingContext";
 import { useWallet } from "@/context/WalletContext";
 import serverCallFuction, { formattedAmountCommas } from "@/lib/constantFunction";
 import { AlertCircle, Landmark, ShieldCheck, Wallet2 } from "lucide-react";
 
 type DownlineUser = { id: string; name: string };
 
-type SettingsTaxConfig = {
-  tds_percent?: string | number;
-};
-
-const TransferFund = () => {
+const TransferFund = ({ closeModal }) => {
   const { user } = useAuth();
   const { walletData } = useWallet();
 
@@ -30,23 +25,14 @@ const TransferFund = () => {
   const UV_RATE = 10;
   const amount = uvAmount * UV_RATE; // send INR amount (UV * 10)
 
-  const { settings, getSettingByKey } = useSetting();
-
-  const tdsSetting = useMemo(() => {
-    const cfg = getSettingByKey("tax_config") as SettingsTaxConfig | undefined;
-    const val = cfg?.tds_percent;
-    return val !== undefined && val !== null ? Number(val) : 5;
-  }, [settings, getSettingByKey]);
-
-  const tdsDeduction = amount * (tdsSetting / 100);
-  const finalAmount = amount - tdsDeduction;
-
   // walletData in context is typed loosely (WalletItem[]). Defensively extract total_balance.
   const currentBalance = useMemo(() => {
     const w: unknown = walletData;
+    console.log("wallet amount in D-D = ", w);
+
     const arr = Array.isArray(w) ? w : [];
     const first = arr.length > 0 ? (arr[0] as any) : (w as any);
-    const total = first?.total_balance ?? first?.totalBalance;
+    const total = first?.withdrawable_amount ?? first?.withdrawable_amount;
     const n = total === undefined || total === null ? 0 : parseFloat(String(total));
     return Number.isFinite(n) ? n : 0;
   }, [walletData]);
@@ -133,6 +119,7 @@ const TransferFund = () => {
 
       if (res?.success) {
         alert(res.message ?? "Transfer successful");
+        closeModal()
       } else {
         setError(res?.message || res?.error || "Transfer failed");
       }
@@ -153,6 +140,10 @@ const TransferFund = () => {
     !user?.kyc_status ||
     !toUserId ||
     transactionPin.length === 0;
+
+
+
+
 
   return (
     <div className="mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
@@ -177,7 +168,7 @@ const TransferFund = () => {
             <Wallet2 size={20} className="text-gray-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">Current Balance</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Current Withdrawable Balance</p>
           </div>
           <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded font-bold">
             {formattedAmountCommas(currentBalance)} UV
@@ -227,19 +218,11 @@ const TransferFund = () => {
           </div>
         </div>
 
-        {/* Financial Breakdown */}
-        <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+        {/* Financial Breakdown (Without TDS) */}
+        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
           <div>
-            <p className="text-xs text-gray-500 uppercase">Gross Amount</p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">₹{amount.toLocaleString()}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500 uppercase text-red-500">TDS ({tdsSetting}%)</p>
-            <p className="text-lg font-semibold text-red-500">- ₹{tdsDeduction.toLocaleString()}</p>
-          </div>
-          <div className="col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-            <p className="text-xs text-gray-500 uppercase">Net Amount</p>
-            <p className="text-2xl font-bold text-brand-600">₹{finalAmount.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 uppercase">Total Transfer Amount</p>
+            <p className="text-2xl font-bold text-brand-600">₹{amount.toLocaleString()}</p>
           </div>
         </div>
 
@@ -254,7 +237,7 @@ const TransferFund = () => {
           />
         </div>
 
-        {/* Linked Bank Information Preview (kept from original UI) */}
+        {/* Linked Bank Information Preview */}
         <div className="p-4 border border-gray-200 dark:border-gray-800 rounded-xl flex items-center gap-4">
           <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
             <Landmark size={20} className="text-gray-600" />
@@ -298,4 +281,3 @@ const TransferFund = () => {
 };
 
 export default TransferFund;
-

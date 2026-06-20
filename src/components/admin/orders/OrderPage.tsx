@@ -41,9 +41,10 @@ const OrderPage = () => {
 
       const res: OrdersApiResponse = await serverCallFuction('GET', `api/orders?${query}`);
 
-      if (res.status !== false && res.data) {
+      if (res.success !== false && res.data) {
         setOrders(res.data);
-        setTotal(res.total || 0);
+        const pagination = res.pagination;
+        setTotal(pagination.total || 0);
       } else {
         setOrders([]);
         setTotal(0);
@@ -154,7 +155,7 @@ const OrderPage = () => {
             <Table>
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
-                  {/* <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">P. INFO</TableCell> */}
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Sr. No.</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Order ID</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Products</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">User</TableCell>
@@ -184,7 +185,7 @@ const OrderPage = () => {
 
 
                   return <TableRow key={index}>
-
+                    <TableCell className="px-6 py-4 font-bold">{(page - 1) * limit + index + 1}</TableCell>
                     <TableCell className="px-6 py-4 font-bold grid">#{order.order_id}
                       <Badge variant='solid' size='sm' color={getBadgeTitleColor(badgeTitle)} className="w-30">{badgeTitle}</Badge>
                       Date : {date_formate(order.created_at)}

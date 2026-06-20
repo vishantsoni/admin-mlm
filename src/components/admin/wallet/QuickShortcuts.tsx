@@ -2,6 +2,7 @@
 import Button from '@/components/ui/button/Button'
 import { Modal } from '@/components/ui/modal'
 import TransferFund from '@/components/withdraw/TransferFund'
+import { useAuth } from '@/context/AuthContext'
 import { Wallet } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
@@ -11,6 +12,8 @@ const QuickShortcuts = () => {
   const [transModal, setTransModal] = useState(false)
 
   const router = useRouter()
+
+  const { user } = useAuth()
 
   return (
     <>
@@ -22,7 +25,12 @@ const QuickShortcuts = () => {
           }}>Withdraw</Button>
           <Button className="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
             onClick={() => {
-              setTransModal(true)
+              if (user && !user.transaction_pin_hash) {
+                alert("Please create your transaction PIN first to secure your transfers.")
+              }
+              else {
+                setTransModal(true)
+              }
             }}
           >Transfer</Button>
 
@@ -44,7 +52,7 @@ const QuickShortcuts = () => {
               <p className="text-sm text-gray-500">Transfer fund to distributor</p>
             </div>
           </div>
-          <TransferFund />
+          <TransferFund closeModal={() => setTransModal(false)} />
         </div>
 
       </Modal>

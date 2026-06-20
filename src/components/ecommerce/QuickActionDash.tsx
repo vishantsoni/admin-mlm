@@ -33,7 +33,7 @@ const QuickActionDash = () => {
                         Add Product
                     </Button>
                     <Button onClick={redirection("/notifications")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">Send Notification</Button>
-                    <Button onClick={redirection("/withdrawals")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Payouts</Button>
+                    <Button onClick={redirection("/withdrawal-requests")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Payouts</Button>
                     <Button onClick={redirection("/transactions")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Transaction</Button>
                     <Button onClick={redirection("/orders")} className="w-full h-14 hover:bg-brand-700 hover:text-white" variant="outline">View Orders</Button>
                 </div>
