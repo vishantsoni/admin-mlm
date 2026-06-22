@@ -155,7 +155,7 @@ const OrderPage = () => {
             <Table>
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Sr. No.</TableCell>
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Sr. No.</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Order ID</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Products</TableCell>
                   <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">User</TableCell>

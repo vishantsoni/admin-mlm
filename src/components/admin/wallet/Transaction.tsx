@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Table,
   TableBody,
-  TableCell,  
+  TableCell,
   TableHeader,
   TableRow,
 } from "@/components/ui/table/index";
@@ -58,24 +58,24 @@ import { formatDate } from '@fullcalendar/core/index.js';
 //     status: "Mature"
 //   }
 // ];
-const Transaction = () => {
+const Transaction = ({ category = "" }) => {
 
 
-    const [transactions, settransactions] = useState<TransactionType[]>([])
+  const [transactions, settransactions] = useState<TransactionType[]>([])
 
-    useEffect(() => {
+  useEffect(() => {
 
-        const fetchMetrics = async () => {
-            // Simulate API call
-            const res = await serverCallFuction('GET', 'api/wallet/history');
-            if (res.success) {
-                settransactions(res.data)
-            }
-        }
+    const fetchMetrics = async () => {
+      // Simulate API call
+      const res = await serverCallFuction('GET', `api/wallet/history${category && `?category=${category}`}`);
+      if (res.success) {
+        settransactions(res.data)
+      }
+    }
 
-        fetchMetrics()
+    fetchMetrics()
 
-    }, []);
+  }, []);
 
 
   return (
@@ -102,9 +102,9 @@ const Transaction = () => {
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{formatDate(tx.created_at)}</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
                     <Badge color={tx.type === "credit" ? "success" : "error"} variant='solid'>
-                    {tx.type?.toUpperCase()}
+                      {tx.type?.toUpperCase()}
                     </Badge>
-                    </TableCell>
+                  </TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-bold text-emerald-600 "> {formattedAmount(tx.amount)}</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300  text-emerald-600"> {tx.category}</TableCell>
                   {/* <TableCell className="px-6 py-4">

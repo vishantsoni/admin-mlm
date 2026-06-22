@@ -2,11 +2,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Wallet, Landmark, ShieldCheck, AlertCircle, Wallet2 } from "lucide-react";
-import { useSetting } from "@/context/SettingContext";
 import { useWallet } from "@/context/WalletContext";
 import serverCallFuction, { formattedAmountCommas } from "@/lib/constantFunction";
 
-const WithdrawalForm = ({ close: any }) => {
+
+const WithdrawalForm = ({ close }: { close: () => void }) => {
+
   const { user } = useAuth();
   const { walletData } = useWallet();
   const [uvAmount, setUvAmount] = useState<number>(0);
@@ -18,20 +19,18 @@ const WithdrawalForm = ({ close: any }) => {
   const UV_RATE = 10;
   const inrAmount = uvAmount * UV_RATE;
 
-  // Fetch TDS rate from settings context
-  const { settings, getSettingByKey } = useSetting();
 
-  const tdsSetting = useMemo(() => {
-    const tds = getSettingByKey("tax_config");
-    return tds?.tds_percent ? Number(tds.tds_percent) : 5; // Defaults to 5% if setting is missing
-  }, [settings, getSettingByKey]);
-
-  // Calculations (TDS and Final Net Amount)
-  const tdsDeduction = inrAmount * (tdsSetting / 100);
-  const finalAmount = inrAmount - tdsDeduction;
 
   // Parse wallet balance safely as a number
-  const currentBalance = walletData?.total_balance ? parseFloat(walletData.total_balance) : 0;
+  const currentBalance =
+    walletData &&
+      !Array.isArray(walletData) &&
+      typeof (walletData as { withdrawable_amount?: string }).withdrawable_amount !== "undefined"
+      ? parseFloat((walletData as { withdrawable_amount?: string }).withdrawable_amount as string)
+      : 0;
+
+
+
 
   // Real-time Validation Error Handling
   useEffect(() => {
@@ -127,7 +126,7 @@ const WithdrawalForm = ({ close: any }) => {
             <Wallet2 size={20} className="text-gray-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">Current Balance</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Current Withdrawable Balance</p>
           </div>
           <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded font-bold">
             {formattedAmountCommas(currentBalance)} UV
@@ -153,21 +152,18 @@ const WithdrawalForm = ({ close: any }) => {
           </div>
         </div>
 
-        {/* Real-time Financial Breakdown Breakout */}
+        {/* Real-time Financial Breakdown */}
         <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
           <div>
             <p className="text-xs text-gray-500 uppercase">Gross Amount</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">₹{inrAmount.toLocaleString()}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-500 uppercase text-red-500">TDS ({tdsSetting}%)</p>
-            <p className="text-lg font-semibold text-red-500">- ₹{tdsDeduction.toLocaleString()}</p>
-          </div>
-          <div className="col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-            <p className="text-xs text-gray-500 uppercase">Net Payable to Bank</p>
-            <p className="text-2xl font-bold text-brand-600">₹{finalAmount.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 uppercase">Amount to Bank</p>
+            <p className="text-lg font-semibold text-brand-600">₹{inrAmount.toLocaleString()}</p>
           </div>
         </div>
+
 
         {/* Linked Bank Information Preview */}
         <div className="p-4 border border-gray-200 dark:border-gray-800 rounded-xl flex items-center gap-4">
@@ -175,10 +171,12 @@ const WithdrawalForm = ({ close: any }) => {
             <Landmark size={20} className="text-gray-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.bank_name || "No Bank Linked"}</p>
-            <p className="text-xs text-gray-500">Acc: {user?.account_no || "0000"}</p>
-            <p className="text-xs text-gray-500">Holder: {user?.account_holder_name || "N/A"}</p>
-            <p className="text-xs text-gray-500">Routing/IFSC: {user?.ifsc_code || "N/A"}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">{(user as { bank_name?: string; bankName?: string })?.bank_name || (user as { bank_name?: string; bankName?: string })?.bankName || "No Bank Linked"}</p>
+            <p className="text-xs text-gray-500">Acc: {(user as { account_no?: string; accountNo?: string })?.account_no || (user as { account_no?: string; accountNo?: string })?.accountNo || "0000"}</p>
+            <p className="text-xs text-gray-500">Holder: {(user as { account_holder_name?: string; accountHolderName?: string })?.account_holder_name || (user as { account_holder_name?: string; accountHolderName?: string })?.accountHolderName || "N/A"}</p>
+            <p className="text-xs text-gray-500">Routing/IFSC: {(user as { ifsc_code?: string; ifscCode?: string })?.ifsc_code || (user as { ifsc_code?: string; ifscCode?: string })?.ifscCode || "N/A"}</p>
+
+
           </div>
           <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded font-bold uppercase">Verified</span>
         </div>

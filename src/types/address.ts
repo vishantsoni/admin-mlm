@@ -23,8 +23,15 @@ export interface CreateAddressPayload {
   address_line2: string;
   city: string;
   state: string;
-  country: string;
+  country?: string;
   pincode: string;
-  landmark: string;
+  landmark?: string;
+
+  // Used by checkout address modal
+  is_default?: boolean;
+
+  // Used by checkout modal state select
+  stateId?: number;
 }
+
 

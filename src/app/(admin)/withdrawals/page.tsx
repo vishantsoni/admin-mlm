@@ -15,6 +15,8 @@ import WithdrawalForm from '@/components/withdraw/WithdrawalForm';
 import { Wallet } from 'lucide-react';
 import WalletMetrics from '@/components/admin/wallet/WalletMetrics';
 import SetPin from '@/components/admin/wallet/SetPin';
+import Transaction from '@/components/admin/wallet/Transaction';
+import { useRouter } from 'next/navigation';
 
 // import { format, parseISO } from 'date-fns';
 
@@ -31,6 +33,8 @@ export default function WithdrawalsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filteredWithdrawals, setFilteredWithdrawals] = useState<WithdrawalRequest[]>([]);
+
+  const router = useRouter();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -192,83 +196,7 @@ export default function WithdrawalsPage() {
       <SetPin />
       <WalletMetrics cols={4} />
 
-      {loading ? (
-
-        <div className="flex items-center justify-center py-12">
-          <p>Loading withdrawals...</p>
-        </div>
-      ) : (
-        <div className="rounded-xl border bg-card overflow-hidden bg-white dark:bg-gray-900">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                <TableRow>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">ID</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">User</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Level</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">UV / RS</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Balance</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Day/Week/Month Used</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Status</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Requested</TableCell>
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Actions</TableCell>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {filteredWithdrawals.map((withdrawal) => (
-                  <TableRow key={withdrawal.id}>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">#{withdrawal.id}</TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-medium">
-
-                      {withdrawal.userName}
-                      <p className="text-sm text-gray-500">{withdrawal.email}</p>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{withdrawal.levelName} (Lv {withdrawal.levelNo})</TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                      <div>{withdrawal.uvAmount} UV</div>
-                      <div className="font-semibold">₹{withdrawal.rsAmount}</div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">₹{withdrawal.balance || 0}</TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 text-xs">
-
-                      <div>Day: {withdrawal.dayUsed}</div>
-                      <div>Week: {withdrawal.weekUsed}</div>
-                      <div>Month: {withdrawal.monthUsed}</div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                      <Badge
-                      // variant={withdrawal.status === 'pending' ? 'default' : withdrawal.status === 'approved' ? 'success' : 'destructive'}
-                      >
-                        {withdrawal.status.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{formatDate(withdrawal.requestedAt)}</TableCell>
-                    <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                      {withdrawal.status === 'pending' && (
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => handleApprove(withdrawal)}>
-                            Approve
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleReject(withdrawal)}>
-                            Reject
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filteredWithdrawals.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 h-32">
-                      No withdrawals found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      )}
+      <Transaction category='withdraw' />
 
       <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} className="max-w-4xl">
         <div className="p-6 space-y-4 ">
@@ -283,7 +211,11 @@ export default function WithdrawalsPage() {
           </div>
 
 
-          <WithdrawalForm close={() => setIsCreateOpen(false)} />
+          <WithdrawalForm close={() => {
+            setIsCreateOpen(false)
+            router.refresh()
+
+          }} />
 
         </div>
       </Modal>

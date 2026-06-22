@@ -14,49 +14,49 @@ import serverCallFuction, { formattedAmountCommas } from '@/lib/constantFunction
 import { formattedAmount, getCurrencyIcon } from '@/lib/constantFunction';
 import { useAuth } from '@/context/AuthContext';
 import Badge from '../ui/badge/Badge';
-import { Address } from '@/types/address';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Modal } from '@/components/ui/modal';
 import { Plus } from 'lucide-react';
 
-import { CreateAddressPayload } from '@/types/address';
+import { Address, CreateAddressPayload } from '@/types/address';
 import { States } from '@/types/static-content';
 import { usePreloader } from '@/context/PreloaderContext';
+import { useWallet } from '@/context/WalletContext';
+
+type PaymentMethod = 'online' | 'wallet';
 
 
+declare global {
+  interface Window {
+    Razorpay: new (options: unknown) => { open: () => void };
+  }
+}
 
 interface CartCheckoutProps {
   cartItems: BackendCartItem[];
   totalAmount: number;
-  user: any;
-  shippingCharges: any;
+  user: Record<string, unknown>;
+  shippingCharges: number;
   onSuccess: () => void;
-}
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
 }
 
 const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, user, onSuccess, shippingCharges }) => {
   const MIN_LIMIT_ORDER_TOTAL = 100000; // 1 Lakh (INR)
   const isBelowMinLimit = Number(totalAmount) < MIN_LIMIT_ORDER_TOTAL;
+
   const [formData, setFormData] = useState({
-    full_name: user.full_name || user.username || '',
-    email: user.email || '',
-    phone: user.phone || user.whatsappNo || '',
+    full_name: (user as any).full_name || (user as any).username || '',
+    email: (user as any).email || '',
+    phone: (user as any).phone || (user as any).whatsappNo || '',
   });
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [selectedShippingId, setSelectedShippingId] = useState<string>('');
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
-
-
-
-
 
   // Add Address Modal State
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
@@ -74,8 +74,8 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
   } as CreateAddressPayload);
 
   // State/City dropdown data
-  const [states, setStates] = useState<{ id: number, name: string }[]>([]);
-  const [cities, setCities] = useState<{ id: number, name: string }[]>([]);
+  const [states, setStates] = useState<{ id: number; name: string }[]>([]);
+  const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
 
@@ -103,8 +103,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
       const res = await serverCallFuction('GET', `api/static/cities/${stateId}`);
       if (res.status && Array.isArray(res.data)) {
         setCities(res.data);
-        // Reset city when state changes
-        setAddAddressForm(prev => ({ ...prev, city: '' }));
+        setAddAddressForm((prev) => ({ ...prev, city: '' }));
       }
     } catch (error) {
       console.error('Failed to fetch cities:', error);
@@ -130,52 +129,43 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
   };
 
   const handleAddAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked, id } = e.target;
+    const { name, value, type, checked } = e.target;
 
-
-    if (name === "state") {
-      const data = JSON.parse(value)
-      setAddAddressForm(prev => ({
+    if (name === 'state') {
+      const data = JSON.parse(value);
+      setAddAddressForm((prev) => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : data.name,
-        stateId: data.id
+        stateId: data.id,
       }));
     } else {
-
-
-      let finalValue = type === 'checkbox' ? checked : value;
-
-      if (name === "phone" && typeof finalValue === "string") {
-        // 2. Strip out any non-numeric characters immediately
+      let finalValue: any = type === 'checkbox' ? checked : value;
+      if (name === 'phone' && typeof finalValue === 'string') {
         finalValue = finalValue.replace(/\D/g, '');
       }
 
-      setAddAddressForm(prev => ({
+      setAddAddressForm((prev) => ({
         ...prev,
         [name]: finalValue,
       }));
-
-
-      // setAddAddressForm(prev => ({
-      //   ...prev,
-      //   [name]: type === 'checkbox' ? checked : value,
-      // }));
     }
   };
 
-  // console.log("data - ", addAddressForm);
-
-
   const handleAddNewAddress = async () => {
-    // Basic validation
-    if (!addAddressForm.full_name || !addAddressForm.phone || addAddressForm.phone.length !== 10 ||
-      !addAddressForm.address_line1 || !addAddressForm.city || !addAddressForm.state || !addAddressForm.pincode) {
+    if (
+      !addAddressForm.full_name ||
+      !addAddressForm.phone ||
+      addAddressForm.phone.length !== 10 ||
+      !addAddressForm.address_line1 ||
+      !addAddressForm.city ||
+      !addAddressForm.state ||
+      !addAddressForm.pincode
+    ) {
       alert('Please fill all required fields: name, phone (10 digits), address, city, state, pincode');
-      console.log("data  - ", addAddressForm);
-
       return;
     }
-    if (!/^\d{10}$/.test(addAddressForm.phone)) {
+
+    if (!/^\d{10}$/.test(addAddressForm.phone as any)) {
       alert('Phone must be 10 digits');
       return;
     }
@@ -197,13 +187,31 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
   const router = useRouter();
   const { updateUserProfile } = useAuth();
-
   const { showLoader, hideLoader } = usePreloader();
+
+  const { walletData, isLoading: walletLoading } = useWallet();
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('online');
+
+  // NOTE: Do not use an extra effect to set default payment method.
+  // RadioGroup should render correctly from initial state.
+
+
+  useEffect(() => {
+    // Ensure default selection is visually applied on initial render.
+    // Some RadioGroup implementations require explicit state-setting after mount.
+    setPaymentMethod('online');
+  }, []);
+
+  const walletTotalAmount = (() => {
+    const first = Array.isArray(walletData) ? walletData[0] : null;
+    const raw = (first as any)?.total_amount ?? (first as any)?.wallet_total_amount ?? (first as any)?.balance ?? 0;
+    const n = typeof raw === 'number' ? raw : Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  })();
+
 
   const currency = getCurrencyIcon('INR');
 
-
-  // Fetch addresses
   const fetchAddresses = async () => {
     try {
       setLoadingAddresses(true);
@@ -212,7 +220,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
         const addrList = Array.isArray(res.data) ? res.data : res.address ? [res.address] : [];
         setAddresses(addrList);
         if (addrList.length > 0) {
-          const defaultAddr = addrList.find(a => a.is_default) || addrList[0];
+          const defaultAddr = addrList.find((a: Address) => a.is_default) || addrList[0];
           setSelectedShippingId(defaultAddr.id);
           setSelectedAddress(defaultAddr);
         }
@@ -227,12 +235,13 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
   useEffect(() => {
     fetchAddresses();
     fetchStates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (addAddressForm.state) {
-      const stateId = parseInt(addAddressForm.stateId);
-      fetchCities(stateId);
+      const stateId = parseInt(String(addAddressForm.stateId));
+      if (Number.isFinite(stateId)) fetchCities(stateId);
     }
   }, [addAddressForm.state]);
 
@@ -240,24 +249,26 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const createRazorpayOrder = async (amt: number, cartItems: BackendCartItem[]) => {
+  const createRazorpayOrder = async (amt: number, cartItemsArg: BackendCartItem[]) => {
     try {
       if (!selectedAddress) {
-        alert("Please select Shipping Address");
+        alert('Please select Shipping Address');
         return;
       }
-      showLoader("Creating order...")
+
+      showLoader('Creating order...');
       const res = await serverCallFuction('POST', 'api/payment/create-order', {
         amount: Math.round(amt),
         currency: 'INR',
-        cart_items: cartItems.map(item => ({
+        cart_items: cartItemsArg.map((item) => ({
           id: item.id,
           product_id: item.product_id,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
         })),
         receipt: `receipt_${Date.now()}`,
       });
+
       if (!res.status) throw new Error(res.message || 'Order creation failed');
       return res.order;
     } catch (error) {
@@ -267,7 +278,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
   const verifyPayment = async (paymentData: RazorpayPaymentResponse) => {
     try {
-      showLoader("Verifying payment...")
+      showLoader('Verifying payment...');
       const res = await serverCallFuction('POST', 'api/payment/verify', paymentData);
       if (!res.success) throw new Error(res.message || 'Payment verification failed');
       return res.data;
@@ -276,19 +287,20 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
     }
   };
 
-
-
-
-
-  const placePurchaseOrder = async (razorpayPaymentId: string, razorpayOrderId: string, razorpaySignature: string, paymentMethod = 'razorpay') => {
+  const placePurchaseOrder = async (
+    razorpayPaymentId: string,
+    razorpayOrderId: string,
+    razorpaySignature: string,
+    paymentMethod = 'razorpay',
+  ) => {
     try {
+      showLoader('Almost done! Loading...');
 
-      showLoader("Almost done! Loading...")
-      const items = cartItems.map(item => ({
+      const items = cartItems.map((item) => ({
         product_id: item.product_id,
         variant_id: item.variant_id || null,
         qty: item.quantity,
-        tax_data: item.product?.tax_data || null
+        tax_data: item.product?.tax_data || null,
       }));
 
       const res = await serverCallFuction('POST', 'api/orders/d_p_o', {
@@ -299,13 +311,12 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
         razorpay_order_id: razorpayOrderId,
         razorpay_signature: razorpaySignature,
       });
-      if (res.success) {
-        // Clear cart
 
+      if (res.success) {
         await serverCallFuction('DELETE', 'api/ecom/cart/d_clear');
         alert('Order placed successfully!');
         onSuccess();
-        hideLoader()
+        hideLoader();
       } else {
         throw new Error(res.message || 'Order placement failed');
       }
@@ -315,16 +326,58 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
     }
   };
 
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePayment = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+
+    // Wallet flow
+    if (paymentMethod === 'wallet') {
+      if (walletLoading) {
+        alert('Wallet is loading. Please wait');
+        return;
+      }
+
+      if (walletTotalAmount < totalAmount) {
+        alert(`Insufficient wallet balance. Available: ${currency}${walletTotalAmount}`);
+        return;
+      }
+
+      if (isBelowMinLimit) {
+        alert('Minimum order total is 1 Lakh INR.');
+        return;
+      }
+
+      if (!formData.full_name || !formData.phone || formData.phone.length !== 10) {
+        alert('Please fill valid name and 10-digit phone');
+        return;
+      }
+
+      if (!selectedAddress) {
+        alert('Please select a shipping address or add one in profile');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await placePurchaseOrder('', '', '', 'wallet');
+      } catch (err) {
+        alert(`Payment failed: ${(err as Error).message}`);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+
     if (isBelowMinLimit) {
       alert('Minimum order total is 1 Lakh INR.');
       return;
     }
+
     if (!formData.full_name || !formData.phone || formData.phone.length !== 10) {
       alert('Please fill valid name and 10-digit phone');
       return;
     }
+
     if (!selectedAddress) {
       alert('Please select a shipping address or add one in profile');
       return;
@@ -352,14 +405,23 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
           contact: formData.phone,
         },
         theme: { color: '#3399cc' },
-        handler: async (response: any) => {
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
           try {
             await verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
-            await placePurchaseOrder(response.razorpay_payment_id, response.razorpay_order_id, response.razorpay_signature, 'razorpay');
+            await placePurchaseOrder(
+              response.razorpay_payment_id,
+              response.razorpay_order_id,
+              response.razorpay_signature,
+              'razorpay',
+            );
           } catch (err) {
             alert(`Payment failed: ${(err as Error).message}`);
             router.push('/cart');
@@ -367,51 +429,36 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
         },
       };
 
-      const paymentObject = new (window.Razorpay as any)(options);
+      const paymentObject = new window.Razorpay(options);
       paymentObject.open();
     } catch (error) {
-      hideLoader()
+      hideLoader();
       alert(`Error: ${(error as Error).message}`);
     } finally {
-      hideLoader()
+      hideLoader();
       setLoading(false);
     }
   };
 
   return (
     <>
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        onReady={() => setRazorpayLoaded(true)}
-      />
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" onReady={() => setRazorpayLoaded(true)} />
+
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 max-w-[1400px] mx-auto px-4">
-        {/* Payment & Address Section */}
         <div className="lg:col-span-6 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Payment Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className='grid sm:grid-cols-3 gap-2'>
-
-
+              <div className="grid sm:grid-cols-3 gap-2">
                 <div>
                   <Label>Full Name</Label>
-                  <Input
-                    name="full_name"
-                    defaultValue={formData.full_name}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Input name="full_name" defaultValue={formData.full_name} onChange={handleInputChange} required />
                 </div>
                 <div>
                   <Label>Email</Label>
-                  <Input
-                    name="email"
-                    type="email"
-                    defaultValue={formData.email}
-                    onChange={handleInputChange}
-                  />
+                  <Input name="email" type="email" defaultValue={formData.email} onChange={handleInputChange} />
                 </div>
                 <div>
                   <Label>Phone</Label>
@@ -426,9 +473,8 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                 </div>
               </div>
 
-              {/* Shipping Address Section */}
               <div>
-                <div className='flex items-center justify-between w-full bg-gray-200 p-2 rounded-lg mb-2'>
+                <div className="flex items-center justify-between w-full bg-gray-200 p-2 rounded-lg mb-2">
                   <Label className="block font-semibold">
                     Shipping Address <span className="text-red-500">*</span>
                   </Label>
@@ -440,45 +486,43 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                     <Plus size={20} />
                   </button>
                 </div>
+
+
                 {loadingAddresses ? (
                   <p>Loading addresses...</p>
                 ) : addresses.length === 0 ? (
                   <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500 dark:border-gray-600">
-                    No addresses found. <span className="text-brand-500 hover:underline font-medium" onClick={() => setIsAddAddressModalOpen(true)}>Add address</span>
+                    No addresses found.{' '}
+                    <span className="text-brand-500 hover:underline font-medium" onClick={() => setIsAddAddressModalOpen(true)}>
+                      Add address
+                    </span>
                   </div>
                 ) : (
-                  <RadioGroup value={selectedShippingId} onValueChange={(value) => {
-                    console.log("values - ", value);
-
-                    setSelectedShippingId(value);
-                    const addr = addresses.find((a: Address) => a.id === value);
-                    setSelectedAddress(addr || null);
-                  }} className="space-y-2">
+                  <RadioGroup
+                    value={selectedShippingId}
+                    onValueChange={(value) => {
+                      setSelectedShippingId(value);
+                      const addr = addresses.find((a: Address) => a.id === value);
+                      setSelectedAddress(addr || null);
+                    }}
+                    className="space-y-2"
+                  >
                     {addresses.map((address) => {
                       const isSelected = selectedShippingId === address.id;
-
                       return (
                         <div
                           key={address.id}
-                          // CRITICAL: This ensures clicking the card updates the RadioGroup value
                           onClick={() => {
                             setSelectedShippingId(address.id);
                             setSelectedAddress(address);
                           }}
                           className={`flex items-start p-4 border-2 rounded-xl transition-all cursor-pointer mb-3 ${isSelected
-                            ? 'border-brand-500 bg-brand-50 shadow-md ring-1 ring-brand-500' // Highlighted
-                            : 'border-gray-100 hover:border-gray-300 bg-white' // Not selected
+                            ? 'border-brand-500 bg-brand-50 shadow-md ring-1 ring-brand-500'
+                            : 'border-gray-100 hover:border-gray-300 bg-white'
                             }`}
                         >
                           <div className="mt-1 mr-3">
-                            {/* The Radio Item now accurately reflects the selectedShippingId state */}
-                            <RadioGroupItem
-                              value={address.id}
-                              id={`addr-${address.id}`}
-                              checked={isSelected}
-                              className="h-5 w-5"
-                              name="address"
-                            />
+                            <RadioGroupItem value={address.id} id={`addr-${address.id}`} className="h-5 w-5" name="address" />
                           </div>
 
                           <Label htmlFor={`addr-${address.id}`} className="flex-1 cursor-pointer">
@@ -491,7 +535,8 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                               )}
                             </div>
                             <p className="text-sm text-gray-600 mb-1">
-                              {address.address_line1}{address.address_line2 && ', ' + address.address_line2}
+                              {address.address_line1}
+                              {address.address_line2 && ', ' + address.address_line2}
                             </p>
                             <p className="text-sm font-medium text-gray-500">
                               {address.city}, {address.state} - {address.pincode}
@@ -504,26 +549,68 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                   </RadioGroup>
                 )}
 
-
-                <div className='flex items-center justify-between w-full bg-gray-200 p-2 rounded-lg mb-2'>
+                <div className="flex items-center justify-between w-full bg-gray-200 p-2 rounded-lg mb-2">
                   <Label className="block font-semibold">
                     Shipping Charges <span className="text-red-500">*</span>
                   </Label>
-                  <button
-                    type="button"
-                    className="p-1 hover:bg-gray-300 rounded-full transition-colors"
-                  >
-
+                  <button type="button" className="p-1 hover:bg-gray-300 rounded-full transition-colors">
                     {currency}{shippingCharges}
                   </button>
                 </div>
               </div>
 
-              <Button className="w-full" disabled={loading || loadingAddresses || !selectedShippingId || isBelowMinLimit} onClick={handlePayment} >
-                {loading ? 'Processing...' : `Pay ${currency}${formattedAmountCommas(totalAmount)} with Razorpay`}
+              {/* Payment Method */}
+              <div className="mt-4">
+                <Label className="block font-semibold mb-2">Payment Method</Label>
+                <RadioGroup
+                  value={paymentMethod}
+                  onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
+                  className="space-y-2"
+                >
+                  <div
+                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${paymentMethod === 'online' ? 'border-brand-500 bg-brand-50' : 'border-gray-200 bg-white'
+                      }`}
+                    onClick={() => setPaymentMethod('online')}
+                  >
+                    <RadioGroupItem value="online" id="pay-online" className="h-5 w-5" name="paymentMethod" checked={paymentMethod === "online"} />
+                    <Label htmlFor="pay-online" className="cursor-pointer">
+                      Online (Razorpay)
+                    </Label>
+                  </div>
+
+                  <div
+                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${paymentMethod === 'wallet' ? 'border-brand-500 bg-brand-50' : 'border-gray-200 bg-white'
+                      }`}
+                    onClick={() => setPaymentMethod('wallet')}
+                  >
+                    <RadioGroupItem value="wallet" id="pay-wallet" className="h-5 w-5" name="paymentMethod" checked={paymentMethod === "wallet"} />
+                    <Label htmlFor="pay-wallet" className="cursor-pointer">
+                      Wallet (Available: {currency}{walletTotalAmount})
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <Button
+                className="w-full mt-3"
+                disabled={
+                  loading ||
+                  loadingAddresses ||
+                  !selectedShippingId ||
+                  isBelowMinLimit ||
+                  (paymentMethod === 'wallet' && (walletLoading || walletTotalAmount < totalAmount)) ||
+                  (paymentMethod === 'online' && (!window.Razorpay || !razorpayLoaded))
+                }
+                onClick={() => handlePayment()}
+              >
+                {loading
+                  ? 'Processing...'
+                  : paymentMethod === 'wallet'
+                    ? `Pay ${currency}${formattedAmountCommas(totalAmount)} with Wallet`
+                    : `Pay ${currency}${formattedAmountCommas(totalAmount)} with Razorpay`}
               </Button>
 
-              {/* Add Address Modal */}
+
               <Modal
                 isOpen={isAddAddressModalOpen}
                 onClose={() => {
@@ -538,23 +625,13 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="full_name">Full Name <span className="text-red-500">*</span></Label>
-                      {/* <Input
-                        id="full_name"
-                        name="full_name"
-                        defaultValue={addAddressForm.full_name}
-                        onChange={handleAddAddressChange}
-                        required
-                        placeholder='Enter full name'
-                      /> */}
                       <Input
                         value={addAddressForm.full_name}
                         placeholder="Full Name"
                         onChange={(e) => {
                           const value = e.target.value;
-                          // Allows only letters (both uppercase and lowercase) and spaces
-                          if (value === "" || /^[a-zA-Z\s]+$/.test(value)) {
+                          if (value === '' || /^[a-zA-Z\s]+$/.test(value)) {
                             setAddAddressForm({ ...addAddressForm, full_name: value });
-                            // handleAddAddressChange(e)
                           }
                         }}
                       />
@@ -562,17 +639,6 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
 
                     <div>
                       <Label htmlFor="phone">Phone <span className="text-red-500">*</span></Label>
-                      {/* <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        defaultValue={addAddressForm.phone}
-                        onChange={handleAddAddressChange}
-                        maxLength={10}
-                        required
-                        placeholder='Enter phone number'
-                      /> */}
-
                       <Input
                         id="phone"
                         name="phone"
@@ -581,9 +647,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         placeholder="Enter phone number"
                         onChange={(e) => {
                           const value = e.target.value;
-                          const val = value.replace(/\D/g, ''); // Sirf numbers bachenge
-
-                          // State mein humesha 'val' save karo, 'value' nahi!
+                          const val = value.replace(/\D/g, '');
                           setAddAddressForm({ ...addAddressForm, phone: val });
                         }}
                         maxLength={10}
@@ -599,7 +663,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         defaultValue={addAddressForm.address_line1}
                         onChange={handleAddAddressChange}
                         required
-                        placeholder='eg.: FLoor No., Landmark etc'
+                        placeholder="eg.: FLoor No., Landmark etc"
                       />
                     </div>
 
@@ -610,7 +674,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         name="address_line2"
                         defaultValue={addAddressForm.address_line2}
                         onChange={handleAddAddressChange}
-                        placeholder='eg.: Street etc'
+                        placeholder="eg.: Street etc"
                       />
                     </div>
 
@@ -621,21 +685,12 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           id="state"
                           name="state"
                           value={addAddressForm.state}
-                          // onChange={handleAddAddressChange}
                           onChange={(e) => {
-
                             const selectedIndex = e.target.selectedIndex;
                             const selectedOption = e.target.options[selectedIndex];
-
                             const stateId = Number(selectedOption.getAttribute('data-id'));
-                            // console.log("data 0- ", stateId);
-
-                            const stateName = e.target.value
-                            setAddAddressForm(prev => ({
-                              ...prev,
-                              state: stateName,
-                              stateId: stateId
-                            }));
+                            const stateName = e.target.value;
+                            setAddAddressForm((prev) => ({ ...prev, state: stateName, stateId }));
                           }}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-800 dark:border-gray-700"
                           disabled={loadingStates}
@@ -644,14 +699,13 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           <option value="">Select State</option>
                           {loadingStates ? (
                             <option disabled>Loading...</option>
-                          ) : states.map((state: States) => (
-                            <option key={state.id}
-                              value={state.name.toString()}
-                              // value={JSON.stringify({ id: state.id, name: state.name })}
-                              data-id={state.id.toString()}  >
-                              {state.name}
-                            </option>
-                          ))}
+                          ) : (
+                            states.map((state: States) => (
+                              <option key={state.id} value={state.name.toString()} data-id={state.id.toString()}>
+                                {state.name}
+                              </option>
+                            ))
+                          )}
                         </select>
                       </div>
                       <div>
@@ -660,7 +714,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           id="city"
                           name="city"
                           value={addAddressForm.city}
-                          onChange={handleAddAddressChange}
+                          onChange={(e) => setAddAddressForm((prev) => ({ ...prev, city: e.target.value }))}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-800 dark:border-gray-700"
                           disabled={loadingCities || !addAddressForm.state}
                           required
@@ -668,11 +722,13 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           <option value="">Select City</option>
                           {loadingCities ? (
                             <option disabled>Loading...</option>
-                          ) : cities.map((city: States) => (
-                            <option key={city.id} value={city.name.toString()}>
-                              {city.name}
-                            </option>
-                          ))}
+                          ) : (
+                            cities.map((city: States) => (
+                              <option key={city.id} value={city.name.toString()}>
+                                {city.name}
+                              </option>
+                            ))
+                          )}
                         </select>
                       </div>
                     </div>
@@ -684,7 +740,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           id="country"
                           name="country"
                           value={addAddressForm.country}
-                          onChange={handleAddAddressChange}
+                          onChange={(e) => setAddAddressForm((prev) => ({ ...prev, country: e.target.value }))}
                           placeholder="India"
                         />
                       </div>
@@ -694,7 +750,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           id="pincode"
                           name="pincode"
                           value={addAddressForm.pincode}
-                          onChange={handleAddAddressChange}
+                          onChange={(e) => setAddAddressForm((prev) => ({ ...prev, pincode: e.target.value }))}
                           required
                         />
                       </div>
@@ -706,7 +762,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         id="landmark"
                         name="landmark"
                         value={addAddressForm.landmark}
-                        onChange={handleAddAddressChange}
+                        onChange={(e) => setAddAddressForm((prev) => ({ ...prev, landmark: e.target.value }))}
                       />
                     </div>
 
@@ -715,8 +771,8 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         id="is_default"
                         name="is_default"
                         type="checkbox"
-                        checked={addAddressForm.is_default}
-                        onChange={handleAddAddressChange}
+                        checked={!!addAddressForm.is_default}
+                        onChange={(e) => setAddAddressForm((prev) => ({ ...prev, is_default: e.target.checked }))}
                         className="w-4 h-4 text-brand-600 bg-gray-100 border-gray-300 rounded focus:ring-brand-500 focus:ring-2"
                       />
                       <Label htmlFor="is_default" className="text-sm font-medium">Make this default address</Label>
@@ -735,22 +791,16 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                     >
                       Cancel
                     </Button>
-                    <Button
-                      type="button"
-                      onClick={handleAddNewAddress}
-                      className="flex-1"
-                    >
+                    <Button type="button" onClick={handleAddNewAddress} className="flex-1">
                       Add Address
                     </Button>
                   </div>
                 </div>
               </Modal>
-
             </CardContent>
           </Card>
         </div>
 
-        {/* Order Summary */}
         <div className="lg:col-span-4">
           <Card className="sticky top-6">
             <CardHeader>
@@ -783,13 +833,16 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         ))}
                       </div>
                       <div className="text-right">
-                        <p className=" text-sm font-bold ">{currency}{formattedAmount(item.price)}</p>
+                        <p className="text-sm font-bold">{currency}{formattedAmount(item.price)}</p>
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                        <p className=" font-bold text-lg text-gray-600">{currency}{formattedAmount(item.subtotal || (item.quantity * item.price))}</p>
+                        <p className="font-bold text-lg text-gray-600">
+                          {currency}{formattedAmount(item.subtotal || (item.quantity * item.price))}
+                        </p>
                       </div>
                     </div>
                   </div>
                 ))}
+
                 <div className="p-4 pt-4">
                   <div className="flex justify-between text-xl font-bold text-gray-900 dark:text-white">
                     <span>Total:</span>
@@ -800,38 +853,36 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
             </CardContent>
           </Card>
 
-          <Card className='mt-5'>
+          <Card className="mt-5">
             <CardHeader>
               <CardTitle>Company Bank Details</CardTitle>
             </CardHeader>
-            <CardContent className=''>
+            <CardContent>
               <table width={"100%"} border={1}>
                 <tr>
-                  <th className='text-left'>Account Holder</th>
+                  <th className="text-left">Account Holder</th>
                   <td>FEEL SAFE PRIVATE LIMITED</td>
                 </tr>
                 <tr>
-                  <th className='text-left'>Account Number</th>
+                  <th className="text-left">Account Number</th>
                   <td>50200120760164</td>
                 </tr>
                 <tr>
-                  <th className='text-left'>IFSC</th>
+                  <th className="text-left">IFSC</th>
                   <td>HDFC0000438</td>
                 </tr>
                 <tr>
-                  <th className='text-left'>Branch</th>
+                  <th className="text-left">Branch</th>
                   <td>NAJAFGARH</td>
                 </tr>
                 <tr>
-                  <th className='text-left'>Account Type</th>
+                  <th className="text-left">Account Type</th>
                   <td>Current Account</td>
                 </tr>
               </table>
             </CardContent>
           </Card>
-
         </div>
-
       </div>
     </>
   );
