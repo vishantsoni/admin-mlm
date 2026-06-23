@@ -27,6 +27,7 @@ export interface Milestone {
   milestone_name: string;
   tour_details: string;
   reward_cash: string;
+  cash_com?:string;
   level_name?: string;
   level_no?: number;
   created_at?: string;

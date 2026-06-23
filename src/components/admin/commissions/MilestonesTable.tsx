@@ -46,6 +46,7 @@ export default function MilestonesTable() {
         milestone_name: '',
         tour_details: '',
         reward_cash: '',
+        cash_com: '',
     });
 
     const fetchLevelCommissions = useCallback(async () => {
@@ -72,6 +73,7 @@ export default function MilestonesTable() {
             milestone_name: '',
             tour_details: '',
             reward_cash: '',
+            cash_com: ''
         });
         setEditMode(false);
         setCurrentItem(null);
@@ -92,6 +94,7 @@ export default function MilestonesTable() {
             milestone_name: item.milestone_name,
             tour_details: item.tour_details,
             reward_cash: item.reward_cash,
+            cash_com: item.cash_com
         });
         openModal();
     };
@@ -115,6 +118,7 @@ export default function MilestonesTable() {
             milestone_name: formData.milestone_name,
             tour_details: formData.tour_details,
             reward_cash: formData.reward_cash,
+            cash_com: formData.cash_com
         };
 
         let result;
@@ -172,7 +176,8 @@ export default function MilestonesTable() {
                                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Level</TableCell>
                                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Milestone Name</TableCell>
                                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Tour Details</TableCell>
-                                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Reward Cash</TableCell>
+                                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Reward Cash (%)</TableCell>
+                                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">In Cash Com (%)</TableCell>
                                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Created At</TableCell>
                                 <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-right">Actions</TableCell>
                             </TableRow>
@@ -191,7 +196,12 @@ export default function MilestonesTable() {
                                     </TableCell>
                                     <TableCell className="px-6 py-4">
                                         <Badge color="success" variant="solid" size="sm">
-                                            ₹{milestone.reward_cash}
+                                            {milestone.reward_cash}%
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="px-6 py-4">
+                                        <Badge color="success" variant="solid" size="sm">
+                                            {milestone.cash_com ? milestone.cash_com + "%" : "-"}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
@@ -279,13 +289,23 @@ export default function MilestonesTable() {
                             />
                         </div>
                         <div className="md:col-span-2">
-                            <Label htmlFor="reward_cash">Reward Cash (₹) <span className="text-red-500">*</span></Label>
+                            <Label htmlFor="reward_cash">Reward Cash (%) <span className="text-red-500">*</span></Label>
                             <Input
                                 id="reward_cash"
                                 type="text"
-                                placeholder="e.g. 50000"
+                                placeholder="e.g. 1"
                                 defaultValue={formData.reward_cash}
                                 onChange={(e) => setFormData({ ...formData, reward_cash: e.target.value })}
+                            />
+                        </div>
+                        <div className="md:col-span-2">
+                            <Label htmlFor="reward_cash">Cash Com. (%) <span className="text-red-500">*</span></Label>
+                            <Input
+                                id="cash_com"
+                                type="text"
+                                placeholder="e.g. 2"
+                                defaultValue={formData.cash_com}
+                                onChange={(e) => setFormData({ ...formData, cash_com: e.target.value })}
                             />
                         </div>
                     </div>
