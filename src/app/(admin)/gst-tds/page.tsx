@@ -194,9 +194,18 @@ const GstTdsPage = () => {
             if (toDate) params.append("to", toDate);
 
             const qs = params.toString();
-            const url = `https://backend.feelsafeco.in/api/reports/gst-excel${qs ? `?${qs}` : ""}`;
+            const host: string = process.env.NEXT_PUBLIC_API_URL || 'https://backend.feelsafeco.in';
 
-            const response = await fetch(url, { method: 'GET' });
+            const url = `${host}/api/reports/gst-excel${qs ? `?${qs}` : ""}`;
+
+            const storedToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+            const token = storedToken || '';
+
+            const header: Record<string, string> = {
+                'x-auth-token': token
+            };
+
+            const response = await fetch(url, { method: 'GET', headers: header });
 
             if (!response.ok) throw new Error('Download failed');
 

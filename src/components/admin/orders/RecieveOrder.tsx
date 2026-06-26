@@ -8,6 +8,7 @@ const RecieveOrder = () => {
             apiEndpoint="api/orders/received"
             title="Received Orders"
             description="Manage received orders from company."
+            type='recieve'
         />
     )
 }

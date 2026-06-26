@@ -113,9 +113,11 @@ export default function PoliciesTable() {
 
 
     const handleView = (p: Policy) => {
-        // For now, viewing is same as modal with download buttons handled in modal.
-        setEditingPolicy(p);
-        setIsFormOpen(true);
+        if (p.file_url) { // या जो भी आपका की (key) नाम हो
+            window.open(p.file_url, '_blank', 'noopener,noreferrer');
+        } else {
+            console.warn("No URL found for this policy");
+        }
     };
 
     const handleDownload = async (p: Policy) => {
@@ -222,11 +224,11 @@ export default function PoliciesTable() {
                                                 <Button size="sm" variant="outline" onClick={() => handleView(p)}>
                                                     View
                                                 </Button>
-                                                {canDownload && (
+                                                {/* {canDownload && (
                                                     <Button size="sm" variant="outline" onClick={() => handleDownload(p)}>
                                                         Download
                                                     </Button>
-                                                )}
+                                                )} */}
                                                 {canCreateOrEdit && (
                                                     <>
                                                         <Button size="sm" variant="outline" onClick={() => openEdit(p)}>

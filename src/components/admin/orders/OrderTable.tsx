@@ -22,9 +22,10 @@ interface OrderTableProps {
     title: string;
     description: string;
     role: string;
+    type: string;
 }
 
-const OrderTable = ({ apiEndpoint, title, description, role = "distributor" }: OrderTableProps) => {
+const OrderTable = ({ apiEndpoint, title, description, role = "distributor", type = "" }: OrderTableProps) => {
     const router = useRouter();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(false);
@@ -179,7 +180,7 @@ const OrderTable = ({ apiEndpoint, title, description, role = "distributor" }: O
                                                         role === 'super_admin'
                                                             ? '/orders'
                                                             : role === 'distributor'
-                                                                ? '/placed_order'
+                                                                ? type === "recieve" ? '/recieved_order' : '/placed_order'
                                                                 : '/staff';
 
                                                     router.push(`${basePath}/${order.order_id}`);

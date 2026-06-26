@@ -61,7 +61,8 @@ export default function SignUpStepForm() {
 
         // Step 4: Business Level 5]
         businessLevel: '', // 6]
-        agreedToTerms: false // 1]
+        agreedToTerms: false, // 1]
+        gstin: ''
     });
 
 
@@ -359,8 +360,7 @@ export default function SignUpStepForm() {
         }
     };
 
-    // console.log("errors - ", fieldErrors);
-    console.log("form data - ", formData);
+
 
 
 
@@ -930,6 +930,33 @@ export default function SignUpStepForm() {
                                 </label>
                             ))}
                         </div> */}
+
+
+                        <div>
+                            <Label>GSTIN (Optional)</Label>
+                            <Input
+                                placeholder="Enter GSTIN"
+                                value={formData.gstin || ""}
+                                // onChange={(e) => {
+                                //     setFormData({ ...formData, nomineeAge: e.target.value })
+                                // }} 
+
+                                onChange={(e) => {
+                                    // 2. Remove any non-numeric characters instantly
+                                    const val = e.target.value.replace(/\D/g, "");
+
+                                    // 3. Update state for ANY numeric string (including empty)
+                                    if (val === "" || /^[0-9]/.test(val)) {
+                                        handleFieldChange('gstin', val);
+                                    }
+                                }}
+                                inputMode='numeric'
+                                maxLength={15}
+                            />
+                        </div>
+
+
+
 
                         <Label className="mt-4 block">Terms and Conditions (Scroll to bottom to enable submit)*</Label>
                         <div

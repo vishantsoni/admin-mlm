@@ -249,7 +249,7 @@ const TdsReportSection = ({
                                                 Date
                                             </TableCell>
                                             <TableCell className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
-                                                User ID
+                                                Full Name
                                             </TableCell>
                                             <TableCell className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
                                                 Amount
@@ -279,8 +279,9 @@ const TdsReportSection = ({
                                                     <TableCell className="px-4 py-3">
                                                         {tx.created_at ? date_formate(tx.created_at) : "-"}
                                                     </TableCell>
-                                                    <TableCell className="px-4 py-3">
-                                                        {tx.user_id}
+                                                    <TableCell className="px-4 py-3 ">
+                                                        <div>{tx.user_name}</div>
+                                                        <Badge>{tx.user_phone}</Badge>
                                                     </TableCell>
                                                     <TableCell className="px-4 py-3 font-semibold">
                                                         {currency} {formattedAmount(parseFloat(tx.amount || "0"))}
@@ -367,14 +368,17 @@ const TdsReportSection = ({
                         </CardContent>
                     </Card>
                 </>
-            )}
+            )
+            }
 
-            {!loading && !error && !data && (
-                <div className="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
-                    No TDS data available.
-                </div>
-            )}
-        </div>
+            {
+                !loading && !error && !data && (
+                    <div className="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
+                        No TDS data available.
+                    </div>
+                )
+            }
+        </div >
     );
 };
 

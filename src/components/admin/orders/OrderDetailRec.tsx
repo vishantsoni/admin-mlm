@@ -18,7 +18,7 @@ import TextArea from '@/components/form/input/TextArea';
 const ORDER_STATUSES = ['pending', 'accepted', 'packed', 'dispatched', 'delivered', 'cancelled'] as const;
 type OrderStatus = typeof ORDER_STATUSES[number];
 
-const OrderDetail = () => {
+const OrderDetailRec = () => {
     const params = useParams();
     const router = useRouter();
     const orderId = params['order-id'] as string;
@@ -126,7 +126,7 @@ const OrderDetail = () => {
 
     const submitStatusUpdate = async () => {
         if (!orderId || !order) return;
-        if (!isSuperAdmin) return;
+        // if (!isSuperAdmin) return;
 
         try {
             setUpdatingStatus(true);
@@ -727,79 +727,75 @@ const OrderDetail = () => {
                         <CardTitle>Actions</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
-                        {isSuperAdmin ? (
-                            <div className="space-y-3 w-full">
-                                <div className="flex items-center justify-between gap-3">
-                                    <div className="text-sm font-semibold">Update Order Status</div>
-                                    <Badge variant="solid" color={getStatusColor(current)}>
-                                        {current.toUpperCase()}
-                                    </Badge>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {(
-                                            [
-                                                { label: 'Accept', value: 'accepted' },
-                                                { label: 'packed', value: 'packed' },
-                                                { label: 'dispatched', value: 'dispatched' },
-                                                { label: 'delivered', value: 'delivered' },
-                                                { label: 'cancelled', value: 'cancelled' }
-                                            ] as const
-                                        ).map((opt) => {
-                                            const disabled = !canSetStatus(current, opt.value);
-                                            const active = selectedStatus === opt.value;
-                                            return (
-                                                <Button
-                                                    key={opt.value}
-                                                    type="button"
-                                                    variant={active ? 'primary' : 'outline'}
-                                                    disabled={disabled || updatingStatus}
-                                                    onClick={() => setSelectedStatus(opt.value)}
-                                                    className="w-full"
-                                                >
-                                                    {opt.label?.toUpperCase()}
-                                                </Button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {current !== 'delivered' && current !== 'cancelled' && (
-                                    <>
-                                        <div className="flex flex-col gap-2">
-                                            <Input
-                                                placeholder="Add status remarks (optional)"
-                                                value={remarks}
-                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRemarks(e.target.value)}
-                                            />
-                                        </div>
-
-                                        <Button
-                                            className="w-full"
-                                            variant="primary"
-                                            disabled={updatingStatus}
-                                            onClick={submitStatusUpdate}
-                                            startIcon={<Save className="h-4 w-4" />}
-                                        >
-                                            {updatingStatus ? 'Updating...' : 'Update Status'}
-                                        </Button>
-                                    </>
-                                )}
+                        {/* {isSuperAdmin ? ( */}
+                        <div className="space-y-3 w-full">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="text-sm font-semibold">Update Order Status</div>
+                                <Badge variant="solid" color={getStatusColor(current)}>
+                                    {current.toUpperCase()}
+                                </Badge>
                             </div>
-                        ) : (
+
+                            <div className="flex flex-col gap-2">
+                                <div className="grid grid-cols-3 gap-2">
+                                    {(
+                                        [
+                                            { label: 'Accept', value: 'accepted' },
+                                            { label: 'packed', value: 'packed' },
+                                            { label: 'dispatched', value: 'dispatched' },
+                                            { label: 'delivered', value: 'delivered' },
+                                            { label: 'cancelled', value: 'cancelled' }
+                                        ] as const
+                                    ).map((opt) => {
+                                        const disabled = !canSetStatus(current, opt.value);
+                                        const active = selectedStatus === opt.value;
+                                        return (
+                                            <Button
+                                                key={opt.value}
+                                                type="button"
+                                                variant={active ? 'primary' : 'outline'}
+                                                disabled={disabled || updatingStatus}
+                                                onClick={() => setSelectedStatus(opt.value)}
+                                                className="w-full"
+                                            >
+                                                {opt.label?.toUpperCase()}
+                                            </Button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {current !== 'delivered' && current !== 'cancelled' && (
+                                <>
+                                    <div className="flex flex-col gap-2">
+                                        <Input
+                                            placeholder="Add status remarks (optional)"
+                                            value={remarks}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRemarks(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <Button
+                                        className="w-full"
+                                        variant="primary"
+                                        disabled={updatingStatus}
+                                        onClick={submitStatusUpdate}
+                                        startIcon={<Save className="h-4 w-4" />}
+                                    >
+                                        {updatingStatus ? 'Updating...' : 'Update Status'}
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                        {/* ) : (
                             <div className="text-sm text-muted-foreground">Only super admins can modify core order paths.</div>
-                        )}
+                        )} */}
 
                         <Button
                             className="w-full"
                             disabled={isGeneratingInvoice}
                             onClick={async () => {
                                 try {
-                                    if (!isSuperAdmin && order.order_status !== 'delivered') {
-                                        alert("The invoice will be generated once the order is delivered.")
-                                        return;
-                                    }
                                     setIsGeneratingInvoice(true);
                                     const res = await serverCallFuction('POST', 'api/invoice/generate', { orderId: orderId });
 
@@ -849,10 +845,10 @@ const OrderDetail = () => {
                         <Table>
                             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                                 <TableRow>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Product</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Qty</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Price</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Subtotal</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Product</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Qty</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Price</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Subtotal</TableCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
@@ -898,4 +894,4 @@ const OrderDetail = () => {
     );
 };
 
-export default OrderDetail;
+export default OrderDetailRec;
