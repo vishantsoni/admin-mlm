@@ -942,15 +942,13 @@ export default function SignUpStepForm() {
                                 // }} 
 
                                 onChange={(e) => {
-                                    // 2. Remove any non-numeric characters instantly
-                                    const val = e.target.value.replace(/\D/g, "");
+                                    // 2. Remove any non-numeric characters instantly                                    
 
                                     // 3. Update state for ANY numeric string (including empty)
-                                    if (val === "" || /^[0-9]/.test(val)) {
-                                        handleFieldChange('gstin', val);
-                                    }
+
+                                    handleFieldChange('gstin', e.target.value);
+
                                 }}
-                                inputMode='numeric'
                                 maxLength={15}
                             />
                         </div>

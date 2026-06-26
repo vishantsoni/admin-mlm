@@ -163,16 +163,16 @@ const LevelCommissionComponent = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Level No</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Level No</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Commission %</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Team Size</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">IR Direct</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">IR Commission</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Insurance (BIMA)</TableCell>
-                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Created At</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Level No</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Level No</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Commission %</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Team Size</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">IR Direct</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">IR Commission</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Insurance (BIMA)</TableCell>
+                <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Created At</TableCell>
                 {hasPermission('commissions/add') &&
-                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-right">Actions</TableCell>}
+                  <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-right">Actions</TableCell>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -186,7 +186,7 @@ const LevelCommissionComponent = () => {
                       {commission.team_size}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-emerald-600 font-semibold ">{commission.ir_direct}%</TableCell>
+                  <TableCell className="px-6 py-4 text-emerald-600 font-semibold ">{commission.ir_direct}</TableCell>
                   <TableCell className="px-6 py-4 text-emerald-600 font-semibold ">{commission.ir_commission}%</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 font-semibold ">{commission.bima} LAKH</TableCell>
                   <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">{formatDate(commission.created_at)}</TableCell>
@@ -220,7 +220,7 @@ const LevelCommissionComponent = () => {
         closeModal();
         resetForm();
       }}
-        className='w-lg'
+        className='w-xl'
       >
         <div className="p-6 md:p-8 space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">

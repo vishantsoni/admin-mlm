@@ -146,7 +146,7 @@ export default function MilestonesTable() {
         return <div className="p-6 text-center">Loading milestones...</div>;
     }
 
-    const isPermitCrud = hasPermission("level-capping/add")
+    const isPermitCrud = hasPermission("level-milestone")
 
     return (
         <div className="p-6 space-y-6">
