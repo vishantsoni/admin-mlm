@@ -70,6 +70,14 @@ const AddProductPage = () => {
     g_image: [] as File[],
     status: 'active',
     tax_id: '',
+
+    // Shipping / dimensions (optional)
+    hsn_code: '',
+    weight: '',
+    dimension_length: '',
+    dimension_width: '',
+    dimension_height: '',
+    dimension_unit: '',
   });
 
 
@@ -251,6 +259,14 @@ const AddProductPage = () => {
       formDataToSend.append('status', formData.status);
       formDataToSend.append('tax_id', formData.tax_id);
 
+      // Shipping / dimensions (optional)
+      formDataToSend.append('hsn_code', formData.hsn_code || '');
+      formDataToSend.append('weight', formData.weight || '');
+      formDataToSend.append('dimension_length', formData.dimension_length || '');
+      formDataToSend.append('dimension_width', formData.dimension_width || '');
+      formDataToSend.append('dimension_height', formData.dimension_height || '');
+      formDataToSend.append('dimension_unit', formData.dimension_unit || '');
+
       // Append variants
       if (formData.variants && formData.variants.length > 0) {
         formDataToSend.append('variants', JSON.stringify(formData.variants));
@@ -274,6 +290,13 @@ const AddProductPage = () => {
           g_image: [],
           status: 'active',
           tax_id: '',
+
+          hsn_code: '',
+          weight: '',
+          dimension_length: '',
+          dimension_width: '',
+          dimension_height: '',
+          dimension_unit: '',
         });
         setFImagePreview('');
         setGImagePreviews([]);
@@ -387,6 +410,80 @@ const AddProductPage = () => {
 
         {/* Price field */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Shipping / dimensions (optional) */}
+          <div className="md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div>
+                <Label htmlFor="hsn_code">HSN Code</Label>
+                <Input
+                  id="hsn_code"
+                  name="hsn_code"
+                  placeholder="Enter HSN code"
+                  defaultValue={formData.hsn_code}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="weight">Weight</Label>
+                <Input
+                  id="weight"
+                  name="weight"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  defaultValue={formData.weight}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_length">Length</Label>
+                <Input
+                  id="dimension_length"
+                  name="dimension_length"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  defaultValue={formData.dimension_length}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_width">Width</Label>
+                <Input
+                  id="dimension_width"
+                  name="dimension_width"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  defaultValue={formData.dimension_width}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_height">Height</Label>
+                <Input
+                  id="dimension_height"
+                  name="dimension_height"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  defaultValue={formData.dimension_height}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_unit">Dimension Unit</Label>
+                <Input
+                  id="dimension_unit"
+                  name="dimension_unit"
+                  placeholder="e.g. cm"
+                  defaultValue={formData.dimension_unit}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+          </div>
           <div>
             <Label htmlFor="price">Price *</Label>
             <Input

@@ -937,18 +937,42 @@ export default function SignUpStepForm() {
                             <Input
                                 placeholder="Enter GSTIN"
                                 value={formData.gstin || ""}
-                                // onChange={(e) => {
-                                //     setFormData({ ...formData, nomineeAge: e.target.value })
-                                // }} 
-
                                 onChange={(e) => {
-                                    // 2. Remove any non-numeric characters instantly                                    
+                                    let val = e.target.value.toUpperCase();
 
-                                    // 3. Update state for ANY numeric string (including empty)
+                                    // Remove all invalid characters globally before processing if you want, 
+                                    // or format structurally based on indices:
+                                    let formatted = '';
 
-                                    handleFieldChange('gstin', e.target.value);
+                                    // 1. State Code (1-2) -> Digits only
+                                    formatted += (val.slice(0, 2).replace(/\D/g, ''));
 
+                                    // 2. PAN Characters (3-7) -> Letters only
+                                    if (val.length > 2) {
+                                        formatted += (val.slice(2, 7).replace(/[^A-Z]/g, ''));
+                                    }
+
+                                    // 3. PAN 4 Digits (8-11) -> Digits only
+                                    if (val.length > 7) {
+                                        formatted += (val.slice(7, 11).replace(/\D/g, ''));
+                                    }
+
+                                    // 4. PAN Check Character (12) -> Letters only
+                                    if (val.length > 11) {
+                                        formatted += (val.slice(11, 12).replace(/[^A-Z]/g, ''));
+                                    }
+
+                                    // 5. Remaining characters (13-15) -> Alphanumeric
+                                    if (val.length > 12) {
+                                        formatted += (val.slice(12, 15).replace(/[^A-Z0-9]/g, ''));
+                                    }
+
+                                    setFormData({ ...formData, gstin: formatted });
                                 }}
+                                // onChange={(e) => {
+                                //     handleFieldChange('gstin', e.target.value);
+
+                                // }}
                                 maxLength={15}
                             />
                         </div>
@@ -1046,7 +1070,7 @@ export default function SignUpStepForm() {
                                 onChange={(val) => setFormData({ ...formData, agreedToTerms: val })}
                             />
                             <p className="text-xs text-gray-700 dark:text-gray-300">
-                                I certify that I have chosen my business level based on my own financial capacity and have read and understood all 40 clauses mentioned above[cite: 110, 111].
+                                I certify that I have chosen my business level based on my own financial capacity and have read and understood all 40 clauses mentioned above.
                             </p>
                         </div>
 

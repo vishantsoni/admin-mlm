@@ -55,6 +55,10 @@ const CouponsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productMode, setProductMode] = useState<'all' | 'specific'>('all');
+  const [userMode, setUserMode] = useState<'all' | 'specific'>('all');
+  const [users, setUsers] = useState<Array<{ id: string | number; username?: string; email?: string; phone?: string; full_name?: string }>>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+
   const [formData, setFormData] = useState<FormData>({
     code: '',
     discount_type: 'percentage',
@@ -120,20 +124,24 @@ const CouponsPage: React.FC = () => {
       return;
     }
 
-    if (editingCoupon) {
-
-    }
-
     const url = editingCoupon ? `api/coupons/${editingCoupon.id}` : 'api/coupons';
     const method = editingCoupon ? 'PUT' : 'POST';
 
-    let payload = { ...formData };
+    // Backend expects applicable_users as JSON array (same idea as product selection).
+    // We stringify the array so APIs that parse JSON strings will work.
+    const payload = {
+      ...formData,
+      applicable_users: JSON.stringify(formData.applicable_users || []),
+      applicable_products: formData.applicable_products || []
+    };
+
     if (editingCoupon) {
       // Remove fields that the backend shouldn't receive during an update
-      delete (payload as any).index;
-      delete (payload as any).actual_used_count;
-      delete (payload as any).product_names;
-      delete (payload as any).updated_at;
+      const payloadAny = payload as Record<string, unknown>;
+      delete payloadAny.index;
+      delete payloadAny.actual_used_count;
+      delete payloadAny.product_names;
+      delete payloadAny.updated_at;
 
       // Optional: If 'id' is in formData but already in the URL, you might remove it too
       // delete (payload as any).id; 
@@ -157,15 +165,17 @@ const CouponsPage: React.FC = () => {
   const handleEdit = (coupon: Coupon) => {
     const applicable = coupon.applicable_products || [];
     setProductMode(applicable.length === 0 ? 'all' : 'specific');
+
     setFormData({
       ...coupon,
       min_order_amount: coupon.min_order_amount || 0,
       max_discount_amount: coupon.max_discount_amount || 0,
       usage_limit: coupon.usage_limit || 0,
       applicable_products: applicable,
-      applicable_users: coupon.applicable_users || [],
+      applicable_users: normalizeIdArray(coupon.applicable_users as unknown),
       product_names: coupon.product_names || []
     });
+
     setEditingCoupon(coupon);
     openModal();
   };
@@ -228,7 +238,53 @@ const CouponsPage: React.FC = () => {
     }
   };
 
+  const normalizeIdArray = (value: unknown): string[] => {
+    if (Array.isArray(value)) {
+      return value.map(v => v?.toString?.() ?? '').filter(Boolean);
+    }
+    if (typeof value === 'string') {
+      const parsed = parseJsonSafe(value);
+      if (Array.isArray(parsed)) {
+        return parsed.map(v => v?.toString?.() ?? '').filter(Boolean);
+      }
+      return value ? [value] : [];
+    }
+    return [];
+  };
+
+  const fetchUsers = async () => {
+    try {
+      setUsersLoading(true);
+
+      interface UsersResponse {
+        success?: boolean;
+        status?: boolean;
+        data?: Array<{ id: string | number; username?: string; email?: string; phone?: string; full_name?: string }>;
+        users?: Array<{ id: string | number; username?: string; email?: string; phone?: string; full_name?: string }>;
+        message?: string;
+      }
+
+
+      const res = await serverCallFuction<UsersResponse>(
+
+        'GET',
+        // Prefer existing ecom-users style endpoints used elsewhere in the app.
+        // If your backend uses another route, adjust here.
+        'api/users/all'
+      );
+
+      const resObj = res as unknown as { data?: unknown; users?: unknown };
+      const list = (resObj?.data && Array.isArray(resObj.data) ? resObj.data : (resObj?.users && Array.isArray(resObj.users) ? resObj.users : [])) as Array<{ id: string | number; username?: string; email?: string; phone?: string; full_name?: string }>;
+      setUsers(Array.isArray(list) ? list : []);
+    } catch {
+      setUsers([]);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   const fetchProducts = async () => {
+
     try {
       setProductsLoading(true);
       interface ProductResponse {
@@ -248,7 +304,9 @@ const CouponsPage: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchUsers();
   }, []);
+
 
   if (loading) return <div className="flex justify-center items-center h-64">Loading...</div>;
 
@@ -307,7 +365,8 @@ const CouponsPage: React.FC = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 space-x-2">
-                  {coupon.status === 'trash' ? <>
+                  {/* Backend status may include 'trash' but UI type currently only has active/inactive */}
+                  {coupon.status === ('trash' as any) ? <>
 
                     <Button variant="outline" size="sm" onClick={() => restoreCoupon(coupon)}>
                       <RefreshCcw className="h-4 w-4" />
@@ -490,15 +549,57 @@ const CouponsPage: React.FC = () => {
                   {productsLoading && <p className="text-sm text-gray-500">Loading products...</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Applicable Users (JSON array)</Label>
-                  <textarea
-                    value={JSON.stringify(formData.applicable_users, null, 2)}
-                    onChange={(e) => setFormData({ ...formData, applicable_users: parseJsonSafe(e.target.value) })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700"
-                    rows={3}
-                    placeholder='[\"user1\", \"user2\"]'
-                  />
+                  <Label>Applicable Users</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        id="user-all"
+                        type="radio"
+                        value="all"
+                        checked={userMode === 'all'}
+                        onChange={() => {
+                          setUserMode('all');
+                          setFormData(prev => ({ ...prev, applicable_users: [] }));
+                        }}
+                        className="w-4 h-4 text-brand-600 bg-gray-100 border-gray-300 focus:ring-brand-500 dark:focus:ring-brand-400 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700"
+                      />
+                      <Label htmlFor="user-all" className="text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer">
+                        All Users
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        id="user-specific"
+                        type="radio"
+                        value="specific"
+                        checked={userMode === 'specific'}
+                        onChange={() => setUserMode('specific')}
+                        className="w-4 h-4 text-brand-600 bg-gray-100 border-gray-300 focus:ring-brand-500 dark:focus:ring-brand-400 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700"
+                      />
+                      <Label htmlFor="user-specific" className="text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer">
+                        Specific Users
+                      </Label>
+                    </div>
+                  </div>
+
+                  {userMode === 'specific' && (
+                    <div className="pt-2">
+                      <MultiSelect
+                        options={users.map(u => ({
+                          value: u.id.toString(),
+                          label: u.full_name || u.username || u.email || u.phone || `User ${u.id}`
+                        }))}
+                        value={formData.applicable_users}
+                        onChange={(vals: string[]) => setFormData(prev => ({ ...prev, applicable_users: vals }))}
+                        placeholder="Select users"
+                        searchable={true}
+                      />
+                      {usersLoading && <p className="text-sm text-gray-500 mt-2">Loading users...</p>}
+                    </div>
+                  )}
                 </div>
+
                 <div className="flex gap-3 pt-4">
                   <Button type="submit" className="flex-1">
                     {editingCoupon ? 'Update' : 'Create'}

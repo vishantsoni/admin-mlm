@@ -14,7 +14,7 @@ const QuickActionDash = () => {
     };
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:gap-6 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:gap-6 gap-6">
             {/* Quick Actions Card */}
             <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">Quick Actions</h3>
@@ -40,7 +40,7 @@ const QuickActionDash = () => {
             </div>
 
             {/* Upcoming Events Card */}
-            <div className="rounded-2xl border border-gray-200 p-6 dark:border-gray-800 bg-[linear-gradient(135deg,var(--color-brand-50)_0%,#ffffff_100%)] dark:bg-gray-900">
+            {/* <div className="rounded-2xl border border-gray-200 p-6 dark:border-gray-800 bg-[linear-gradient(135deg,var(--color-brand-50)_0%,#ffffff_100%)] dark:bg-gray-900">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">Upcoming Events</h3>
 
                 <div className="pt-2 overflow-y-auto max-h-[300px] custom-scrollbar">
@@ -53,7 +53,7 @@ const QuickActionDash = () => {
                         ))}
                     </ul>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

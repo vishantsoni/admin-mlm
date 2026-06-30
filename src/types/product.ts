@@ -46,6 +46,14 @@ export interface Product {
   status: 'active' | 'inactive' | 'trash';
   tax_id: string;
   tax?: Tax;
+
+  hsn_code?: string;
+  weight?: string | number;
+  dimension_length?: string | number;
+  dimension_width?: string | number;
+  dimension_height?: string | number;
+  dimension_unit?: string;
+
   created_at: string;
   updated_at?: string;
   tax_data?:{

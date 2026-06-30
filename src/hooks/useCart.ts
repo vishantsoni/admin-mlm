@@ -21,7 +21,8 @@ export const useCart = () => {
           product: {
             name: item.product_name,
             f_image: item.f_image,
-            tax_data: item.tax_data || null
+            tax_data: item.tax_data || null,
+            hsn_code:item.hsn_code || null
             // Add other product fields if needed
           },
           variant_id: item.variation_id || undefined,

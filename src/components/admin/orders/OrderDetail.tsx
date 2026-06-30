@@ -106,9 +106,9 @@ const OrderDetail = () => {
                 return 'warning';
             case 'cancelled':
             case 'rejected':
-                return 'error';
+                return 'danger';
             default:
-                return 'light';
+                return 'success';
         }
     };
 
@@ -387,7 +387,8 @@ const OrderDetail = () => {
                                 (Refund amount: ₹{activeReturn.refund_amount})
                             </CardDescription>
                         </div>
-                        <Button variant="primary" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white" disabled={actionLoading || order.payment_status !== 'paid'} onClick={handleWalletRefund}>
+                        <Button variant="primary" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white"
+                            disabled={actionLoading || order.payment_status !== 'paid'} onClick={handleWalletRefund}>
                             {actionLoading ? 'Crediting Wallet...' : 'Release Refund to Wallet'}
                         </Button>
                     </div>
@@ -399,13 +400,13 @@ const OrderDetail = () => {
                 <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200">
                     <CardContent className="py-4 flex flex-col md:flex-row justify-between gap-4 text-sm">
                         <div>
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">Return Workflow Log:</span>
+                            <span className="font-semibold text-gray-700 dark:text-gray-300 me-2">Return Workflow Log:</span>
                             <div className="mt-1 space-x-4 inline-block">
-                                <Badge variant="outline" color={getStatusColor(activeReturn.return_status)}>
-                                    Return: {(activeReturn.return_status || '').toUpperCase()}
+                                <Badge variant="outline" color={getStatusColor(activeReturn?.return_status)}>
+                                    Return: {(activeReturn?.return_status || '').toUpperCase()}
                                 </Badge>
-                                <Badge variant="outline" color={getStatusColor(activeReturn.refund_status)}>
-                                    Refund: {(activeReturn.refund_status || '').toUpperCase()}
+                                <Badge variant="outline" color={getStatusColor(activeReturn?.refund_status)}>
+                                    Refund: {(activeReturn?.refund_status || '').toUpperCase()}
                                 </Badge>
                             </div>
                         </div>
@@ -849,16 +850,16 @@ const OrderDetail = () => {
                         <Table>
                             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                                 <TableRow>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Product</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Qty</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Price</TableCell>
-                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-800 dark:text-white text-left">Subtotal</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Product</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Qty</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Price</TableCell>
+                                    <TableCell isHeader className="px-6 py-4 font-semibold text-gray-100 dark:text-white text-left">Subtotal</TableCell>
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                 {order.items.map((product, index) => (
                                     <TableRow key={index}>
-                                        <TableCell className="px-6 py-4 font-bold">
+                                        <TableCell className="px-6 py-4">
                                             <div className="flex gap-3 items-center">
                                                 <Image
                                                     src={product.product_image?.startsWith('http') ? product.product_image : '/images/user/user-01.jpg'}
@@ -869,7 +870,8 @@ const OrderDetail = () => {
                                                     priority={false}
                                                 />
                                                 <div>
-                                                    <div>{product.product_name}</div>
+                                                    <div className='font-bold'>{product.product_name}</div>
+                                                    <span className='text-[12px]'>HSN Code : {product.variant_details.hsn_code ?? 'N/A'}</span>
                                                     {product.variant_details && (
                                                         <div className="flex gap-2 mt-1">
                                                             {product.variant_details.attributes.map((attr, idx) => (

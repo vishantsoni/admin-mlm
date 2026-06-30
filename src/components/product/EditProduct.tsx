@@ -37,6 +37,14 @@ const EditProductPage = ({ productId }: Props) => {
     status: 'active',
     tax_id: '',
     slug: '',
+
+    // Shipping / dimensions (optional)
+    hsn_code: '',
+    weight: '',
+    dimension_length: '',
+    dimension_width: '',
+    dimension_height: '',
+    dimension_unit: '',
   });
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -97,7 +105,14 @@ const EditProductPage = ({ productId }: Props) => {
             g_image: [],
             status: p.status || 'active',
             tax_id: p.tax_id?.toString() || '',
-            slug: p.slug || ""
+            slug: p.slug || "",
+
+            hsn_code: (p as any).hsn_code || '',
+            weight: (p as any).weight || '',
+            dimension_length: (p as any).dimension_length || '',
+            dimension_width: (p as any).dimension_width || '',
+            dimension_height: (p as any).dimension_height || '',
+            dimension_unit: (p as any).dimension_unit || ''
           });
           setFImagePreview(p.f_image || '');
           setGImagePreviews(p.g_image || []); // These are URLs from the server initially
@@ -163,6 +178,14 @@ const EditProductPage = ({ productId }: Props) => {
       formDataToSend.append('status', formData.status);
       formDataToSend.append('tax_id', formData.tax_id);
       formDataToSend.append('slug', formData.slug);
+
+      // Shipping / dimensions (optional)
+      formDataToSend.append('hsn_code', formData.hsn_code || '');
+      formDataToSend.append('weight', formData.weight || '');
+      formDataToSend.append('dimension_length', formData.dimension_length || '');
+      formDataToSend.append('dimension_width', formData.dimension_width || '');
+      formDataToSend.append('dimension_height', formData.dimension_height || '');
+      formDataToSend.append('dimension_unit', formData.dimension_unit || '');
 
       // Method Spoofing for APIs that require it for PUT requests with FormData
       formDataToSend.append('_method', 'PUT');
@@ -265,6 +288,80 @@ const EditProductPage = ({ productId }: Props) => {
 
         {/* Pricing Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl">
+
+          {/* Shipping / dimensions (optional) */}
+          <div className="md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div>
+                <Label htmlFor="hsn_code">HSN Code</Label>
+                <Input
+                  id="hsn_code"
+                  name="hsn_code"
+                  value={formData.hsn_code}
+                  onChange={handleInputChange}
+                  placeholder="Enter HSN code"
+                />
+              </div>
+              <div>
+                <Label htmlFor="weight">Weight</Label>
+                <Input
+                  id="weight"
+                  name="weight"
+                  type="number"
+                  step="0.01"
+                  value={formData.weight}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_length">Length</Label>
+                <Input
+                  id="dimension_length"
+                  name="dimension_length"
+                  type="number"
+                  step="0.01"
+                  value={formData.dimension_length}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_width">Width</Label>
+                <Input
+                  id="dimension_width"
+                  name="dimension_width"
+                  type="number"
+                  step="0.01"
+                  value={formData.dimension_width}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_height">Height</Label>
+                <Input
+                  id="dimension_height"
+                  name="dimension_height"
+                  type="number"
+                  step="0.01"
+                  value={formData.dimension_height}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dimension_unit">Dimension Unit</Label>
+                <Input
+                  id="dimension_unit"
+                  name="dimension_unit"
+                  value={formData.dimension_unit}
+                  onChange={handleInputChange}
+                  placeholder="e.g. cm"
+                />
+              </div>
+            </div>
+          </div>
           <div>
             <Label>Base Price</Label>
             <Input type="number" name="price" value={formData.price} onChange={handleInputChange} />

@@ -16,6 +16,7 @@ export interface StatusBreakdown {
 
 export interface PaymentStatusBreakdown {
   payment_status: string;
+  payment_method:string;
   count: number;
   revenue: string;
 }

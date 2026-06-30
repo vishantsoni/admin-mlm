@@ -161,6 +161,7 @@ const Cart = () => {
                               <h4 className="font-semibold text-gray-800 dark:text-white line-clamp-1 max-w-xs">
                                 {item.product?.name || item.product_name || ''}
                               </h4>
+                              <span className="text-[12px] text-gray-900 dark:text-white">HSN Code : {item.product?.hsn_code ?? 'N/A'}</span>
                               {item.is_variation_null === false ? (
                                 <div className='flex gap-2 mt-1'>
                                   {item.variant_details?.attributes?.map((attr: any, idx: number) => (

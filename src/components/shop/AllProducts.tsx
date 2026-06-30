@@ -23,6 +23,7 @@ interface ProductPro {
         name: string;
         base_price: number;
         f_image?: string;
+        hsn_code?: string;
     };
     variants: VariantType[];
     category?: { name: string };
@@ -103,13 +104,14 @@ const AllProducts = () => {
             if (res.success) {
                 const data: ProductPro[] = res.data;
                 console.log('FETCHED PRODUCTS:', data.length, 'products');
-                data.forEach(pro => {
-                    console.log('PRODUCT DATA - Name:', pro.product.name, 'Has variants?', !!pro.product.variants?.length, 'Variants count:', pro.product.variants?.length || 0);
-                    console.log('ATTRIBUTES:', pro.product_attributes);
-                    if (pro.variants?.[0]) {
-                        console.log('FIRST VARIANT:', pro.variants[0]);
-                    }
-                });
+                // data.forEach(pro => {
+                //     console.log('\n\n===== PRODUCT DATA - Name:', pro.product.name, 'HSN - ', pro.hsn_code, 'Has variants?', !!pro.product.variants?.length, 'Variants count:', pro.product.variants?.length || 0);
+                //     console.log('ATTRIBUTES:', pro.product_attributes);
+                //     if (pro.variants?.[0]) {
+                //         console.log('FIRST VARIANT:', pro.variants[0]);
+                //     }
+                // });
+
                 setProducts(data);
 
                 const initialSelections: any = {};
@@ -236,7 +238,9 @@ const AllProducts = () => {
                                             </span>
                                         </div>
                                         {variant && <span className="text-[10px] text-gray-500 font-mono">SKU: {variant.sku.trim()}</span>}
+                                        <span className="text-[10px] text-gray-900 dark:text-white">HSN Code - {pro.product.hsn_code ?? 'N/A'}</span>
                                     </div>
+
 
                                     {/* Attributes Loop */}
                                     {hasAttributes && pro.product_attributes?.map((attr) => (

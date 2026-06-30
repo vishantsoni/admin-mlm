@@ -33,7 +33,8 @@ const CheckoutPage = () => {
 
   // 2. Compute the combined final total amount (Cart Items Total + Shipping Charge)
   const finalTotalAmount = useMemo(() => {
-    return totalAmount + shippingCharges;
+    // return totalAmount + shippingCharges;
+    return totalAmount;
   }, [totalAmount, shippingCharges]);
 
   if (loading) {

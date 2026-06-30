@@ -1,11 +1,12 @@
 import React from "react";
 
-type BadgeVariant = "light" | "solid";
+type BadgeVariant = "light" | "solid" | "outline";
 type BadgeSize = "sm" | "md";
 type BadgeColor =
   | "primary"
   | "success"
   | "error"
+  | "danger"
   | "warning"
   | "info"
   | "light"
@@ -20,7 +21,7 @@ interface BadgeProps {
   endIcon?: React.ReactNode; // Icon at the end
   children: React.ReactNode; // Badge content
   cursor?: string; // Cursor style, default is 'default'
-  className?:string;
+  className?: string;
 }
 
 const Badge: React.FC<BadgeProps> = ({
@@ -52,6 +53,8 @@ const Badge: React.FC<BadgeProps> = ({
         "bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500",
       error:
         "bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500",
+      danger:
+        "bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500",
       warning:
         "bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-orange-400",
       info: "bg-blue-light-50 text-blue-light-500 dark:bg-blue-light-500/15 dark:text-blue-light-500",
@@ -66,12 +69,26 @@ const Badge: React.FC<BadgeProps> = ({
       info: "bg-blue-light-500 text-white dark:text-white",
       light: "bg-gray-400 dark:bg-white/5 text-white dark:text-white/80",
       dark: "bg-gray-700 text-white dark:text-white",
+      danger: "bg-error-500 text-white dark:text-white",
     },
-  };
+    outline: {
+      primary: "border-500 text-white dark:text-white",
+      success: "border-success-500 text-white dark:text-white",
+      error: "bg-error-500 text-white dark:text-white",
+      warning: "bg-warning-500 text-white dark:text-white",
+      info: "bg-blue-light-500 text-white dark:text-white",
+      light: "bg-gray-400 dark:bg-white/5 text-white dark:text-white/80",
+      dark: "bg-gray-700 text-white dark:text-white",
+      danger: "bg-error-500 text-white dark:text-white",
+    },
+  } satisfies Record<BadgeVariant, Record<BadgeColor, string>>;
 
   // Get styles based on size and color variant
   const sizeClass = sizeStyles[size];
-  const colorStyles = variants[variant][color];
+  const variantStyles = variants[variant] ?? variants.light;
+
+  const colorStyles =
+    variantStyles[color] ?? variantStyles.primary;
 
   return (
     <span className={`${baseStyles} ${sizeClass} ${colorStyles} ${className}`}

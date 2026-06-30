@@ -301,6 +301,11 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
         variant_id: item.variant_id || null,
         qty: item.quantity,
         tax_data: item.product?.tax_data || null,
+        hsn_code: item.product?.hsn_code || null,
+        dimension_unit: item.product?.dimension_unit || null,
+        dimension_width: item.product?.dimension_width || null,
+        dimension_height: item.product?.dimension_height || null,
+        dimension_length: item.product?.dimension_length || null,
       }));
 
       const res = await serverCallFuction('POST', 'api/orders/d_p_o', {
@@ -549,14 +554,14 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                   </RadioGroup>
                 )}
 
-                <div className="flex items-center justify-between w-full bg-gray-200 p-2 rounded-lg mb-2">
+                {/* <div className="flex items-center justify-between w-full bg-gray-200 p-2 rounded-lg mb-2">
                   <Label className="block font-semibold">
                     Shipping Charges <span className="text-red-500">*</span>
                   </Label>
                   <button type="button" className="p-1 hover:bg-gray-300 rounded-full transition-colors">
                     {currency}{shippingCharges}
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {/* Payment Method */}
@@ -836,7 +841,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                         <p className="text-sm font-bold">{currency}{formattedAmount(item.price)}</p>
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                         <p className="font-bold text-lg text-gray-600">
-                          {currency}{formattedAmount(item.subtotal || (item.quantity * item.price))}
+                          {currency}{formattedAmountCommas(item.subtotal || (item.quantity * item.price))}
                         </p>
                       </div>
                     </div>
@@ -846,7 +851,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                 <div className="p-4 pt-4">
                   <div className="flex justify-between text-xl font-bold text-gray-900 dark:text-white">
                     <span>Total:</span>
-                    <span>{currency}{formattedAmountCommas(totalAmount - shippingCharges)}</span>
+                    <span>{currency}{formattedAmountCommas(totalAmount)}</span>
                   </div>
                 </div>
               </div>

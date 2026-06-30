@@ -240,15 +240,15 @@ const SalesReportPage = () => {
             prefix: "",
             suffix: "",
         },
-        {
-            title: "Total BV Points",
-            value: summary.total_bv_points,
-            icon: Award,
-            color: "text-pink-600",
-            bgColor: "bg-pink-100 dark:bg-pink-900/20",
-            prefix: "",
-            suffix: " pts",
-        },
+        // {
+        //     title: "Total BV Points",
+        //     value: summary.total_bv_points,
+        //     icon: Award,
+        //     color: "text-pink-600",
+        //     bgColor: "bg-pink-100 dark:bg-pink-900/20",
+        //     prefix: "",
+        //     suffix: " pts",
+        // },
         {
             title: "Avg Order Value",
             value: `${getCurrencyIcon('INR')} ${formattedAmount(parseFloat(summary.avg_order_value))}`,
@@ -265,9 +265,12 @@ const SalesReportPage = () => {
         try {
             // अपनी API का URL (with dates)
             // const url = `https://backend.feelsafeco.in/api/reports/sales-excel`;
-            const url = `api/reports/sales-excel`;
-
-            console.log("sales excel - ", url);
+            let url = `api/reports/sales-excel`;
+            if (user?.role == 'Super Admin') {
+                url = `api/reports/sales-excel`;
+            } else {
+                url = `api/reports/sales-d-excel`;
+            }
 
             // const response = await fetch(url, { method: 'GET' });
             // if (!response.ok) throw new Error('Download failed');
@@ -400,6 +403,7 @@ const SalesReportPage = () => {
                                         <TableCell isHeader className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
                                             Status
                                         </TableCell>
+
                                         <TableCell isHeader className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
                                             Count
                                         </TableCell>
@@ -468,6 +472,9 @@ const SalesReportPage = () => {
                                             Payment Status
                                         </TableCell>
                                         <TableCell isHeader className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
+                                            Payment Method
+                                        </TableCell>
+                                        <TableCell isHeader className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
                                             Count
                                         </TableCell>
                                         <TableCell isHeader className="px-4 py-3 font-semibold text-gray-100 dark:text-white text-left">
@@ -486,6 +493,8 @@ const SalesReportPage = () => {
                                                     >
                                                         {item.payment_status.toUpperCase()}
                                                     </Badge>
+                                                </TableCell><TableCell className="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
+                                                    {item?.payment_method?.toUpperCase()}
                                                 </TableCell>
                                                 <TableCell className="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
                                                     {item.count}
