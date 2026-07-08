@@ -34,6 +34,7 @@ export default function UserMetaCard() {
     ifsc_code: user?.ifscCode || "",
     branch: user?.branch || "",
     business_level: user?.businessLevel?.toString() || "0",
+    gstin: user?.gstin || "",
   });
 
   // Sync state if user context updates
@@ -59,6 +60,7 @@ export default function UserMetaCard() {
         ifsc_code: user.ifscCode || "",
         branch: user.branch || "",
         business_level: user.businessLevel?.toString() || "0",
+        gstin: user?.gstin || "",
       }));
     }
   }, [user]);
@@ -88,7 +90,8 @@ export default function UserMetaCard() {
         account_no: formData.account_no,
         ifsc_code: formData.ifsc_code,
         branch: formData.branch,
-        business_level: parseInt(formData.business_level) || 0
+        business_level: parseInt(formData.business_level) || 0,
+        gstin: user?.gstin || "",
       };
 
       const res = await serverCallFuction(

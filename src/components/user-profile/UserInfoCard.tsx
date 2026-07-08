@@ -60,6 +60,15 @@ export default function UserInfoCard() {
                 {date_formate(user?.dob || "00-00-0000")}
               </p>
             </div>
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                GSTIN
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.gstin || "N/A"}
+              </p>
+            </div>
           </div>
         </div>
 

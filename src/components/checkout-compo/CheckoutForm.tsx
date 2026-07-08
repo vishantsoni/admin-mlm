@@ -804,6 +804,36 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
               </Modal>
             </CardContent>
           </Card>
+
+          <Card className="mt-5">
+            <CardHeader>
+              <CardTitle>Company Bank Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <table width={"100%"} border={1}>
+                <tr>
+                  <th className="text-left">Account Holder</th>
+                  <td>FEEL SAFE PRIVATE LIMITED</td>
+                </tr>
+                <tr>
+                  <th className="text-left">Account Number</th>
+                  <td>50200120760164</td>
+                </tr>
+                <tr>
+                  <th className="text-left">IFSC</th>
+                  <td>HDFC0000438</td>
+                </tr>
+                <tr>
+                  <th className="text-left">Branch</th>
+                  <td>NAJAFGARH</td>
+                </tr>
+                <tr>
+                  <th className="text-left">Account Type</th>
+                  <td>Current Account</td>
+                </tr>
+              </table>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="lg:col-span-4">
@@ -858,35 +888,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
             </CardContent>
           </Card>
 
-          <Card className="mt-5">
-            <CardHeader>
-              <CardTitle>Company Bank Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <table width={"100%"} border={1}>
-                <tr>
-                  <th className="text-left">Account Holder</th>
-                  <td>FEEL SAFE PRIVATE LIMITED</td>
-                </tr>
-                <tr>
-                  <th className="text-left">Account Number</th>
-                  <td>50200120760164</td>
-                </tr>
-                <tr>
-                  <th className="text-left">IFSC</th>
-                  <td>HDFC0000438</td>
-                </tr>
-                <tr>
-                  <th className="text-left">Branch</th>
-                  <td>NAJAFGARH</td>
-                </tr>
-                <tr>
-                  <th className="text-left">Account Type</th>
-                  <td>Current Account</td>
-                </tr>
-              </table>
-            </CardContent>
-          </Card>
+
         </div>
       </div>
     </>

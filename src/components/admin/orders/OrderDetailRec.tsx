@@ -114,10 +114,10 @@ const OrderDetailRec = () => {
 
     const canSetStatus = (from: OrderStatus, to: OrderStatus) => {
         const flow: Record<OrderStatus, OrderStatus[]> = {
-            pending: ['accepted', 'cancelled'],
-            accepted: ['packed', 'cancelled'],
-            packed: ['dispatched', 'cancelled'],
-            dispatched: ['delivered'],
+            pending: ['delivered', 'cancelled'],
+            // accepted: ['packed', 'cancelled'],
+            // packed: ['dispatched', 'cancelled'],
+            // dispatched: ['delivered'],
             delivered: [],
             cancelled: []
         };
@@ -336,7 +336,7 @@ const OrderDetailRec = () => {
             )}
 
             {/* STAGE 1: Return Requested Actions */}
-            {activeReturn && isReturnRequested && isSuperAdmin && (
+            {activeReturn && isReturnRequested && (
                 <div className='rounded-lg border border-warning-900 bg-warning-100 dark:bg-gray-900 text-warning-700 dark:text-gray-100 shadow-sm'>
                     <div className="flex flex-col sm:flex-row gap-3 justify-between sm:items-center px-6 py-4">
                         <div>
@@ -358,7 +358,7 @@ const OrderDetailRec = () => {
             )}
 
             {/* STAGE 2: Return Approved -> Awaiting Warehouse Inventory Check */}
-            {activeReturn && isReturnApproved && isSuperAdmin && (
+            {activeReturn && isReturnApproved && (
                 <div className='rounded-lg border border-blue-900 bg-blue-50 dark:bg-gray-900 text-blue-700 dark:text-blue-400 shadow-sm'>
                     <div className="flex flex-col sm:flex-row gap-3 justify-between sm:items-center px-6 py-4">
                         <div>
@@ -375,7 +375,7 @@ const OrderDetailRec = () => {
             )}
 
             {/* STAGE 3: Return Received -> Wallet Refund Actions Available */}
-            {activeReturn && isReturnReceived && isRefundPending && isSuperAdmin && (
+            {activeReturn && isReturnReceived && isRefundPending && (
                 <div className='rounded-lg border border-purple-900 bg-purple-50 dark:bg-gray-900 text-purple-700 dark:text-purple-400 shadow-sm'>
                     <div className="flex flex-col sm:flex-row gap-3 justify-between sm:items-center px-6 py-4">
                         <div>
@@ -426,7 +426,7 @@ const OrderDetailRec = () => {
             )}
 
             {/* Distributor: Request return when order is delivered (and no return exists yet) */}
-            {(() => {
+            {/* {(() => {
                 const updatedAt = order.updated_at ? new Date(order.updated_at) : null;
                 const now = new Date();
                 const isWithin30Days = updatedAt ? now.getTime() - updatedAt.getTime() <= 30 * 24 * 60 * 60 * 1000 : false;
@@ -474,7 +474,7 @@ const OrderDetailRec = () => {
                 }
 
                 return null;
-            })()}
+            })()} */}
 
             {/* Modal Handler Form (Distributor: Return Reason) */}
             <Modal
@@ -740,9 +740,9 @@ const OrderDetailRec = () => {
                                 <div className="grid grid-cols-3 gap-2">
                                     {(
                                         [
-                                            { label: 'Accept', value: 'accepted' },
-                                            { label: 'packed', value: 'packed' },
-                                            { label: 'dispatched', value: 'dispatched' },
+                                            // { label: 'Accept', value: 'accepted' },
+                                            // { label: 'packed', value: 'packed' },
+                                            // { label: 'dispatched', value: 'dispatched' },
                                             { label: 'delivered', value: 'delivered' },
                                             { label: 'cancelled', value: 'cancelled' }
                                         ] as const

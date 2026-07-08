@@ -73,7 +73,7 @@ const Badge: React.FC<BadgeProps> = ({
     },
     outline: {
       primary: "border-500 text-white dark:text-white",
-      success: "border-success-500 text-white dark:text-white",
+      success: "bg-success-200 text-dark dark:text-white",
       error: "bg-error-500 text-white dark:text-white",
       warning: "bg-warning-500 text-white dark:text-white",
       info: "bg-blue-light-500 text-white dark:text-white",

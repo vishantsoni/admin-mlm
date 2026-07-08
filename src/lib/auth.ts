@@ -40,6 +40,7 @@ export interface User {
   is_active?: boolean;
   is_kyc_completed?: boolean;
   transaction_pin_hash?: string;
+  gstin?: string;
 }
 
 // export const fakeUsers: Record<string, User> = {

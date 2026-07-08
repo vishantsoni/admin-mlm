@@ -169,12 +169,6 @@ const AllProducts = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 lg:p-8 mb-20 md:mb-4">
             {/* Header Area */}
 
-
-
-
-
-
-
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <button
@@ -204,6 +198,7 @@ const AllProducts = () => {
                     // Priority: Selected Variant Price > Base Price
                     const variantPrice = variant ? Number(variant.price) : 0;
                     const displayPrice = (variant && variantPrice >= 0) ? variantPrice : pro.product.base_price;
+                    const mrp_price = (variant && variantPrice >= 0) ? variantPrice : pro.product.unit_price;
                     console.log('DISPLAY PRICE - Product:', pro.product.name, 'Variant:', variant?.sku, 'Variant price:', variantPrice, 'Display:', displayPrice);
                     const stock = variant ? variant.stock : 100; // Default or unlimited
                     const currency = getCurrencyIcon('INR');
@@ -217,6 +212,19 @@ const AllProducts = () => {
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
                                 )}
+
+                                {/* Rating */}
+                                <Badge variant="outline" color="success" className="absolute top-2 left-2 p-0 m-0">
+                                    <Badge variant="solid" color="success" className=" me-3">
+                                        {pro.product?.average_rating ?? 0} <span className="ml-1 ">★</span>
+                                    </Badge>
+                                    {pro.product?.total_reviews ?? 0} <span className="ml-1 text-xs">Reviews</span>
+                                </Badge>
+                                {mrp_price > displayPrice &&
+                                    <Badge variant="solid" color="primary" className="absolute top-2 right-2 text-md">
+                                        {formattedAmount(((mrp_price - displayPrice) * 100) / mrp_price)} <span className="ml-1 text-md">%</span>
+                                    </Badge>
+                                }
                             </div>
 
                             {/* Info Box */}
@@ -236,6 +244,11 @@ const AllProducts = () => {
                                             <span className="text-2xl font-black text-gray-900 dark:text-white">
                                                 {currency}{formattedAmount(displayPrice)}
                                             </span>
+                                            {mrp_price > displayPrice && (
+                                                <span className="text-md text-gray-500 line-through">
+                                                    {currency}{formattedAmount(mrp_price)}
+                                                </span>
+                                            )}
                                         </div>
                                         {variant && <span className="text-[10px] text-gray-500 font-mono">SKU: {variant.sku.trim()}</span>}
                                         <span className="text-[10px] text-gray-900 dark:text-white">HSN Code - {pro.product.hsn_code ?? 'N/A'}</span>
@@ -269,28 +282,9 @@ const AllProducts = () => {
                                 {/* Cart Button */}
                                 <div className="mt-auto">
 
-
-                                    {/* <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2 rounded-xl border border-gray-100 dark:border-gray-600 mb-4">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase ml-2">Qty</span>
-                                        <div className="flex items-center gap-3">
-                                            <button
-                                                onClick={() => handleQtyChange(proId, -1)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 transition-colors"
-                                            >
-                                                -
-                                            </button>
-                                            <span className="text-sm font-bold w-4 text-center">{qty}</span>
-                                            <button
-                                                onClick={() => handleQtyChange(proId, 1)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 transition-colors"
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                    </div> */}
                                     {/* Quantity Input Section */}
                                     <div className="flex flex-col gap-1.5 mb-4">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Quantity</span>
+                                        {/* <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Quantity</span> */}
                                         <div className="flex items-center bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden">
                                             {/* Decrease Button */}
                                             <button

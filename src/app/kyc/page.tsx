@@ -27,6 +27,7 @@ const KYCPage = () => {
     pan: null as File | null,
     bankPassbook: null as File | null,
     profileImage: null as File | null,
+    gstin: null as File | null,
   });
   const [uploadedFiles, setUploadedFiles] = useState<{ type: string, url: string }[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -38,6 +39,7 @@ const KYCPage = () => {
     pan: useRef<HTMLInputElement>(null),
     bankPassbook: useRef<HTMLInputElement>(null),
     profileImage: useRef<HTMLInputElement>(null),
+    gstin: useRef<HTMLInputElement>(null),
   }).current;
   const xhrRef = useRef<XMLHttpRequest | null>(null);
   const router = useRouter();
@@ -148,6 +150,7 @@ const KYCPage = () => {
       if (files.aadhaarBack) formDataToSend.append('Aadhaar_Back', files.aadhaarBack);
       if (files.bankPassbook) formDataToSend.append('passbook', files.bankPassbook);
       if (files.profileImage) formDataToSend.append('profile', files.profileImage);
+      if (files.gstin) formDataToSend.append('gstin', files.gstin);
 
       const xhr = new XMLHttpRequest();
       xhrRef.current = xhr;
@@ -357,9 +360,15 @@ const KYCPage = () => {
                   { key: 'aadhaarBack' as const, label: 'Aadhaar Back Side', required: true },
                   { key: 'pan' as const, label: 'PAN Card', required: true },
                   { key: 'bankPassbook' as const, label: 'Bank Passbook / Cheque', required: true },
-                  { key: 'profileImage' as const, label: 'Profile Photo', required: false }
-                ].map(({ key, label, required }) => (
-                  <div key={key} className="space-y-2">
+                  { key: 'profileImage' as const, label: 'Profile Photo', required: false },
+                  { key: 'gstin' as const, label: 'GST Certificate', required: false }
+                ].map(({ key, label, required }) => {
+
+                  if (key === 'gstin' && (tempUser.gstin === null || tempUser.gstin === undefined || tempUser.gstin === '')) {
+                    return null; // Skip GSTIN if not provided
+                  }
+
+                  return <div key={key} className="space-y-2">
                     <Label>{label} {required && <span className="text-error-500">*</span>}</Label>
                     <div className="relative">
                       <input
@@ -413,7 +422,9 @@ const KYCPage = () => {
                       </div>
                     )}
                   </div>
-                ))}
+                }
+
+                )}
               </div>
               : <>
                 <p>Your document has been uploaded. Please submit for review</p>
