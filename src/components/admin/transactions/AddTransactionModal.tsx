@@ -10,7 +10,7 @@ import serverCallFuction from '@/lib/constantFunction';
 import type { ChangeEvent } from 'react';
 
 type TxType = 'credit' | 'debit';
-type DeductionFrom = 'total_amount' | 'company_fund';
+type DeductionFrom = 'total_amount' | 'company_fund' | 'withdrawable_amount';
 
 type AddTransactionPayload = {
     user_id: number;
@@ -22,7 +22,7 @@ type AddTransactionPayload = {
     status?: 'completed' | 'pending' | 'mature';
 };
 
-const DEFAULT_CATEGORIES = ['Commission', 'Withdrawal', 'Bonus', 'Other'];
+const DEFAULT_CATEGORIES = ['Commission', 'Withdraw', 'Bonus', 'Other'];
 
 export default function AddTransactionModal({
     isOpen,
@@ -101,19 +101,21 @@ export default function AddTransactionModal({
         setError('');
         try {
             const res = await serverCallFuction('POST', 'api/transactions/add-transaction', payload);
-            const success = (res as { success?: boolean })?.success;
+            console.log('Add Transaction Response:', res);
+            const success = (res as { status?: boolean })?.status;
 
             if (success === false) {
                 setError((res as { message?: string })?.message || 'Failed to add transaction');
                 return;
-            }
+            } else {
 
-            onClose();
-            onSuccess();
+                onClose();
+                onSuccess();
+            }
         } catch (e: unknown) {
             setError((e as Error)?.message || 'Network error while adding transaction');
         } finally {
-            setSubmitLoading(false);
+            // setSubmitLoading(false);
         }
     };
 
@@ -146,7 +148,7 @@ export default function AddTransactionModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {/* User ID Input Field Block */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 span-1 md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             User ID
                         </label>
@@ -160,7 +162,7 @@ export default function AddTransactionModal({
                     </div>
 
                     {/* Deduct From Active Interactive Block */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 span-1 md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Deduct From
                         </label>
@@ -184,6 +186,16 @@ export default function AddTransactionModal({
                                     }`}
                             >
                                 Company Fund
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setDeductionFrom('withdrawable_amount')}
+                                className={`flex-1 h-11 px-4 text-sm font-medium rounded-xl border transition-all ${deductionFrom === 'withdrawable_amount'
+                                    ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900'
+                                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                                    }`}
+                            >
+                                Withdraw Fund
                             </button>
                         </div>
                     </div>
