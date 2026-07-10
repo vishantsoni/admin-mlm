@@ -203,8 +203,9 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
   }, []);
 
   const walletTotalAmount = (() => {
-    const first = Array.isArray(walletData) ? walletData[0] : null;
-    const raw = (first as any)?.total_amount ?? (first as any)?.wallet_total_amount ?? (first as any)?.balance ?? 0;
+    // const first = Array.isArray(walletData) ? walletData : null;
+    console.log("withdrawable_amount - ", walletData.withdrawable_amount)
+    const raw = walletData.withdrawable_amount
     const n = typeof raw === 'number' ? raw : Number(raw);
     return Number.isFinite(n) ? n : 0;
   })();
@@ -590,7 +591,7 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                   >
                     <RadioGroupItem value="wallet" id="pay-wallet" className="h-5 w-5" name="paymentMethod" checked={paymentMethod === "wallet"} />
                     <Label htmlFor="pay-wallet" className="cursor-pointer">
-                      Wallet (Available: {currency}{walletTotalAmount})
+                      Wallet (Withdrawable Available: {currency}{walletTotalAmount})
                     </Label>
                   </div>
                 </RadioGroup>

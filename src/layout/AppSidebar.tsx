@@ -1,6 +1,9 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import Badge from "../components/ui/badge/Badge";
+import serverCallFuction from "../lib/constantFunction";
+import type { OrdersApiResponse, Order } from "../types/orders";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
@@ -351,6 +354,26 @@ const AppSidebar: React.FC = () => {
   const { user, hasPermission } = useAuth();
   const pathname = usePathname();
 
+  const [newOrderCount, setNewOrderCount] = useState<number>(0);
+
+  useEffect(() => {
+    // Best-effort badge count; if API fails we just keep 0
+    const fetchNewOrders = async () => {
+      try {
+        const query = new URLSearchParams({ page: "1", limit: "10", filter: "all" }).toString();
+        const res = (await serverCallFuction('GET', `api/orders?${query}`)) as unknown as OrdersApiResponse;
+        if (res?.success !== false && res?.data && Array.isArray(res.data)) {
+          const pending = res.data.filter((o) => o?.order_status === 'pending').length;
+          setNewOrderCount(pending);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    fetchNewOrders();
+  }, [user?.id]);
+
   // const navItems = allNavItems.filter(item =>
   //   !item.permission || hasPermission(item.permission)
   // );
@@ -432,9 +455,14 @@ const AppSidebar: React.FC = () => {
                 >
                   {nav.icon}
                 </span>
-                {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className={`menu-item-text`}>{nav.name}</span>
-                )}
+                <span className="flex items-center gap-2">
+                  {(isExpanded || isHovered || isMobileOpen) && (
+                    <span className={`menu-item-text`}>{nav.name}</span>
+                  )}
+                  {nav.permission === 'orders' && newOrderCount > 0 && (isExpanded || isHovered || isMobileOpen) && (
+                    <Badge className="menu-dropdown-badge-active ml-auto">{newOrderCount} New</Badge>
+                  )}
+                </span>
               </Link>
             )
           )}
@@ -509,29 +537,32 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     // Check if the current path matches any submenu item
-    let submenuMatched = false;
+    let matched: { type: "main" | "others"; index: number } | null = null;
+
     ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : []; //othersItems
+      const items = menuType === "main" ? navItems : [];
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
-              setOpenSubmenu({
+            if (isActive(subItem.path) && !matched) {
+              matched = {
                 type: menuType as "main" | "others",
                 index,
-              });
-              submenuMatched = true;
+              };
             }
           });
         }
       });
     });
 
-    // If no submenu item matches, close the open submenu
-    if (!submenuMatched) {
-      setOpenSubmenu(null);
-    }
-  }, [pathname, isActive]);
+    setOpenSubmenu((prev) => {
+      const nextKey = matched ? `${matched.type}-${matched.index}` : null;
+      const prevKey = prev ? `${prev.type}-${prev.index}` : null;
+      return nextKey === prevKey ? prev : matched;
+    });
+  }, [pathname, isActive, navItems]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // Set the height of the submenu items when the submenu is opened
