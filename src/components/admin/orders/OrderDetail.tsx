@@ -42,6 +42,8 @@ const OrderDetail = () => {
     const [returnAction, setReturnAction] = useState<'approve' | 'reject' | null>(null);
     const [adminRemarks, setAdminRemarks] = useState('');
     const [refundAmount, setRefundAmount] = useState<string>('');
+    const [transactionId, setTransactionId] = useState<string>('');
+
 
     // Distributor: Return request reason modal
     const [showRequestReturnModal, setShowRequestReturnModal] = useState(false);
@@ -262,13 +264,24 @@ const OrderDetail = () => {
             return;
         }
 
+        if (!transactionId.trim()) {
+            setActionError('Transaction ID is required for wallet refund settlement');
+            return;
+        }
+
         try {
             setActionLoading(true);
             setActionError('');
 
+            const trimmedTxn = transactionId.trim();
+            const remark = trimmedTxn
+                ? `Wallet calculation credit applied automatically | txn: ${trimmedTxn}`
+                : 'Wallet calculation credit applied automatically';
+
             const res = await serverCallFuction('POST', `api/orders/returns/${activeReturn.id}/refund`, {
-                admin_remarks: 'Wallet calculation credit applied automatically'
+                admin_remarks: remark
             });
+
 
             if ((res as any)?.status !== false) {
                 await fetchOrder();
@@ -387,11 +400,19 @@ const OrderDetail = () => {
                                 (Refund amount: ₹{activeReturn.refund_amount})
                             </CardDescription>
                         </div>
-                        <Button variant="primary" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white"
-                            disabled={actionLoading || order.payment_status !== 'paid'} onClick={handleWalletRefund}>
-                            {actionLoading ? 'Crediting Wallet...' : 'Release Refund to Wallet'}
-                        </Button>
+                        <div className="flex gap-2 items-center">
+                            <Input
+                                placeholder="Enter transaction id | utr no"
+                                value={transactionId}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTransactionId(e.target.value)}
+                            />
+                            <Button variant="primary" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white"
+                                disabled={actionLoading || order.payment_status !== 'paid'} onClick={handleWalletRefund}>
+                                {actionLoading ? 'Crediting Wallet...' : 'Release Refund to Wallet'}
+                            </Button>
+                        </div>
                     </div>
+
                 </div>
             )}
 

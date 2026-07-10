@@ -18,7 +18,7 @@ const QuickActionDash = () => {
             {/* Quick Actions Card */}
             <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                     <Button
                         variant="outline"
                         onClick={redirection("/members/add")}
