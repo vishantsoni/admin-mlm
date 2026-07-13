@@ -110,14 +110,16 @@ export const rolePermissions: Record<string, string[]> = {
     'ranks',
     'notifications',
     'cms',
-    'static-content',
+    
     'state-city',
     'team-member',
-    'banners',
+    
     'wallet',
     // 'withdrawals',
     'withdrawal-requests',
+    'blogs',
     'blog',
+    'blog-categories',
     'support',
     'support-tickets'
   ],

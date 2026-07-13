@@ -200,7 +200,7 @@ const AllProducts = () => {
                     const displayPrice = (variant && variantPrice >= 0) ? variantPrice : pro.product.base_price;
                     const mrp_price = (variant && variantPrice >= 0) ? variantPrice : pro.product.unit_price;
                     console.log('DISPLAY PRICE - Product:', pro.product.name, 'Variant:', variant?.sku, 'Variant price:', variantPrice, 'Display:', displayPrice);
-                    const stock = variant ? variant.stock : 100; // Default or unlimited
+                    const stock = variant ? variant.stock : pro.total_stock; // Default or unlimited
                     const currency = getCurrencyIcon('INR');
                     const qty = quantities[proId] || 1;
                     return (
@@ -253,11 +253,14 @@ const AllProducts = () => {
                                         {variant && <span className="text-[10px] text-gray-500 font-mono">SKU: {variant.sku.trim()}</span>}
                                         <span className="text-[10px] text-gray-900 dark:text-white">HSN Code - {pro.product.hsn_code ?? 'N/A'}</span>
                                     </div>
+                                    <Badge variant="solid" color={stock > 0 ? 'success' : 'error'} className=" me-3" size="sm">
+                                        STOCK : {stock > 0 ? stock : 'Out of Stock'}
+                                    </Badge>
 
 
                                     {/* Attributes Loop */}
                                     {hasAttributes && pro.product_attributes?.map((attr) => (
-                                        <div key={attr.id} className="space-y-1.5">
+                                        <div key={attr.id} className="space-y-1">
                                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{attr.name}</span>
                                             <div className="flex flex-wrap gap-1.5">
                                                 {attr.values.map((val) => {
@@ -300,7 +303,20 @@ const AllProducts = () => {
                                                 type="number"
                                                 min="1"
                                                 value={quantities[proId] || 1}
-                                                onChange={(e) => updateQty(proId, e.target.value)}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    // Allow only digits and empty string
+                                                    if (/^\d*$/.test(value)) {
+                                                        if (parseInt(value) <= stock) {
+                                                            updateQty(proId, value);
+                                                        } else {
+                                                            updateQty(proId, stock);
+                                                        }
+                                                    }
+
+
+                                                    // updateQty(proId, e.target.value)
+                                                }}
                                                 className="flex-1 w-full bg-transparent text-center text-sm font-bold text-gray-800 dark:text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             />
 

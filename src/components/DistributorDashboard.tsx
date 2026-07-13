@@ -86,7 +86,7 @@ export const DistributorDashboard = ({ data, loading }: DistributorDashboardProp
                             Total Balance
                         </span>
                         <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                            ₹{formatAmount(data?.wallet?.total_balance)}
+                            {formatAmount(data?.wallet?.total_balance)} UV
                         </h4>
                     </div>
                 </div>
@@ -100,7 +100,7 @@ export const DistributorDashboard = ({ data, loading }: DistributorDashboardProp
                             Pending Balance
                         </span>
                         <h4 className="mt-2 font-bold text-warning-800 text-title-sm dark:text-white/90">
-                            ₹{formatAmount(data?.wallet?.pending_balance)}
+                            {formatAmount(data?.wallet?.pending_balance)} UV
                         </h4>
                     </div>
                 </div>
@@ -114,7 +114,7 @@ export const DistributorDashboard = ({ data, loading }: DistributorDashboardProp
                             Available Balance
                         </span>
                         <h4 className="mt-2 font-bold text-success-800 text-title-sm dark:text-white/90">
-                            ₹{formatAmount(data?.wallet?.available_balance)}
+                            {formatAmount(data?.wallet?.available_balance)} UV
                         </h4>
                     </div>
                 </div>

@@ -746,7 +746,13 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           id="country"
                           name="country"
                           value={addAddressForm.country}
-                          onChange={(e) => setAddAddressForm((prev) => ({ ...prev, country: e.target.value }))}
+                          // onChange={(e) => setAddAddressForm((prev) => ({ ...prev, country: e.target.value }))}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^[a-zA-Z\s]+$/.test(value)) {
+                              setAddAddressForm({ ...addAddressForm, country: value });
+                            }
+                          }}
                           placeholder="India"
                         />
                       </div>
@@ -756,8 +762,14 @@ const CheckoutForm: React.FC<CartCheckoutProps> = ({ cartItems, totalAmount, use
                           id="pincode"
                           name="pincode"
                           value={addAddressForm.pincode}
-                          onChange={(e) => setAddAddressForm((prev) => ({ ...prev, pincode: e.target.value }))}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const val = value.replace(/\D/g, '');
+                            setAddAddressForm({ ...addAddressForm, pincode: val });
+                          }}
+                          // onChange={(e) => setAddAddressForm((prev) => ({ ...prev, pincode: e.target.value }))}
                           required
+                          maxLength={6}
                         />
                       </div>
                     </div>

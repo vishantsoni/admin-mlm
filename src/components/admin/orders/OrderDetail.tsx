@@ -275,8 +275,8 @@ const OrderDetail = () => {
 
             const trimmedTxn = transactionId.trim();
             const remark = trimmedTxn
-                ? `Wallet calculation credit applied automatically | txn: ${trimmedTxn}`
-                : 'Wallet calculation credit applied automatically';
+                ? `Refund credited to bank account | txn: ${trimmedTxn}`
+                : 'Refund credited to bank account.';
 
             const res = await serverCallFuction('POST', `api/orders/returns/${activeReturn.id}/refund`, {
                 admin_remarks: remark
@@ -396,7 +396,7 @@ const OrderDetail = () => {
                                 <Wallet className="h-5 w-5" /> Step 3: Pending Balance Settlement
                             </CardTitle>
                             <CardDescription className="dark:text-gray-300">
-                                Inventory restored successfully. Dispatch currency distribution back to the context profile ledger wallet.
+                                Inventory restored successfully. Dispatch currency distribution back to the context profile ledger bank account.
                                 (Refund amount: ₹{activeReturn.refund_amount})
                             </CardDescription>
                         </div>
